@@ -1,0 +1,35 @@
+﻿<TabItem x:Class="DrawingBoxes.ScriptTabItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DrawingBoxes"
+             mc:Ignorable="d" 
+             >
+    <TabItem.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="Close tab" Name="closeTabMenuItem"/>
+        </ContextMenu>
+    </TabItem.ContextMenu>
+    <Grid xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <avalonEdit:TextEditor
+                    Name="avEditor"
+                    Background="White"
+                    Foreground="Black"
+                    LineNumbersForeground="Black"
+                    SyntaxHighlighting="C#" FontFamily="Consolas" FontSize="14">
+            <!--DataContext="{Binding DocumentRoot}"
+                    Document="{Binding Document, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                    IsModified="{Binding Path=IsDirty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    IsReadOnly="{Binding IsReadOnly, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"-->
+
+        </avalonEdit:TextEditor>
+        
+        <!--<TextBox x:Name="scriptTextBox" TextWrapping="Wrap"  AcceptsReturn="True"
+                    FontSize="12" FontFamily="Consolas"></TextBox>-->
+    </Grid>
+</TabItem>

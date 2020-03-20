@@ -1,0 +1,43 @@
+﻿<Window x:Class="DrawingBoxes.EditStringDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DrawingBoxes"
+        mc:Ignorable="d"
+        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+        Title="Enter text" Height="117.724" Width="613" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="119"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Height="auto" Width="auto" Margin="12,12,12,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <Grid.Resources>
+                <Style TargetType="{x:Type Label}">
+                    <Setter Property="Margin" Value="0,-3,0,0"/>
+                </Style>
+            </Grid.Resources>
+            <Label x:Name="mainLabel" Grid.Row="0" Grid.Column="0" Content="Text" VerticalAlignment="Top" HorizontalAlignment="Right" />
+            <TextBox x:Name="mainTextBox" Grid.Row="0" Grid.Column="1" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
+        </Grid>
+        <StackPanel Grid.Column="1" Height="auto" Orientation="Vertical" Margin="12,12,12,12">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="0,0,0,10"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button x:Name="okButton" Content="OK" HorizontalAlignment="Left"  Width="95" IsDefault="true" />
+            <Button x:Name="cancelButton" Content="Cancel" HorizontalAlignment="Left"  Width="95" IsCancel="True"  />
+        </StackPanel>
+
+
+    </Grid>
+</Window>

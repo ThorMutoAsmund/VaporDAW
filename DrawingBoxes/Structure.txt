@@ -1,0 +1,16 @@
+﻿Song (has MixerScript)
+- Track (Has TrackScript)
+- Track
+- Track
+  - Part (has time and length, and PartScript which executes generators sequentially)
+  - Part
+  - Part
+    - Generator (has a real script that generates an artifial sound or reads a sample, processs text to create midi etc., creates sound from an image etc)
+	- Generator
+	- Generator
+	  - Input (has a tag, which it is referenced by e.g. AUDIOIN, SYNC, MODULATE or used to control parameters AMPLITUDE, FREQUENCY)
+	  - Input
+	  - Input
+	  - Output (has a tag, which it is referenced by e.g. AUDIOOUT)
+	  - Output
+	  - Output
