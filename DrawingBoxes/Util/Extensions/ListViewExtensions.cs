@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace DrawingBoxes
+namespace VaporDAW
 {
     public static class ListViewExtensions
     {

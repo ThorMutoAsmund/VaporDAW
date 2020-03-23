@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace DrawingBoxes
+namespace VaporDAW
 {
     public enum InputOutputType
     {
@@ -35,12 +35,14 @@ namespace DrawingBoxes
     {
         [JsonProperty] public string Id { get; set; }
         [JsonProperty] public string FileName { get; set; }
+        public string Name => Path.GetFileNameWithoutExtension(this.FileName);
     }
 
     public class SampleRef
     {
         [JsonProperty] public string Id { get; set; }
         [JsonProperty] public string FileName { get; set; }
+        public string Name => Path.GetFileNameWithoutExtension(this.FileName);
     }
 
     public class Part
@@ -58,6 +60,7 @@ namespace DrawingBoxes
     {
         [JsonProperty] public string Id { get; set; }
         [JsonProperty] public string ScriptId { get; set; }
+        [JsonProperty] public string Title { get; set; }
     }
 
     public class Song
@@ -74,13 +77,17 @@ namespace DrawingBoxes
         [JsonProperty] public double SampleFrequency { get; set; }
         [JsonProperty] public double SongLength { get; set; }
 
-        [JsonIgnore] public List<ScriptRef> ScriptRefs => this.Scripts;
-        [JsonIgnore] public List<SampleRef> SampleRefs => this.Samples;
+        //[JsonIgnore] public List<ScriptRef> ScriptRefs => this.Scripts;
+        //[JsonIgnore] public List<SampleRef> SampleRefs => this.Samples;
         [JsonIgnore] public bool ChangesMade { get; private set; } = false;
 
         public static event Action<bool> ProjectLoaded;
 
         public static event Action<ScriptRef> RequestEditScript;
+
+        public static event Action<Track> TrackChanged;
+
+        public static event Action<Part> PartChanged;
 
         private string projectPath;
         [JsonIgnore] public string ProjectFilePath => Path.Combine(this.projectPath, $"{Env.ProjectFileName}.json");
@@ -96,7 +103,7 @@ namespace DrawingBoxes
             }
             else
             {
-                CreateNew(projectPath, "Autocreated song", 10, 44100d, 120d);
+                CreateNew(projectPath, "Autocreated song", 4, 44100d, 120d);
             }
         }
 
@@ -129,6 +136,7 @@ namespace DrawingBoxes
                 Env.Song.Tracks.Add(new Track()
                 {
                     Id = Base64.UUID(),
+                    Title = $"Track{t+1}",
                     ScriptId = trackScriptRef.Id
                 });
             }
@@ -171,7 +179,7 @@ namespace DrawingBoxes
 
         public Processor CreateProcessor(string scriptId, string id)
         {
-            var scriptRef = this.ScriptRefs.FirstOrDefault(s => s.Id == scriptId);
+            var scriptRef = GetScript(scriptId);
 
             if (scriptRef == null)
             {
@@ -246,7 +254,7 @@ namespace DrawingBoxes
             Song.ProjectLoaded?.Invoke(false);
         }
 
-        public Part AddPart(System.Windows.Point p, string name = null)
+        public Part AddPart(System.Windows.Point p, string title = null)
         {
             var start = p.X * Env.CanvasTimePerPixel + Env.CanvasStartTime;
             var trackNo = (int)(p.Y / Env.TrackHeight);
@@ -260,7 +268,7 @@ namespace DrawingBoxes
                 ScriptId = partScriptRef.Id,
                 Start = start,
                 Length = length,
-                Title = name ?? Env.DefaultPartTitle,
+                Title = title ?? Env.DefaultPartTitle,
                 Generators = new List<Generator>()
             };
 
@@ -374,7 +382,7 @@ namespace DrawingBoxes
 
         public SampleRef FindSample(string sampleName)
         {
-            var sampleRef = this.SampleRefs.FirstOrDefault(sr => sr.FileName == sampleName);
+            var sampleRef = this.Samples.FirstOrDefault(sr => sr.FileName == sampleName);
             if (sampleRef == null)
             {
                 sampleRef = new SampleRef()
@@ -484,6 +492,28 @@ namespace DrawingBoxes
             }
 
             return string.Empty;
+        }
+
+        public void OnTrackChanged(Track track)
+        {
+            Song.TrackChanged?.Invoke(track);
+            this.ChangesMade = true;
+        }
+
+        public void OnPartChanged(Part part)
+        {
+            Song.PartChanged?.Invoke(part);
+            this.ChangesMade = true;
+        }
+
+        public ScriptRef GetScript(string id)
+        {
+            return this.Scripts.FirstOrDefault(s => s.Id == id);
+        }
+
+        public SampleRef GetSample(string id)
+        {
+            return this.Samples.FirstOrDefault(s => s.Id == id);
         }
     }
 

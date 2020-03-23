@@ -6,7 +6,7 @@ using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 
-namespace DrawingBoxes
+namespace VaporDAW
 {
     /// <summary>
     /// Interaction logic for ScriptTabItem.xaml

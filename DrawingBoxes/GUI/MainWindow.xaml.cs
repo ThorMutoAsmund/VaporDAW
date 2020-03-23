@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace DrawingBoxes
+namespace VaporDAW
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -26,7 +26,7 @@ namespace DrawingBoxes
             Env.CanvasTimePerPixel = 0.01d;
 
             Env.MainWindow = this;
-            Env.Canvas = this.canvas;
+            //Env.Canvas = this.canvas;
 
             this.Closing += (sender, e) => e.Cancel = !Env.ConfirmChangesMade();
 
@@ -62,7 +62,7 @@ namespace DrawingBoxes
 
                     SetTitle();
 
-                    RedrawCanvas();
+                    RedrawSong();
                 }
                 else
                 {
@@ -72,7 +72,7 @@ namespace DrawingBoxes
                     this.toolsMenu.IsEnabled = true;
                     SetTitle(Env.Song.SongName);
 
-                    RedrawCanvas();
+                    RedrawSong();
                 }
             };
 
@@ -85,7 +85,7 @@ namespace DrawingBoxes
                 }
             };
 
-            this.addPartMenuItem.Click += (sender, e) => AddPart(this.contextMousePosition);
+            //this.addPartMenuItem.Click += (sender, e) => AddPart(this.contextMousePosition);
 
             bool isActivated = false;
             this.Activated += (sender, e) =>
@@ -136,30 +136,43 @@ namespace DrawingBoxes
         }
 
 
-        private void RedrawCanvas()
+        private void RedrawSong()
         {
             this.canvas.Children.Clear();
 
-            if (Env.Song == null)
+            foreach (var track in Env.Song.Tracks)
             {
-                return;
+                var trackControl = TrackControl.Create(this.canvas, track);
+
+                trackControl.Selected += () =>
+                {
+                    foreach (var otherControl in this.canvas.Children.WhereIs<TrackControl>().Where(c => c != trackControl))
+                    {
+                        otherControl.IsSelected = false;
+                    }
+                };
             }
 
-            var bkg = new EditorBackgroundShape();
-   
-            bkg.SetBinding(FrameworkElement.WidthProperty, new Binding("ActualWidth") { ElementName = "canvas" });
-            bkg.SetBinding(FrameworkElement.HeightProperty, new Binding("ActualHeight") { ElementName = "canvas" });
+            //if (Env.Song == null)
+            //{
+            //    return;
+            //}
 
-            this.canvas.Children.Add(bkg);
-            Canvas.SetLeft(bkg, 0);
-            Canvas.SetTop(bkg, 0);
+            //var bkg = new EditorBackgroundShape();
 
-            foreach (var part in Env.Song.Parts)
-            {
-                PartShape.Create(this.canvas, part);
-            }
+            //bkg.SetBinding(FrameworkElement.WidthProperty, new Binding("ActualWidth") { ElementName = "canvas" });
+            //bkg.SetBinding(FrameworkElement.HeightProperty, new Binding("ActualHeight") { ElementName = "canvas" });
+
+            //this.canvas.Children.Add(bkg);
+            //Canvas.SetLeft(bkg, 0);
+            //Canvas.SetTop(bkg, 0);
+
+            //foreach (var part in Env.Song.Parts)
+            //{
+            //    PartShape.Create(this.canvas, part);
+            //}
         }
-        
+
         private void OnNew(object sender, ExecutedRoutedEventArgs e) => NewProject();
         private void OnOpen(object sender, ExecutedRoutedEventArgs e) => OpenProject();
         private void OnClose(object sender, ExecutedRoutedEventArgs e) => CloseProject();
@@ -303,8 +316,8 @@ namespace DrawingBoxes
                 return;
             }
 
-            var part = Env.Song.AddPart(p);
-            PartShape.Create(this.canvas, part);
+            //var part = Env.Song.AddPart(p);
+            //PartShape.Create(this.canvas, part);
         }
 
         private void OpenScriptTab(ScriptRef script)
@@ -401,7 +414,7 @@ namespace DrawingBoxes
                 var sampleName = e.Data.GetData("sample") as string;
 
                 var part = Env.Song.AddPart(e.GetPosition(Env.Canvas), sampleName);
-                PartShape.Create(this.canvas, part);
+                //PartShape.Create(this.canvas, part);
                 Env.Song.AddSampleToPart(part, sampleName);
             }
             else if (e.Data.GetDataPresent("script"))
@@ -409,7 +422,7 @@ namespace DrawingBoxes
                 var scriptName = e.Data.GetData("script") as string;
 
                 var part = Env.Song.AddPart(e.GetPosition(Env.Canvas), scriptName);
-                PartShape.Create(this.canvas, part);
+                //PartShape.Create(this.canvas, part);
                 Env.Song.AddScriptToPart(part, scriptName);                
             }
         }

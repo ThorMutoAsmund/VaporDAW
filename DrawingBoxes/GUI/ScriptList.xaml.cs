@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Shapes;
 
-namespace DrawingBoxes
+namespace VaporDAW
 {
     /// <summary>
     /// Interaction logic for SampleList.xaml
@@ -37,7 +37,7 @@ namespace DrawingBoxes
 
             if (e.ClickCount == 2)
             {
-                var fileName = (sender as Grid).DataContext as string;
+                var fileName = (sender as TextBlock).Text;
                 Env.Song.EditScript(fileName);
             }
         }

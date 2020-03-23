@@ -5,11 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
-namespace DrawingBoxes
+namespace VaporDAW
 {
     public static class ItemCollectionExtensions
     {
         public static IEnumerable<T> WhereIs<T>(this ItemCollection collection)
+        {
+            return collection.Cast<object>().Where(i => i is T).Cast<T>();
+        }
+    }
+    public static class UIElementCollectionExtensions
+    {
+        public static IEnumerable<T> WhereIs<T>(this UIElementCollection collection)
         {
             return collection.Cast<object>().Where(i => i is T).Cast<T>();
         }

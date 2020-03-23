@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{5595DD0C-A031-4DDA-9FFC-CC127E1F0FA5}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>DrawingBoxes</RootNamespace>
-    <AssemblyName>DrawingBoxes</AssemblyName>
+    <RootNamespace>VaporDAW</RootNamespace>
+    <AssemblyName>VaporDAW</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -62,6 +62,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\ScriptSelectControl.xaml.cs">
+      <DependentUpon>ScriptSelectControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TrackControl.xaml.cs">
+      <DependentUpon>TrackControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\SelectScriptDialog.xaml.cs">
+      <DependentUpon>SelectScriptDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\EditTrackDialog.xaml.cs">
+      <DependentUpon>EditTrackDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Templates\EmptyScript.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
@@ -99,9 +111,9 @@
     <Compile Include="Env.cs" />
     <Compile Include="Util\Dialogs.cs" />
     <Compile Include="Util\Enums.cs" />
-    <Compile Include="Util\ListViewExtensions.cs" />
-    <Compile Include="Util\ItemCollectionExtensions.cs" />
-    <Compile Include="Util\MathExtensions.cs" />
+    <Compile Include="Util\Extensions\ListViewExtensions.cs" />
+    <Compile Include="Util\Extensions\ItemCollectionExtensions.cs" />
+    <Compile Include="Util\Extensions\MathExtensions.cs" />
     <Compile Include="GUI\NewProjectDialog.xaml.cs">
       <DependentUpon>NewProjectDialog.xaml</DependentUpon>
     </Compile>
@@ -109,10 +121,26 @@
     <Compile Include="Shapes\EditorBackgroundShape.cs" />
     <Compile Include="Song\SongSerializer.cs" />
     <Compile Include="Util\NamePath.cs" />
-    <Compile Include="Util\StringExtensions.cs" />
+    <Compile Include="Util\Extensions\StringExtensions.cs" />
     <Compile Include="Util\Watchers.cs" />
-    <Compile Include="Util\WpfExtensions.cs" />
+    <Compile Include="Util\Extensions\WpfExtensions.cs" />
     <Resource Include="Structure.txt" />
+    <Page Include="Controls\ScriptSelectControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TrackControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\SelectScriptDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="GUI\EditTrackDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="GUI\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace DrawingBoxes
+namespace VaporDAW
 {
     /// <summary>
     /// Interaction logic for EditStringDialog.xaml
@@ -36,6 +36,7 @@ namespace DrawingBoxes
             InitializeComponent();
 
             this.okButton.Click += (_, __) => this.DialogResult = true;
+            this.mainTextBox.Focus();
         }
 
         public static EditStringDialog Create(Window owner, string windowTitle = "Enter text", string label = "Text", string text = "")
