@@ -11,6 +11,7 @@ namespace VaporDAW
 {
     public static class Env
     {
+        public static event Action<double> ViewChanged;
         public static string ApplicationName { get; set; } = "Vapor DAW";
         public static string ApplicationPath => System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         public static string SamplesFolder => "Samples";
@@ -19,13 +20,11 @@ namespace VaporDAW
 
         private static string TemplateFolder => "Templates";
         public static string LastProjectPath { get; set; }
-        public static Window MainWindow { get; set; }
+        public static MainWindow MainWindow { get; set; }
 
         public static string DefaultPartTitle { get; set; } = "Untitled";
 
-        public static double CanvasStartTime { get; set; }
-
-        public static double CanvasTimePerPixel { get; set; }
+        public static decimal TimePerPixel { get; set; }
 
         //public static Conf Conf { get; set; } = new Conf()
         public static List<string> RecentFiles { get; } = new List<string>();
@@ -71,6 +70,14 @@ namespace VaporDAW
             {
             }
             return string.Empty;
+        }
+
+        public static void OnViewChanged()
+        {
+            var span = Env.Song.SongLength - (Env.MainWindow.scrollViewer.ActualWidth * (double)Env.TimePerPixel);
+            var startTime = span * Env.MainWindow.scrollViewer.HorizontalOffset / Env.MainWindow.scrollViewer.ExtentWidth;
+
+            ViewChanged?.Invoke(startTime);
         }
 
         public static string EmptyTemplateScriptName = "EmptyScript.cs";

@@ -6,8 +6,8 @@
              xmlns:local="clr-namespace:VaporDAW"
              mc:Ignorable="d" d:DesignWidth="800" Height="80"
              >
-    <Border Name="border" BorderThickness="1" Height="80" Width="auto">
-        <Canvas Name="grid" Background="#222" DragEnter="Canvas_DragEnterOver" DragOver="Canvas_DragEnterOver" Drop="Canvas_Drop" AllowDrop="True">
+    <Border Name="border" BorderThickness="0 0 0 1" Height="80" Width="auto">
+        <Canvas Name="grid" DragEnter="Canvas_DragEnterOver" DragOver="Canvas_DragEnterOver" Drop="Canvas_Drop" AllowDrop="True">
             <Canvas.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Properties..." Name="propertiesMenuItem"/>

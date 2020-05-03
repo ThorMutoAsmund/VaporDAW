@@ -80,6 +80,7 @@ namespace VaporDAW
                 ParentPanel = panel,
                 TrackHeadControl = trackHeadControl,
                 Track = track,
+                Width = Env.Song.SongLength / (double)Env.TimePerPixel
             };
             panel.Children.Add(trackControl);
             trackHeadControl.TrackControl = trackControl;
@@ -94,12 +95,10 @@ namespace VaporDAW
                 return null;
             }
 
-            Part part = Env.Song.AddPart(point, title);
+            Part part = Env.Song.AddPart(this.track, point, title);
 
             // Add control
             var partControl = PartControl.Create(this, part);
-            var left = (part.Start - Env.CanvasStartTime) / Env.CanvasTimePerPixel;
-            Canvas.SetLeft(partControl, left);
 
             return part;
         }

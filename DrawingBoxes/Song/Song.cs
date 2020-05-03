@@ -231,15 +231,14 @@ namespace VaporDAW
             return track;
         }
 
-        public Part AddPart(System.Windows.Point? point = null, string title = null)
+        public Part AddPart(Track track, System.Windows.Point? point = null, string title = null)
         {
             if (point == null)
             {
                 point = new System.Windows.Point(0d, 0d);
             }
 
-            var start = point.Value.X * Env.CanvasTimePerPixel + Env.CanvasStartTime;
-            var trackNo = (int)(point.Value.Y / Env.TrackHeight);
+            var start = point.Value.X * (double)Env.TimePerPixel;
             var length = Env.PartLength;
 
             var partScriptRef = Env.Song.FindOrAddScript(Env.DefaultPartScriptName, Env.PartTemplateScriptName);
@@ -251,12 +250,11 @@ namespace VaporDAW
                 Start = start,
                 Length = length,
                 Title = title ?? Env.DefaultPartTitle,
-                Generators = new List<Generator>()
+                Generators = new List<Generator>(),
+                TrackId = track.Id
             };
 
             this.Parts.Add(part);
-
-            part.ChangeTrack(trackNo);
 
             Song.ChangesMade = true;
 

@@ -13,12 +13,13 @@ namespace VaporDAW
     {
         public MainWindow()
         {
+            this.FontFamily = new System.Windows.Media.FontFamily("Arial");
+
             InitializeComponent();
 
             SetTitle();
 
-            Env.CanvasStartTime = 0d;
-            Env.CanvasTimePerPixel = 0.01d;
+            Env.TimePerPixel = 0.01m;
             Env.MainWindow = this;
 
             this.Closing += (sender, e) => e.Cancel = !Env.ConfirmChangesMade();
@@ -28,9 +29,18 @@ namespace VaporDAW
             this.importSamplesMenu.Click += (__, _) => ImportSamples();
             this.generateOutputMenu.Click += (__, _) => GenerateOutput();
             this.addTrackMenuItem.Click += (__, _) => AddTrack();
-
+            this.zoomInButton.Click += (__, _) => Zoom(true);
+            this.zoomOutButton.Click += (__, _) => Zoom(false);
             Song.RequestEditScript += script => OpenScriptTab(script);
             Song.ProjectLoaded += loaded => ProjectLoaded(loaded);
+
+            this.scrollViewer.ScrollChanged += (object sender, ScrollChangedEventArgs e) =>
+            {
+                if (Env.Song != null)
+                {
+                    Env.OnViewChanged();
+                }
+            };
 
             bool isActivated = false;
             this.Activated += (sender, e) =>
@@ -327,7 +337,23 @@ namespace VaporDAW
 
             // Add control
             var trackHeadControl = TrackHeadControl.Create(this.trackHeadPanel, track);
-            TrackControl.Create(this.trackPanel, trackHeadControl, track);
+            var trackControl = TrackControl.Create(this.trackPanel, trackHeadControl, track);
+
+            // Add parts
+            foreach (var part in Env.Song.Parts.Where(p => p.TrackId == track.Id))
+            {
+                PartControl.Create(trackControl, part);
+            }
+        }
+
+        private void Zoom(bool zoomIn)
+        {
+            var stringRep = Env.TimePerPixel.ToString();
+            Env.TimePerPixel = zoomIn ?
+                (stringRep.Contains("5") ? Env.TimePerPixel / 5 * 2 : Env.TimePerPixel / 2) :
+                (stringRep.Contains("2") ? Env.TimePerPixel / 2 * 5 : Env.TimePerPixel * 2);
+            RedrawSong();
+            Env.OnViewChanged();
         }
     }
 }

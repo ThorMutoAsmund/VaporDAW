@@ -20,9 +20,6 @@ namespace VaporDAW
     {
         public TrackControl TrackControl { get; set; }
 
-        private Color selectedHeaderColor = Color.FromRgb(112, 112, 122);
-        private Color headerColor = Color.FromRgb(80, 80, 80);
-
         private Panel ParentPanel { get; set; }
         private Track track;
         public Track Track 
@@ -44,7 +41,7 @@ namespace VaporDAW
                 if (value != this.isSelected)
                 {
                     this.isSelected = value;
-                    this.header.Background = new SolidColorBrush(this.IsSelected ? this.selectedHeaderColor : this.headerColor );
+                    this.header.Background = new SolidColorBrush(this.IsSelected ? Colors.TrackHeadSelected : Colors.TrackHead );
                 }
             }
         }
@@ -52,6 +49,9 @@ namespace VaporDAW
         public TrackHeadControl()
         {
             InitializeComponent();
+
+            this.header.Background = new SolidColorBrush(Colors.TrackHead);
+            this.border.BorderBrush = new SolidColorBrush(Colors.TrackHeadBorder);
 
             Song.TrackChanged += changedTrack =>
             {

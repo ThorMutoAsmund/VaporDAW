@@ -108,12 +108,34 @@
                         </StackPanel>
                     </Border>
                     <DockPanel Background="{StaticResource CheckerBoard}">
-                        <StackPanel x:Name="trackHeadPanel" Orientation="Vertical" DockPanel.Dock="Left" Width="100">
-                        </StackPanel>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Visible" DockPanel.Dock="Right">
-                            <StackPanel x:Name="trackPanel" Orientation="Vertical" >
+                        <DockPanel DockPanel.Dock="Left" Width="100">
+                            <DockPanel DockPanel.Dock="Top" Height="28" HorizontalAlignment="Right">                                
+                            </DockPanel>
+                            <DockPanel DockPanel.Dock="Bottom" Height="18" HorizontalAlignment="Right">
+                                <Button x:Name="zoomInButton" Width="18" Padding="4" HorizontalAlignment="Right">
+                                    <Path Data="M0.5,0 L0.5,1 M0,0.5 L1,0.5"
+                                        StrokeThickness="2"
+                                        Stretch="Fill"
+                                        Stroke="Black" />
+                                </Button>
+                                <Button x:Name="zoomOutButton" Width="18" Padding="4">
+                                    <Path Data="M0,0.5 L1,0.5"
+                                        StrokeThickness="2"
+                                        Stretch="Fill"
+                                        Stroke="Black" />
+                                </Button>
+                            </DockPanel>
+                            <StackPanel x:Name="trackHeadPanel" Orientation="Vertical" Width="100">
                             </StackPanel>
-                        </ScrollViewer>
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Right">
+                            <local:TimeRulerControl Width="auto" DockPanel.Dock="Top" Height="28"></local:TimeRulerControl>
+                            <!--<local:TimeRulerPanel  DockPanel.Dock="Top" Height="28"></local:TimeRulerPanel>-->
+                            <ScrollViewer x:Name="scrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Visible">
+                                <StackPanel x:Name="trackPanel" Orientation="Vertical" >
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DockPanel>
                         <DockPanel.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Add track" Name="addTrackMenuItem"/>

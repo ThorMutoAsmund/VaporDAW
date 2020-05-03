@@ -72,9 +72,11 @@ namespace VaporDAW
             {
                 ParentTrackControl = trackControl,
                 Part = part,
-                Width = part.Length / Env.CanvasTimePerPixel
+                Width = part.Length / (double)Env.TimePerPixel
             };
             trackControl.Children.Add(partControl);
+            var left = part.Start / (double)Env.TimePerPixel;
+            Canvas.SetLeft(partControl, left);
 
             return partControl;
         }

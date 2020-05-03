@@ -17,14 +17,9 @@ namespace VaporDAW
         [JsonProperty] public string Title { get; set; }
         [JsonProperty] public List<Generator> Generators { get; set; }
 
-        public void ChangeTrack(int trackNo)
+        public void ChangeTrack(string trackId)
         {
-            if (trackNo < 0 || trackNo >= Env.Song.Tracks.Count())
-            {
-                trackNo = 0;
-            }
-
-            this.TrackId = Env.Song.Tracks[trackNo].Id;
+            this.TrackId = trackId;
 
             Song.ChangesMade = true;
         }
