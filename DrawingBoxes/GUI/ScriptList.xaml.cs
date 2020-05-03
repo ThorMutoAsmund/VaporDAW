@@ -14,8 +14,6 @@ namespace VaporDAW
     /// </summary>
     public partial class ScriptList : UserControl
     {
-        public ScriptRef SelectedScript { get; set; }
-
         private Point startPoint;
 
         public ScriptList()
@@ -26,9 +24,16 @@ namespace VaporDAW
             {
                 this.DataContext = stringList;
             };
+            Song.ProjectLoaded += loaded =>
+            {
+                if (!loaded)
+                {
+                    this.DataContext = null;
+                }
+            };
         }
 
-        private void ScriptsListView_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void ScriptsListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (Env.Song == null)
             {
@@ -37,24 +42,21 @@ namespace VaporDAW
 
             if (e.ClickCount == 2)
             {
-                var fileName = (sender as TextBlock).Text;
+                var fileName = this.scriptsListView.SelectedItem as string;
                 Env.Song.EditScript(fileName);
             }
-        }
 
-        private void ScriptsListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
             this.startPoint = e.GetPosition(null);
         }
 
         private void ScriptsListView_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            // Get the current mouse position
-            var mousePos = e.GetPosition(null);
-            var diff = startPoint - mousePos;
-
             if (e.LeftButton == MouseButtonState.Pressed)
             {
+                // Get the current mouse position
+                var mousePos = e.GetPosition(null);
+                var diff = startPoint - mousePos;
+
                 this.scriptsListView.CheckDragDropMove<string>(diff, e.OriginalSource, "script");
             }
         }

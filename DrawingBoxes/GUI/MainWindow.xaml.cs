@@ -9,13 +9,8 @@ using System.Windows.Input;
 
 namespace VaporDAW
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        private Point contextMousePosition;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -24,68 +19,18 @@ namespace VaporDAW
 
             Env.CanvasStartTime = 0d;
             Env.CanvasTimePerPixel = 0.01d;
-
             Env.MainWindow = this;
-            //Env.Canvas = this.canvas;
 
             this.Closing += (sender, e) => e.Cancel = !Env.ConfirmChangesMade();
 
-            this.fileMenu.SubmenuOpened += (sender, e) =>
-            {
-                this.recentFilesMenu.Items.Clear();
-
-                foreach (var recentFilePath in Env.RecentFiles)
-                {
-                    var menuItem = new MenuItem()
-                    {
-                        Header = recentFilePath,
-                    };
-                    menuItem.Click += (_sender, _e) => OpenProject(recentFilePath);
-                    this.recentFilesMenu.Items.Add(menuItem);
-                }
-            };
-
-            this.newScriptMenu.Click += (sender, e) => NewScript();
-            this.importSamplesMenu.Click += (sender, e) => ImportSamples();
-            this.generateOutputMenu.Click += (sender, e) => GenerateOutput();
+            this.fileMenu.SubmenuOpened += (__, _) => FileMenuSubmenuOpened();
+            this.newScriptMenu.Click += (__, _) => NewScript();
+            this.importSamplesMenu.Click += (__, _) => ImportSamples();
+            this.generateOutputMenu.Click += (__, _) => GenerateOutput();
+            this.addTrackMenuItem.Click += (__, _) => AddTrack();
 
             Song.RequestEditScript += script => OpenScriptTab(script);
-
-            Song.ProjectLoaded += loaded =>
-            {
-                if (!loaded)
-                {
-                    this.tabControl.IsEnabled = false;
-                    this.saveMenu.IsEnabled = false;
-                    this.closeMenu.IsEnabled = false;
-                    this.toolsMenu.IsEnabled = false;
-
-                    SetTitle();
-
-                    RedrawSong();
-                }
-                else
-                {
-                    this.tabControl.IsEnabled = true;
-                    this.saveMenu.IsEnabled = true;
-                    this.closeMenu.IsEnabled = true;
-                    this.toolsMenu.IsEnabled = true;
-                    SetTitle(Env.Song.SongName);
-
-                    RedrawSong();
-                }
-            };
-
-            // Store mouse down on context menu click
-            this.MouseDown += (sender, e) =>
-            {
-                if (e.ChangedButton == MouseButton.Right)
-                {
-                    this.contextMousePosition = e.GetPosition(Env.Canvas);
-                }
-            };
-
-            //this.addPartMenuItem.Click += (sender, e) => AddPart(this.contextMousePosition);
+            Song.ProjectLoaded += loaded => ProjectLoaded(loaded);
 
             bool isActivated = false;
             this.Activated += (sender, e) =>
@@ -109,68 +54,17 @@ namespace VaporDAW
             };
         }
 
-
-        private void SetupCanvas()
-        {
-            //this.ts1 = new PartShape()
-            //{
-            //    TrackNo = 1,
-            //    Width = 100
-            //};
-            //this.canvas.Children.Add(ts1);
-
-            //ts1.MouseDown += (_, __) =>
-            //{
-            //    this.MouseMove += ts1.MoveMouse;
-            //};
-            //this.MouseUp += (_, __) =>
-            //{
-            //    this.MouseMove -= ts1.MoveMouse;
-            //    ts1.UpMouse();
-            //};
-            //this.MouseLeave += (_, __) =>
-            //{
-            //    this.MouseMove -= ts1.MoveMouse;
-            //    ts1.UpMouse();
-            //};
-        }
-
-
         private void RedrawSong()
         {
-            this.canvas.Children.Clear();
+            this.trackHeadPanel.Children.Clear();
+            this.trackPanel.Children.Clear();
 
-            foreach (var track in Env.Song.Tracks)
+            if (Env.Song == null)
             {
-                var trackControl = TrackControl.Create(this.canvas, track);
-
-                trackControl.Selected += () =>
-                {
-                    foreach (var otherControl in this.canvas.Children.WhereIs<TrackControl>().Where(c => c != trackControl))
-                    {
-                        otherControl.IsSelected = false;
-                    }
-                };
+                return;
             }
 
-            //if (Env.Song == null)
-            //{
-            //    return;
-            //}
-
-            //var bkg = new EditorBackgroundShape();
-
-            //bkg.SetBinding(FrameworkElement.WidthProperty, new Binding("ActualWidth") { ElementName = "canvas" });
-            //bkg.SetBinding(FrameworkElement.HeightProperty, new Binding("ActualHeight") { ElementName = "canvas" });
-
-            //this.canvas.Children.Add(bkg);
-            //Canvas.SetLeft(bkg, 0);
-            //Canvas.SetTop(bkg, 0);
-
-            //foreach (var part in Env.Song.Parts)
-            //{
-            //    PartShape.Create(this.canvas, part);
-            //}
+            Env.Song.Tracks.ForEach(track => AddTrack(track));
         }
 
         private void OnNew(object sender, ExecutedRoutedEventArgs e) => NewProject();
@@ -226,6 +120,21 @@ namespace VaporDAW
                 }
 
                 Song.Open(path);
+            }
+        }
+
+        private void FileMenuSubmenuOpened()
+        {
+            this.recentFilesMenu.Items.Clear();
+
+            foreach (var recentFilePath in Env.RecentFiles)
+            {
+                var menuItem = new MenuItem()
+                {
+                    Header = recentFilePath,
+                };
+                menuItem.Click += (__, _) => OpenProject(recentFilePath);
+                this.recentFilesMenu.Items.Add(menuItem);
             }
         }
 
@@ -309,15 +218,27 @@ namespace VaporDAW
             }
         }
 
-        private void AddPart(Point p)
+        private void ProjectLoaded(bool loaded)
         {
-            if (Env.Song == null)
+            if (!loaded)
             {
-                return;
+                this.tabControl.IsEnabled = false;
+                this.saveMenu.IsEnabled = false;
+                this.closeMenu.IsEnabled = false;
+                this.toolsMenu.IsEnabled = false;
+
+                SetTitle();
+            }
+            else
+            {
+                this.tabControl.IsEnabled = true;
+                this.saveMenu.IsEnabled = true;
+                this.closeMenu.IsEnabled = true;
+                this.toolsMenu.IsEnabled = true;
+                SetTitle(Env.Song.SongName);
             }
 
-            //var part = Env.Song.AddPart(p);
-            //PartShape.Create(this.canvas, part);
+            RedrawSong();
         }
 
         private void OpenScriptTab(ScriptRef script)
@@ -392,40 +313,21 @@ namespace VaporDAW
             });
         }
 
-        private void Canvas_DragEnterOver(object sender, DragEventArgs e)
-        {
-            if (!(e.Data.GetDataPresent("sample") || e.Data.GetDataPresent("script")))
-            {
-                return;
-            }
-            e.Effects = DragDropEffects.All;
-            e.Handled = true;
-        }
-
-        private void Canvas_Drop(object sender, DragEventArgs e)
+        private void AddTrack(Track track = null)
         {
             if (Env.Song == null)
             {
                 return;
             }
 
-            if (e.Data.GetDataPresent("sample"))
+            if (track == null)
             {
-                var sampleName = e.Data.GetData("sample") as string;
-
-                var part = Env.Song.AddPart(e.GetPosition(Env.Canvas), sampleName);
-                //PartShape.Create(this.canvas, part);
-                Env.Song.AddSampleToPart(part, sampleName);
+                track = Env.Song.AddTrack();
             }
-            else if (e.Data.GetDataPresent("script"))
-            {
-                var scriptName = e.Data.GetData("script") as string;
 
-                var part = Env.Song.AddPart(e.GetPosition(Env.Canvas), scriptName);
-                //PartShape.Create(this.canvas, part);
-                Env.Song.AddScriptToPart(part, scriptName);                
-            }
+            // Add control
+            var trackHeadControl = TrackHeadControl.Create(this.trackHeadPanel, track);
+            TrackControl.Create(this.trackPanel, trackHeadControl, track);
         }
-
     }
 }

@@ -12,8 +12,6 @@ namespace VaporDAW
     /// </summary>
     public partial class SampleList : UserControl
     {
-        public SampleRef SelectedSample { get; set; }
-
         private Point startPoint;
 
         public SampleList()
@@ -24,21 +22,38 @@ namespace VaporDAW
             {
                 this.DataContext = stringList;
             };
+            Song.ProjectLoaded += loaded =>
+            {
+                if (!loaded)
+                {
+                    this.DataContext = null;
+                }
+            };
         }
 
         private void SamplesListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (Env.Song == null)
+            {
+                return;
+            }
+
+            if (e.ClickCount == 2)
+            {
+                MessageBox.Show("Sample edit not implemented yet.");
+            }
+
             this.startPoint = e.GetPosition(null);
         }
 
         private void SamplesListView_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            // Get the current mouse position
-            var mousePos = e.GetPosition(null);
-            var diff = startPoint - mousePos;
-
             if (e.LeftButton == MouseButtonState.Pressed)
             {
+                // Get the current mouse position
+                var mousePos = e.GetPosition(null);
+                var diff = startPoint - mousePos;
+
                 this.samplesListView.CheckDragDropMove<string>(diff, e.OriginalSource, "sample");
             }
         }

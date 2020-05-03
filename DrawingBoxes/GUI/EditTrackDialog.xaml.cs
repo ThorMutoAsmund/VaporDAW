@@ -32,7 +32,7 @@ namespace VaporDAW
 
                 this.track = value;
 
-                this.scriptSelectControl.Script = Env.Song.GetScript(this.Track.ScriptId);
+                this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Track.ScriptId);
                 this.titleTextBox.Text = this.Track.Title;
             }
         }

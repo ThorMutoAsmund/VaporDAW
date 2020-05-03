@@ -6,12 +6,11 @@
              xmlns:local="clr-namespace:VaporDAW"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Height="300" Width="300">
-    <ListView x:Name="scriptsListView" Margin="0,4,0,-4" ItemsSource="{Binding}"
-                SelectedItem="{Binding SelectedScript, RelativeSource={RelativeSource AncestorType=Window}}"
+    <ListView x:Name="scriptsListView" Margin="0,4,0,-4" ItemsSource="{Binding}"                
                 PreviewMouseLeftButtonDown="ScriptsListView_PreviewMouseLeftButtonDown" PreviewMouseMove="ScriptsListView_PreviewMouseMove">
         <ListView.ItemTemplate>
             <DataTemplate>
-                <TextBlock Text="{Binding}" MouseDown="ScriptsListView_MouseDown" />
+                <TextBlock Text="{Binding}" />
             </DataTemplate>
         </ListView.ItemTemplate>
     </ListView>

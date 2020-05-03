@@ -10,59 +10,6 @@ using System.Windows.Forms;
 
 namespace VaporDAW
 {
-    public enum InputOutputType
-    {
-        Sample,
-        NumberArray,
-        Text,
-    }
-
-    //public class InputOutput
-    //{
-    //    [JsonProperty] public InputOutput Type { get; set; }
-    //}
-
-    public class Generator
-    {
-        [JsonProperty] public string Id { get; set; }
-        [JsonProperty] public string ScriptId { get; set; }
-        [JsonProperty] public Dictionary<string,object> Settings { get; set; }
-        //[JsonProperty] public List<InputOutput> Inputs { get; set; }
-        //[JsonProperty] public List<InputOutput> Outputs { get; set; }
-    }
-
-    public class ScriptRef
-    {
-        [JsonProperty] public string Id { get; set; }
-        [JsonProperty] public string FileName { get; set; }
-        public string Name => Path.GetFileNameWithoutExtension(this.FileName);
-    }
-
-    public class SampleRef
-    {
-        [JsonProperty] public string Id { get; set; }
-        [JsonProperty] public string FileName { get; set; }
-        public string Name => Path.GetFileNameWithoutExtension(this.FileName);
-    }
-
-    public class Part
-    {
-        [JsonProperty] public string Id { get; set; }
-        [JsonProperty] public string ScriptId { get; set; }
-        [JsonProperty] public string TrackId { get; set; }
-        [JsonProperty] public double Start { get; set; }
-        [JsonProperty] public double Length { get; set; }
-        [JsonProperty] public string Title { get; set; }
-        [JsonProperty] public List<Generator> Generators { get; set; }
-    }
-
-    public class Track
-    {
-        [JsonProperty] public string Id { get; set; }
-        [JsonProperty] public string ScriptId { get; set; }
-        [JsonProperty] public string Title { get; set; }
-    }
-
     public class Song
     {
         [JsonProperty] public string ScriptId { get; set; } // Mixer
@@ -79,14 +26,13 @@ namespace VaporDAW
 
         //[JsonIgnore] public List<ScriptRef> ScriptRefs => this.Scripts;
         //[JsonIgnore] public List<SampleRef> SampleRefs => this.Samples;
-        [JsonIgnore] public bool ChangesMade { get; private set; } = false;
+        public static bool ChangesMade { get; set; } = false;
+        public static List<TrackControl> SelectedTracks = new List<TrackControl>();
+        public static List<PartControl> SelectedParts = new List<PartControl>();
 
         public static event Action<bool> ProjectLoaded;
-
         public static event Action<ScriptRef> RequestEditScript;
-
         public static event Action<Track> TrackChanged;
-
         public static event Action<Part> PartChanged;
 
         private string projectPath;
@@ -94,8 +40,17 @@ namespace VaporDAW
         [JsonIgnore] public string ScriptsPath => Path.Combine(this.projectPath, Env.ScriptsFolder);
         [JsonIgnore] public string SamplesPath => Path.Combine(this.projectPath, Env.SamplesFolder);
 
+        public static void ClearVolatile()
+        {
+            Song.ChangesMade = false;
+            Song.SelectedTracks.Clear();
+            Song.SelectedParts.Clear();
+        }
+
         public static void CreateEmpty()
         {
+            ClearVolatile();
+
             var projectPath = Path.Combine(Env.ApplicationPath, "default_project");
             if (Directory.Exists(projectPath))
             {
@@ -109,6 +64,8 @@ namespace VaporDAW
 
         public static void CreateNew(string projectPath, string songName, int numberOfTracks, double sampleFrequency, double songLength)
         {
+            ClearVolatile();
+
             Env.Song = new Song()
             {
                 projectPath = projectPath,
@@ -150,6 +107,7 @@ namespace VaporDAW
 
         public static void Open(string projectPath)
         {
+            ClearVolatile();
             var songSerializer = SongSerializer.FromFile(new Song() { projectPath = projectPath }.ProjectFilePath);
 
             Env.Song = songSerializer.Song;
@@ -179,7 +137,7 @@ namespace VaporDAW
 
         public Processor CreateProcessor(string scriptId, string id)
         {
-            var scriptRef = GetScript(scriptId);
+            var scriptRef = GetScriptRef(scriptId);
 
             if (scriptRef == null)
             {
@@ -239,7 +197,7 @@ namespace VaporDAW
             try
             {
                 SongSerializer.ToFile(this);
-                this.ChangesMade = false;
+                Song.ChangesMade = false;
             }
             finally
             {
@@ -249,15 +207,39 @@ namespace VaporDAW
 
         public static void Close()
         {
+            ClearVolatile();
+
             Env.Song = null;
 
+            Song.ChangesMade = false;
             Song.ProjectLoaded?.Invoke(false);
         }
 
-        public Part AddPart(System.Windows.Point p, string title = null)
+        public Track AddTrack()
         {
-            var start = p.X * Env.CanvasTimePerPixel + Env.CanvasStartTime;
-            var trackNo = (int)(p.Y / Env.TrackHeight);
+            var trackScriptRef = Env.Song.FindOrAddScript(Env.DefaultTrackScriptName, Env.TrackTemplateScriptName);
+            var track = new Track()
+            {
+                Id = Base64.UUID(),
+                Title = $"Track{this.Tracks.Count() + 1}",
+                ScriptId = trackScriptRef.Id
+            };
+            this.Tracks.Add(track);
+
+            Song.ChangesMade = true;
+
+            return track;
+        }
+
+        public Part AddPart(System.Windows.Point? point = null, string title = null)
+        {
+            if (point == null)
+            {
+                point = new System.Windows.Point(0d, 0d);
+            }
+
+            var start = point.Value.X * Env.CanvasTimePerPixel + Env.CanvasStartTime;
+            var trackNo = (int)(point.Value.Y / Env.TrackHeight);
             var length = Env.PartLength;
 
             var partScriptRef = Env.Song.FindOrAddScript(Env.DefaultPartScriptName, Env.PartTemplateScriptName);
@@ -274,9 +256,9 @@ namespace VaporDAW
 
             this.Parts.Add(part);
 
-            ChangePartTrack(part, trackNo);
+            part.ChangeTrack(trackNo);
 
-            this.ChangesMade = true;
+            Song.ChangesMade = true;
 
             return part;
         }
@@ -314,7 +296,7 @@ namespace VaporDAW
             };
 
             this.Scripts.Add(script);
-            this.ChangesMade = true;
+            Song.ChangesMade = true;
 
             return script;
         }
@@ -337,14 +319,14 @@ namespace VaporDAW
 
             if (scriptRef == null)
             {
-                var script = new ScriptRef()
+                scriptRef = new ScriptRef()
                 {
                     Id = Base64.UUID(),
                     FileName = scriptName
                 };
 
-                this.Scripts.Add(script);
-                this.ChangesMade = true;
+                this.Scripts.Add(scriptRef);
+                Song.ChangesMade = true;
             }
 
             return scriptRef;
@@ -375,7 +357,7 @@ namespace VaporDAW
             };
 
             this.Samples.Add(sampleRef);
-            this.ChangesMade = true;
+            Song.ChangesMade = true;
 
             return true;
         }
@@ -391,58 +373,10 @@ namespace VaporDAW
                     FileName = sampleName
                 };
                 this.Samples.Add(sampleRef);
-                this.ChangesMade = true;
+                Song.ChangesMade = true;
             }
 
             return sampleRef;
-        }
-
-        public void AddSampleToPart(Part part, string sampleName)
-        {
-            var sampleScriptRef = Env.Song.FindOrAddScript(Env.DefaultSampleScriptName, Env.SampleTemplateScriptName);
-
-            var generator = new Generator()
-            {
-                Id = Base64.UUID(),
-                ScriptId = sampleScriptRef.Id,
-                Settings = new Dictionary<string, object>()
-                {
-                    { "sampleId", FindSample(sampleName).Id }
-                }
-            };
-            part.Generators.Add(generator);
-            this.ChangesMade = true;
-        }
-
-        public void AddScriptToPart(Part part, string scriptName)
-        {
-            var scriptRef = Env.Song.FindScript(scriptName);
-
-            var generator = new Generator()
-            {
-                Id = Base64.UUID(),
-                ScriptId = scriptRef.Id,
-            };
-            part.Generators.Add(generator);
-            this.ChangesMade = true;
-        }
-
-        public void ChangePartTrack(Part part, int trackNo)
-        {
-            if (trackNo < 0 || trackNo >= this.Tracks.Count())
-            {
-                trackNo = 0;
-            }
-
-            part.TrackId = this.Tracks[trackNo].Id;
-
-            this.ChangesMade = true;
-        }
-
-        public int GetPartTrackNo(Part part)
-        {
-            var index = this.Tracks.FindIndex(track => track.Id == part.TrackId);
-            return index > -1 ? index : 0; 
         }
 
         public void EditScript(string fileName)
@@ -464,7 +398,7 @@ namespace VaporDAW
             };
 
             this.Scripts.Add(script);
-            this.ChangesMade = true;
+            Song.ChangesMade = true;
 
             Song.RequestEditScript?.Invoke(script);
         }
@@ -497,21 +431,21 @@ namespace VaporDAW
         public void OnTrackChanged(Track track)
         {
             Song.TrackChanged?.Invoke(track);
-            this.ChangesMade = true;
+            Song.ChangesMade = true;
         }
 
         public void OnPartChanged(Part part)
         {
             Song.PartChanged?.Invoke(part);
-            this.ChangesMade = true;
+            Song.ChangesMade = true;
         }
 
-        public ScriptRef GetScript(string id)
+        public ScriptRef GetScriptRef(string id)
         {
             return this.Scripts.FirstOrDefault(s => s.Id == id);
         }
 
-        public SampleRef GetSample(string id)
+        public SampleRef GetSampleRef(string id)
         {
             return this.Samples.FirstOrDefault(s => s.Id == id);
         }

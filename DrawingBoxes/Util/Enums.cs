@@ -17,4 +17,11 @@ namespace VaporDAW
         Read,
         ReadWrite
     }
+
+    //public enum InputOutputType
+    //{
+    //    Sample,
+    //    NumberArray,
+    //    Text,
+    //}
 }

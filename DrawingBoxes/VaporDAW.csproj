@@ -65,8 +65,14 @@
     <Compile Include="Controls\ScriptSelectControl.xaml.cs">
       <DependentUpon>ScriptSelectControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PartControl.xaml.cs">
+      <DependentUpon>PartControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TrackControl.xaml.cs">
       <DependentUpon>TrackControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TrackHeadControl.xaml.cs">
+      <DependentUpon>TrackHeadControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="GUI\SelectScriptDialog.xaml.cs">
       <DependentUpon>SelectScriptDialog.xaml</DependentUpon>
@@ -74,6 +80,12 @@
     <Compile Include="GUI\EditTrackDialog.xaml.cs">
       <DependentUpon>EditTrackDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Song\Generator.cs" />
+    <Compile Include="Song\Part.cs" />
+    <Compile Include="Song\SampleRef.cs" />
+    <Compile Include="Song\ScriptRef.cs" />
+    <Compile Include="Song\Colors.cs" />
+    <Compile Include="Song\Track.cs" />
     <Compile Include="Templates\EmptyScript.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
@@ -101,11 +113,11 @@
     <Compile Include="GUI\ScriptTabItem.xaml.cs">
       <DependentUpon>ScriptTabItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Song\ProcessEnv.cs" />
-    <Compile Include="Song\ProcessParams.cs" />
-    <Compile Include="Song\Sample.cs" />
-    <Compile Include="Song\Channel.cs" />
-    <Compile Include="Song\Processor.cs" />
+    <Compile Include="Processing\ProcessEnv.cs" />
+    <Compile Include="Processing\ProcessParams.cs" />
+    <Compile Include="Processing\Sample.cs" />
+    <Compile Include="Processing\Channel.cs" />
+    <Compile Include="Processing\Processor.cs" />
     <Compile Include="Song\Tags.cs" />
     <Compile Include="Util\Base64.cs" />
     <Compile Include="Env.cs" />
@@ -118,7 +130,6 @@
       <DependentUpon>NewProjectDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Song\Song.cs" />
-    <Compile Include="Shapes\EditorBackgroundShape.cs" />
     <Compile Include="Song\SongSerializer.cs" />
     <Compile Include="Util\NamePath.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
@@ -129,7 +140,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\PartControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\TrackControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\TrackHeadControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -149,7 +168,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Shapes\PartShape.cs" />
     <Compile Include="Util\CustomCommands.cs" />
     <Compile Include="GUI\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -202,6 +220,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Next.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

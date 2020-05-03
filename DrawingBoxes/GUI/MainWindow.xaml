@@ -107,21 +107,19 @@
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <StackPanel x:Name="canvas" Visibility="Visible" Background="{StaticResource CheckerBoard}" Orientation="Vertical">
-                        <local:TrackControl>
-                        </local:TrackControl>
-                        <local:TrackControl>
-                        </local:TrackControl>
-                        <local:TrackControl>
-                        </local:TrackControl>
-                        <!--<Canvas x:Name="canvas" Background="DarkGray" Drop="Canvas_Drop" DragEnter="Canvas_DragEnterOver" AllowDrop="True" DragOver="Canvas_DragEnterOver">
-                            <Canvas.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Add part..." Name="addPartMenuItem"/>
-                                </ContextMenu>
-                            </Canvas.ContextMenu>
-                        </Canvas>-->
-                    </StackPanel>
+                    <DockPanel Background="{StaticResource CheckerBoard}">
+                        <StackPanel x:Name="trackHeadPanel" Orientation="Vertical" DockPanel.Dock="Left" Width="100">
+                        </StackPanel>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Visible" DockPanel.Dock="Right">
+                            <StackPanel x:Name="trackPanel" Orientation="Vertical" >
+                            </StackPanel>
+                        </ScrollViewer>
+                        <DockPanel.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Add track" Name="addTrackMenuItem"/>
+                            </ContextMenu>
+                        </DockPanel.ContextMenu>
+                    </DockPanel>
                 </DockPanel>               
             </TabItem>
         </TabControl>

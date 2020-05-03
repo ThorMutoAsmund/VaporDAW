@@ -20,7 +20,6 @@ namespace VaporDAW
         private static string TemplateFolder => "Templates";
         public static string LastProjectPath { get; set; }
         public static Window MainWindow { get; set; }
-        public static Canvas Canvas { get; set; }
 
         public static string DefaultPartTitle { get; set; } = "Untitled";
 
@@ -34,7 +33,7 @@ namespace VaporDAW
         public static double PartLength { get; set; } = 1f; // seconds
 
         public static Song Song { get; set; }
-        public static bool ChangesMade => Env.Song?.ChangesMade ?? false;
+        public static bool ChangesMade => Song.ChangesMade;
 
         public static Watchers Watchers { get; private set; } = new Watchers();
 
@@ -50,7 +49,7 @@ namespace VaporDAW
 
         public static bool ConfirmChangesMade()
         {
-            if (Env.ChangesMade)
+            if (Song.ChangesMade)
             {
                 if (MessageBox.Show("Changes have been made. Continue without saving?", "Changes Made", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
                 {
