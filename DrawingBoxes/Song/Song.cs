@@ -40,9 +40,8 @@ namespace VaporDAW
                 }
             }
         }
+        public static event Action ClearVolatile;
         public static event Action ChangeStateChanged;
-        public static List<TrackControl> SelectedTracks = new List<TrackControl>();
-        public static List<PartControl> SelectedParts = new List<PartControl>();
 
         public static event Action<bool> ProjectLoaded;
         public static event Action<ScriptRef> RequestEditScript;
@@ -57,17 +56,8 @@ namespace VaporDAW
         private static bool changesMade = false;
         private string projectPath;
 
-        public static void ClearVolatile()
-        {
-            Song.ChangesMade = false;
-            Song.SelectedTracks.Clear();
-            Song.SelectedParts.Clear();
-        }
-
         public static void CreateEmpty()
         {
-            ClearVolatile();
-
             var projectPath = Path.Combine(Env.ApplicationPath, "default_project");
             if (Directory.Exists(projectPath))
             {
@@ -81,8 +71,9 @@ namespace VaporDAW
 
         public static void CreateNew(string projectPath, string songName, int numberOfTracks, double sampleFrequency, double songLength)
         {
-            ClearVolatile();
-
+            Song.ChangesMade = false;
+            Song.ClearVolatile?.Invoke();
+            
             Env.Song = new Song()
             {
                 projectPath = projectPath,
@@ -124,7 +115,9 @@ namespace VaporDAW
 
         public static void Open(string projectPath)
         {
-            ClearVolatile();
+            Song.ChangesMade = false;
+            Song.ClearVolatile?.Invoke();
+ 
             var songSerializer = SongSerializer.FromFile(new Song() { projectPath = projectPath }.ProjectFilePath);
 
             Env.Song = songSerializer.Song;

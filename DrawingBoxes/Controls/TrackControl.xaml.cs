@@ -17,21 +17,11 @@ namespace VaporDAW
 {
     public partial class TrackControl : UserControl
     {
-        public Action Selected;
-        //public Action MouseUp;
         public TrackHeadControl TrackHeadControl { get; set; }
 
         private Point contextMousePosition;
 
-        private Track track;
-        public Track Track 
-        {
-            get => this.track;
-            private set
-            {
-                this.track = value;
-            }
-        }
+        public Track Track { get; private set; }
 
         private bool isSelected;
         public bool IsSelected
@@ -67,7 +57,8 @@ namespace VaporDAW
             {
                 TrackHeadControl = trackHeadControl,
                 Track = track,
-                Width = Env.Song.SongLength / (double)Env.TimePerPixel
+                Width = Env.Song.SongLength / (double)Env.TimePerPixel,
+                Height = Env.TrackHeight
             };
             trackHeadControl.TrackControl = trackControl;
 
@@ -81,45 +72,12 @@ namespace VaporDAW
                 return null;
             }
 
-            Part part = Env.Song.AddPart(this.track, point, title);
-
-            return part;
+            return Env.Song.AddPart(this.Track, point, title);
         }
 
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
         {
             this.contextMousePosition = e.ChangedButton == MouseButton.Right ? e.GetPosition(this.grid) : this.contextMousePosition;
-
-            Select();
-        }
-
-        public void Select()
-        {
-            foreach (var otherControl in Song.SelectedParts)
-            {
-                otherControl.IsSelected = false;
-            }
-            Song.SelectedParts.Clear();
-
-            if (!this.IsSelected)
-            {
-                foreach (var otherControl in Song.SelectedTracks)
-                {
-                    otherControl.IsSelected = false;
-                    otherControl.TrackHeadControl.IsSelected = false;
-                }
-                Song.SelectedTracks.Clear();
-
-
-                this.IsSelected = true;
-                Song.SelectedTracks.Add(this);
-                if (this.TrackHeadControl != null)
-                {
-                    this.TrackHeadControl.IsSelected = true;
-                }
-
-                this.Selected?.Invoke();
-            }
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)

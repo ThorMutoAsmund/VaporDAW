@@ -29,8 +29,8 @@ namespace VaporDAW
 
         //public static Conf Conf { get; set; } = new Conf()
         public static List<string> RecentFiles { get; } = new List<string>();
-        public static double TrackHeight { get; set; } = 50d;
-        public static double PartLength { get; set; } = 1f; // seconds
+        public static double TrackHeight { get; set; } = 75d;
+        public static double PartLength { get; set; } = 1d; // seconds
 
         public static Song Song { get; set; }
         public static bool ChangesMade => Song.ChangesMade;

@@ -17,7 +17,12 @@ namespace VaporDAW
 {
     public partial class PartControl : UserControl
     {
-        public Action Selected;
+        enum MouseMoveAction
+        {
+            None,
+            Move,
+            Resize
+        }
 
         public Part Part { get; private set; }
 
@@ -34,37 +39,24 @@ namespace VaporDAW
             }
         }
 
-        private TrackControl ParentTrackControl 
-        {
-            get => this.parentTrackControl;
-            set
-            {
-                if (this.parentTrackControl != value)
-                {
-                    //if (this.parentTrackControl != null)
-                    //{
-                    //    this.parentTrackControl.MouseUp -= (sender, e) => TrackMouseUp();
-                    //}
-                    this.parentTrackControl = value;
-                    //this.parentTrackControl.MouseUp += (sender, e) => TrackMouseUp();
-                }
-            }
-        }
+        private TrackControl ParentTrackControl { get; set; }
 
-        private TrackControl parentTrackControl;
-        private Point contextMousePosition;
+        private Point mouseDownTrackPosition;
         private bool isSelected;
-        private bool isMouseDown;
+        private MouseMoveAction mouseMoveAction = MouseMoveAction.None;
         private bool didMove;
         private double mouseDownLeft;
+        private double mouseDownWidth;
+        private int mouseMoveTrackNo;
 
         public PartControl()
         {
             InitializeComponent();
 
-            this.grid.Background = new SolidColorBrush(Colors.Part);
             this.border.BorderBrush = new SolidColorBrush(Colors.PartBorder);
-                
+            this.grid.Background = new SolidColorBrush(Colors.Part);
+            this.rightHandle.Background = new SolidColorBrush(Colors.PartHandle);
+
             // Context menu
             this.propertiesMenuItem.Click += (sender, e) => ShowProperties();
             this.deleteMenuItem.Click += (sender, e) => DeletePart();
@@ -83,7 +75,6 @@ namespace VaporDAW
             return partControl;
         }
 
-        
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
             if (Env.Song == null)
@@ -91,53 +82,84 @@ namespace VaporDAW
                 return;
             }
 
-            this.contextMousePosition = e.GetPosition(this.ParentTrackControl);
-            this.isMouseDown = true;
+            this.mouseDownTrackPosition = e.GetPosition(this.ParentTrackControl);
+            this.mouseMoveAction = e.OriginalSource == this.grid ? MouseMoveAction.Move : (e.OriginalSource == this.rightHandle? MouseMoveAction.Resize : MouseMoveAction.None);
             this.mouseDownLeft = Canvas.GetLeft(this);
+            this.mouseDownWidth = this.Width;
+            
+            var trackPanelPosition = e.GetPosition(Env.TrackPanel);
+            this.mouseMoveTrackNo =  (int)(trackPanelPosition.Y / Env.TrackHeight);
+            
             this.didMove = false;
             Env.TrackPanel.MouseMove += TrackPanelMouseMove;
-
-            Select();
         }
 
         private void TrackPanelMouseMove(object sender, MouseEventArgs e)
         {
-            var position = e.GetPosition(this.ParentTrackControl);
-            Canvas.SetLeft(this, this.mouseDownLeft + (position.X - this.contextMousePosition.X));
+            if (this.mouseMoveAction == MouseMoveAction.Move)
+            {
+                // Position in track
+                var trackPosition = e.GetPosition(this.ParentTrackControl);
+                var newLeft = this.mouseDownLeft + (trackPosition.X - this.mouseDownTrackPosition.X);
+                if (newLeft < 0d)
+                {
+                    newLeft = 0d;
+                }
+                Canvas.SetLeft(this, newLeft);
+
+                // Track
+                var trackPanelPosition = e.GetPosition(Env.TrackPanel);
+                var trackNo = (int)(trackPanelPosition.Y / Env.TrackHeight);
+                if (trackNo != this.mouseMoveTrackNo)
+                {
+                    this.mouseMoveTrackNo = trackNo;
+                    var newTrackControl = GuiManager.Instance.GetTrackControl(trackNo);
+                    this.ParentTrackControl.Children.Remove(this);
+                    newTrackControl.Children.Add(this);
+                    this.ParentTrackControl = newTrackControl;
+                }
+            }
+            else
+            {
+                var position = e.GetPosition(this.ParentTrackControl);
+                var newWidth = this.mouseDownWidth + (position.X - this.mouseDownTrackPosition.X);
+                if (newWidth < 12d)
+                {
+                    newWidth = 12d;
+                }
+                this.Width = newWidth;
+            }
             this.didMove = true;
         }
 
         private void MouseHookMouseUp()
         {
-            if (this.isMouseDown)
+            if (this.mouseMoveAction != MouseMoveAction.None)
             {
-                this.isMouseDown = false;
                 Env.TrackPanel.MouseMove -= TrackPanelMouseMove;
 
                 if (this.didMove)
                 {
-                    var newLeft = Canvas.GetLeft(this);
-                    Part.Start = newLeft * (double)Env.TimePerPixel;
-                    Env.Song.OnPartChanged(this.Part);
+                    if (this.mouseMoveAction == MouseMoveAction.Move)
+                    {
+                        // Position in track
+                        var newLeft = Canvas.GetLeft(this);
+                        this.Part.Start = newLeft * (double)Env.TimePerPixel;
+
+                        // Track
+                        this.Part.TrackId = this.ParentTrackControl.Track.Id;
+
+                        Env.Song.OnPartChanged(this.Part);
+                    }
+                    else if (this.mouseMoveAction == MouseMoveAction.Resize)
+                    {
+                        var newWidth = this.Width;
+                        Part.Length = newWidth * (double)Env.TimePerPixel;
+                        Env.Song.OnPartChanged(this.Part);
+                    }
                 }
-            }
-        }
 
-        public void Select()
-        {
-            if (!this.IsSelected)
-            {
-                foreach (var otherControl in Song.SelectedParts)
-                {
-                    otherControl.IsSelected = false;
-                }
-
-                Song.SelectedParts.Clear();
-
-                this.IsSelected = true;
-                Song.SelectedParts.Add(this);
-
-                this.Selected?.Invoke();
+                this.mouseMoveAction = MouseMoveAction.None;
             }
         }
 

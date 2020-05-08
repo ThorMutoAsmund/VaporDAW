@@ -59,16 +59,11 @@ namespace VaporDAW
         {
             var trackHeadControl = new TrackHeadControl()
             {
-                Track = track
+                Track = track,
+                Height = Env.TrackHeight
             };
 
             return trackHeadControl;
-        }
-
-        protected override void OnMouseDown(MouseButtonEventArgs e)
-        {
-            this.TrackControl.Select();
-            //Select(true);
         }
 
         private void SetTrackProperties()

@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:VaporDAW"
              mc:Ignorable="d" 
              d:DesignHeight="80" d:DesignWidth="100">
-    <Border Name="border" BorderThickness="0 0 0 1" Height="80" Width="auto">
+    <Border Name="border" BorderThickness="0 0 0 1" Width="auto">
         <StackPanel Name="header" Orientation="Vertical"  Width="100px" DockPanel.Dock="Left">
             <Label Name="titleLabel" Foreground="White" Content="Track01"></Label>
         </StackPanel>            

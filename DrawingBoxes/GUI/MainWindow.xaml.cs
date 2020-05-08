@@ -12,7 +12,6 @@ namespace VaporDAW
     public partial class MainWindow : Window
     {
         private string title;
-        private GuiManager guiManager;
 
         public MainWindow()
         {
@@ -68,7 +67,7 @@ namespace VaporDAW
                 }
             };
 
-            this.guiManager = new GuiManager(this.trackHeadPanel, this.trackPanel);
+            GuiManager.Create(this.trackHeadPanel, this.trackPanel);
         }
 
         private void OnNew(object sender, ExecutedRoutedEventArgs e) => NewProject();
@@ -338,7 +337,7 @@ namespace VaporDAW
             Env.TimePerPixel = zoomIn ?
                 (stringRep.Contains("5") ? Env.TimePerPixel / 5 * 2 : Env.TimePerPixel / 2) :
                 (stringRep.Contains("2") ? Env.TimePerPixel / 2 * 5 : Env.TimePerPixel * 2);
-            this.guiManager.RedrawSong();
+            GuiManager.Instance.RedrawSong();
             Env.OnViewChanged();
         }
     }
