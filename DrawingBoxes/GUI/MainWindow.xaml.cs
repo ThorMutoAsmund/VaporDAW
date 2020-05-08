@@ -67,7 +67,7 @@ namespace VaporDAW
                 }
             };
 
-            GuiManager.Create(this.trackHeadPanel, this.trackPanel);
+            GuiManager.Create(this, this.trackHeadPanel, this.trackPanel);
         }
 
         private void OnNew(object sender, ExecutedRoutedEventArgs e) => NewProject();

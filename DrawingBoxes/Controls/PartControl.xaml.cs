@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,13 +42,18 @@ namespace VaporDAW
 
         private TrackControl ParentTrackControl { get; set; }
 
+        private bool mouseDownInLeftHalf;
         private Point mouseDownTrackPosition;
         private bool isSelected;
         private MouseMoveAction mouseMoveAction = MouseMoveAction.None;
         private bool didMove;
         private double mouseDownLeft;
         private double mouseDownWidth;
+        private TrackControl mouseDownTrackControl;
         private int mouseMoveTrackNo;
+
+        private double newStart;
+        private double newLength;
 
         public PartControl()
         {
@@ -69,7 +75,8 @@ namespace VaporDAW
             var partControl = new PartControl()
             {
                 Part = part,
-                ParentTrackControl = parentTrackControl
+                ParentTrackControl = parentTrackControl,
+                Height = Env.TrackHeight
             };
 
             return partControl;
@@ -82,30 +89,71 @@ namespace VaporDAW
                 return;
             }
 
+            var mouseDownPosition = e.GetPosition(this);
+            this.mouseDownInLeftHalf = mouseDownPosition.X < this.Width / 2;
             this.mouseDownTrackPosition = e.GetPosition(this.ParentTrackControl);
             this.mouseMoveAction = e.OriginalSource == this.grid ? MouseMoveAction.Move : (e.OriginalSource == this.rightHandle? MouseMoveAction.Resize : MouseMoveAction.None);
             this.mouseDownLeft = Canvas.GetLeft(this);
             this.mouseDownWidth = this.Width;
-            
+            this.mouseDownTrackControl = this.ParentTrackControl;
+            this.newLength = this.Part.Length;
+            this.newStart = this.Part.Start;
+
             var trackPanelPosition = e.GetPosition(Env.TrackPanel);
             this.mouseMoveTrackNo =  (int)(trackPanelPosition.Y / Env.TrackHeight);
             
             this.didMove = false;
+
             Env.TrackPanel.MouseMove += TrackPanelMouseMove;
+            GuiManager.Instance.EscapePressed += EscapePressed;
         }
+
+        private void EscapePressed()
+        {
+            this.didMove = false;
+            Canvas.SetLeft(this, this.mouseDownLeft);
+            this.Width = this.mouseDownWidth;
+            if (this.ParentTrackControl != this.mouseDownTrackControl)
+            {
+                this.ParentTrackControl.Children.Remove(this);
+                this.mouseDownTrackControl.Children.Add(this);
+                this.ParentTrackControl = this.mouseDownTrackControl;
+            }
+
+            MouseHookMouseUp();
+        }
+
 
         private void TrackPanelMouseMove(object sender, MouseEventArgs e)
         {
             if (this.mouseMoveAction == MouseMoveAction.Move)
             {
                 // Position in track
-                var trackPosition = e.GetPosition(this.ParentTrackControl);
-                var newLeft = this.mouseDownLeft + (trackPosition.X - this.mouseDownTrackPosition.X);
-                if (newLeft < 0d)
+                if (!Keyboard.IsKeyDown(Key.LeftShift) && !Keyboard.IsKeyDown(Key.RightShift))
                 {
-                    newLeft = 0d;
+                    var trackPosition = e.GetPosition(this.ParentTrackControl);
+                    var newLeft = this.mouseDownLeft + (trackPosition.X - this.mouseDownTrackPosition.X);
+                    this.newStart = newLeft * (double)Env.TimePerPixel;
+
+                    // Snap
+                    if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+                    {
+                        if (GuiManager.Instance.TryGetPartControlSnapValue(this, this.mouseDownInLeftHalf ? newLeft : newLeft + this.Width, out var snapPosition, out var snapValue))
+                        {
+                            newLeft = this.mouseDownInLeftHalf ? snapPosition : snapPosition - this.Width;
+                            this.newStart = mouseDownInLeftHalf ? snapValue : snapValue - this.Part.Length;
+                        }
+                    }
+
+                    // Don't go under 0
+                    if (newLeft < 0d || this.newStart < 0d)
+                    {
+                        newLeft = 0d;
+                        this.newStart = 0d;
+                    }
+
+                    Canvas.SetLeft(this, newLeft);
                 }
-                Canvas.SetLeft(this, newLeft);
 
                 // Track
                 var trackPanelPosition = e.GetPosition(Env.TrackPanel);
@@ -123,10 +171,24 @@ namespace VaporDAW
             {
                 var position = e.GetPosition(this.ParentTrackControl);
                 var newWidth = this.mouseDownWidth + (position.X - this.mouseDownTrackPosition.X);
+                this.newLength = newWidth * (double)Env.TimePerPixel;
+
+                // Snap
+                if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+                {
+                    if (GuiManager.Instance.TryGetPartControlSnapValue(this, this.mouseDownLeft + newWidth, out var snapPosition, out var snapValue))
+                    {
+                        newWidth = snapPosition - this.mouseDownLeft;
+                        this.newLength = snapValue - this.Part.Start;
+                    }
+                }
+
                 if (newWidth < 12d)
                 {
                     newWidth = 12d;
+                    this.newLength = newWidth * (double)Env.TimePerPixel;
                 }
+
                 this.Width = newWidth;
             }
             this.didMove = true;
@@ -136,6 +198,7 @@ namespace VaporDAW
         {
             if (this.mouseMoveAction != MouseMoveAction.None)
             {
+                GuiManager.Instance.EscapePressed -= EscapePressed;
                 Env.TrackPanel.MouseMove -= TrackPanelMouseMove;
 
                 if (this.didMove)
@@ -143,8 +206,7 @@ namespace VaporDAW
                     if (this.mouseMoveAction == MouseMoveAction.Move)
                     {
                         // Position in track
-                        var newLeft = Canvas.GetLeft(this);
-                        this.Part.Start = newLeft * (double)Env.TimePerPixel;
+                        this.Part.Start = this.newStart;
 
                         // Track
                         this.Part.TrackId = this.ParentTrackControl.Track.Id;
@@ -153,8 +215,7 @@ namespace VaporDAW
                     }
                     else if (this.mouseMoveAction == MouseMoveAction.Resize)
                     {
-                        var newWidth = this.Width;
-                        Part.Length = newWidth * (double)Env.TimePerPixel;
+                        Part.Length = this.newLength;
                         Env.Song.OnPartChanged(this.Part);
                     }
                 }

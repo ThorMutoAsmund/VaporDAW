@@ -9,10 +9,10 @@ namespace VaporDAW
 {
     public static class Colors
     {
-        public static Color Part = Color.FromRgb(180, 180, 130);
-        public static Color PartSelected = Color.FromRgb(250, 150, 80);
+        public static Color Part = Color.FromArgb(60, 220, 220, 160);
+        public static Color PartSelected = Color.FromArgb(60, 250, 150, 80);
         public static Color PartBorder = Color.FromRgb(64, 64, 64);
-        public static Color PartHandle = Color.FromArgb(30, 90, 0, 0);
+        public static Color PartHandle = Color.FromArgb(0, 10, 0, 0);
 
         public static Color Track = Color.FromRgb(32, 36, 36);
         public static Color TrackSelected = Color.FromRgb(64, 72, 72);

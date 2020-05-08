@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +12,7 @@ namespace VaporDAW
 {
     public class GuiManager
     {
+        private MainWindow mainWindow;
         private StackPanel trackHeadPanel;
         private StackPanel trackPanel;
         private Dictionary<string, TrackControl> trackControls = new Dictionary<string, TrackControl>();
@@ -19,13 +21,17 @@ namespace VaporDAW
         private List<PartControl> selectedParts = new List<PartControl>();
         private List<TrackControl> selectedTracks = new List<TrackControl>();
         private int zIndex = 0;
+        private Thread keyPressThread;
+
+        public Action EscapePressed;
 
         public static GuiManager Instance { get; private set; }
         
-        private GuiManager(StackPanel trackHeadPanel, StackPanel trackPanel)
+        private GuiManager(MainWindow mainWindow, StackPanel trackHeadPanel, StackPanel trackPanel)
         {
             Instance = this;
-            
+
+            this.mainWindow = mainWindow;
             this.trackHeadPanel = trackHeadPanel;
             this.trackPanel = trackPanel;
 
@@ -36,12 +42,32 @@ namespace VaporDAW
             Song.PartAdded += AddPartControl;
             Song.PartChanged += PartChanged;
             Song.PartDeleted += PartDeleted;
+
+            this.keyPressThread = new Thread(DetectKeyPress);
+            this.keyPressThread.Start();
         }
 
-        public static void Create(StackPanel trackHeadPanel, StackPanel trackPanel)
+        public static void Create(MainWindow mainWindow, StackPanel trackHeadPanel, StackPanel trackPanel)
         {
-            new GuiManager(trackHeadPanel, trackPanel);
+            new GuiManager(mainWindow, trackHeadPanel, trackPanel);
         }
+
+        private void DetectKeyPress()
+        {
+            for (; ; )
+            {
+                this.mainWindow.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (Keyboard.IsKeyDown(Key.Escape))
+                    {
+                        this.EscapePressed?.Invoke();
+                    }
+                }));
+
+                Thread.Sleep(100);
+            }
+        }
+
 
         private void ClearVolatile()
         {
@@ -88,6 +114,34 @@ namespace VaporDAW
         public TrackControl GetTrackControl(int trackNo)
         {
             return trackNo >= 0 && trackNo < this.trackControlsByIndex.Count() ? this.trackControlsByIndex[trackNo] : null;
+        }
+
+        public bool TryGetPartControlSnapValue(PartControl self, double left, out double snapPosition, out double snapValue, double margin = 8d)
+        {
+            var result = false;
+            snapPosition = double.PositiveInfinity;
+            snapValue = double.PositiveInfinity;
+            foreach (var partControl in this.partControls.Values.Where(pc => pc != self))
+            {
+                var otherLeft = Canvas.GetLeft(partControl);
+                var difference = Math.Abs(otherLeft - left);
+                if (difference < margin && difference < snapPosition)
+                {
+                    snapPosition = otherLeft;
+                    snapValue = partControl.Part.Start;
+                    result = true;
+                }
+                var otherRight = otherLeft + partControl.Width;
+                difference = Math.Abs(otherRight - left);
+                if (difference < margin && difference < snapPosition)
+                {
+                    snapPosition = otherRight;
+                    snapValue = partControl.Part.Start + partControl.Part.Length;
+                    result = true;
+                }
+            }
+
+            return result;
         }
 
         private void TrackChanged(Track track)
