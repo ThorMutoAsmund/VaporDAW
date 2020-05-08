@@ -14,12 +14,12 @@ using System.Windows.Shapes;
 
 namespace VaporDAW
 {
-    public partial class EditTrackDialog : Window
+    public partial class EditPartDialog : Window
     {
-        private Track track;
-        public Track Track 
+        private Part part;
+        public Part Part 
         { 
-            get => this.track;
+            get => this.part;
             private set
             {
                 if (Env.Song == null)
@@ -27,14 +27,16 @@ namespace VaporDAW
                     return;
                 }
 
-                this.track = value;
+                this.part = value;
 
-                this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Track.ScriptId);
-                this.titleTextBox.Text = this.Track.Title;
+                this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Part.ScriptId);
+                this.titleTextBox.Text = this.Part.Title;
+                this.startTextBox.DoubleValue = this.Part.Start;
+                this.lengthTextBox.DoubleValue = this.Part.Length;
             }
         }
 
-        public EditTrackDialog()
+        public EditPartDialog()
         {
             InitializeComponent();
 
@@ -44,18 +46,20 @@ namespace VaporDAW
 
         private void OK()
         {
-            this.Track.Title = this.titleTextBox.Text;
-            this.Track.ScriptId = this.scriptSelectControl.Script.Id;
+            this.Part.Title = this.titleTextBox.Text;
+            this.Part.Start = this.startTextBox.DoubleValue;
+            this.Part.Length = this.lengthTextBox.DoubleValue;
+            this.Part.ScriptId = this.scriptSelectControl.Script.Id;
 
             this.DialogResult = true;
         }
 
-        public static EditTrackDialog Create(Window owner, Track track)
+        public static EditPartDialog Create(Window owner, Part part)
         {
-            var dialog = new EditTrackDialog()
+            var dialog = new EditPartDialog()
             {
                 Owner = owner,
-                Track = track
+                Part = part
             };
 
             return dialog;

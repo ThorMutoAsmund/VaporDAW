@@ -18,20 +18,9 @@ namespace VaporDAW
     public partial class PartControl : UserControl
     {
         public Action Selected;
-        private Point contextMousePosition;
-        private TrackControl ParentTrackControl { get; set; }
 
-        private Part part;
-        public Part Part 
-        {
-            get => this.part;
-            private set
-            {
-                this.part = value;
-            }
-        }
+        public Part Part { get; private set; }
 
-        private bool isSelected;
         public bool IsSelected
         {
             get => this.isSelected;
@@ -45,45 +34,93 @@ namespace VaporDAW
             }
         }
 
+        private TrackControl ParentTrackControl 
+        {
+            get => this.parentTrackControl;
+            set
+            {
+                if (this.parentTrackControl != value)
+                {
+                    //if (this.parentTrackControl != null)
+                    //{
+                    //    this.parentTrackControl.MouseUp -= (sender, e) => TrackMouseUp();
+                    //}
+                    this.parentTrackControl = value;
+                    //this.parentTrackControl.MouseUp += (sender, e) => TrackMouseUp();
+                }
+            }
+        }
+
+        private TrackControl parentTrackControl;
+        private Point contextMousePosition;
+        private bool isSelected;
+        private bool isMouseDown;
+        private bool didMove;
+        private double mouseDownLeft;
+
         public PartControl()
         {
             InitializeComponent();
 
             this.grid.Background = new SolidColorBrush(Colors.Part);
             this.border.BorderBrush = new SolidColorBrush(Colors.PartBorder);
+                
+            // Context menu
+            this.propertiesMenuItem.Click += (sender, e) => ShowProperties();
+            this.deleteMenuItem.Click += (sender, e) => DeletePart();
 
-            Song.PartChanged += changedPart =>
-            {
-                if (changedPart == this.Part)
-                {
-                    this.Part = changedPart;
-                }
-            };
-
-            // Store mouse down on context menu click
-            this.MouseDown += (sender, e) =>
-                this.contextMousePosition = e.ChangedButton == MouseButton.Right ? e.GetPosition(this.grid) : this.contextMousePosition;
-
+            MouseHook.OnMouseUp += (sender, p) => MouseHookMouseUp();
         }
 
-        public static PartControl Create(TrackControl trackControl, Part part)
+        public static PartControl Create(Part part, TrackControl parentTrackControl)
         {
             var partControl = new PartControl()
             {
-                ParentTrackControl = trackControl,
                 Part = part,
-                Width = part.Length / (double)Env.TimePerPixel
+                ParentTrackControl = parentTrackControl
             };
-            trackControl.Children.Add(partControl);
-            var left = part.Start / (double)Env.TimePerPixel;
-            Canvas.SetLeft(partControl, left);
 
             return partControl;
         }
 
+        
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
+            if (Env.Song == null)
+            {
+                return;
+            }
+
+            this.contextMousePosition = e.GetPosition(this.ParentTrackControl);
+            this.isMouseDown = true;
+            this.mouseDownLeft = Canvas.GetLeft(this);
+            this.didMove = false;
+            Env.TrackPanel.MouseMove += TrackPanelMouseMove;
+
             Select();
+        }
+
+        private void TrackPanelMouseMove(object sender, MouseEventArgs e)
+        {
+            var position = e.GetPosition(this.ParentTrackControl);
+            Canvas.SetLeft(this, this.mouseDownLeft + (position.X - this.contextMousePosition.X));
+            this.didMove = true;
+        }
+
+        private void MouseHookMouseUp()
+        {
+            if (this.isMouseDown)
+            {
+                this.isMouseDown = false;
+                Env.TrackPanel.MouseMove -= TrackPanelMouseMove;
+
+                if (this.didMove)
+                {
+                    var newLeft = Canvas.GetLeft(this);
+                    Part.Start = newLeft * (double)Env.TimePerPixel;
+                    Env.Song.OnPartChanged(this.Part);
+                }
+            }
         }
 
         public void Select()
@@ -106,12 +143,31 @@ namespace VaporDAW
 
         protected override void OnPreviewMouseDoubleClick(MouseButtonEventArgs e)
         {
-            MessageBox.Show("Edit part not supported yet");
-            //var dialog = EditTrackDialog.Create(Env.MainWindow, this.Track);
-            //if (dialog.ShowDialog() ?? false)
-            //{
-            //    Env.Song.OnTrackChanged(this.Track);
-            //}
+            ShowProperties();
+        }
+
+        private void ShowProperties()
+        {
+            if (Env.Song == null)
+            {
+                return;
+            }
+
+            var dialog = EditPartDialog.Create(Env.MainWindow, this.Part);
+            if (dialog.ShowDialog() ?? false)
+            {
+                Env.Song.OnPartChanged(this.Part);
+            }
+        }
+
+        private void DeletePart()
+        {
+            if (Env.Song == null)
+            {
+                return;
+            }
+
+            Env.Song.DeletePart(this.Part);
         }
     }
 }

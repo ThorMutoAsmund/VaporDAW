@@ -11,6 +11,9 @@ namespace VaporDAW
 {
     public partial class MainWindow : Window
     {
+        private string title;
+        private GuiManager guiManager;
+
         public MainWindow()
         {
             this.FontFamily = new System.Windows.Media.FontFamily("Arial");
@@ -21,6 +24,7 @@ namespace VaporDAW
 
             Env.TimePerPixel = 0.01m;
             Env.MainWindow = this;
+            Env.TrackPanel = this.trackPanel;
 
             this.Closing += (sender, e) => e.Cancel = !Env.ConfirmChangesMade();
 
@@ -33,6 +37,7 @@ namespace VaporDAW
             this.zoomOutButton.Click += (__, _) => Zoom(false);
             Song.RequestEditScript += script => OpenScriptTab(script);
             Song.ProjectLoaded += loaded => ProjectLoaded(loaded);
+            Song.ChangeStateChanged += UpdateTitle;
 
             this.scrollViewer.ScrollChanged += (object sender, ScrollChangedEventArgs e) =>
             {
@@ -62,19 +67,8 @@ namespace VaporDAW
                     //}
                 }
             };
-        }
 
-        private void RedrawSong()
-        {
-            this.trackHeadPanel.Children.Clear();
-            this.trackPanel.Children.Clear();
-
-            if (Env.Song == null)
-            {
-                return;
-            }
-
-            Env.Song.Tracks.ForEach(track => AddTrack(track));
+            this.guiManager = new GuiManager(this.trackHeadPanel, this.trackPanel);
         }
 
         private void OnNew(object sender, ExecutedRoutedEventArgs e) => NewProject();
@@ -87,9 +81,16 @@ namespace VaporDAW
 
         private void SetTitle(string projectName = null)
         {
-            this.Title = $"{(String.IsNullOrEmpty(projectName) ? String.Empty : $"{projectName} - ")}{Env.ApplicationName}";
+            this.title = $"{(String.IsNullOrEmpty(projectName) ? String.Empty : $"{projectName} - ")}{Env.ApplicationName}";
+            UpdateTitle();
         }
-               
+
+        private void UpdateTitle()
+        {
+            this.Title = $"{title}{(Song.ChangesMade ? " *" : String.Empty)}";
+        }
+
+
         private void NewProject()
         {
             if (!Env.ConfirmChangesMade())
@@ -247,8 +248,6 @@ namespace VaporDAW
                 this.toolsMenu.IsEnabled = true;
                 SetTitle(Env.Song.SongName);
             }
-
-            RedrawSong();
         }
 
         private void OpenScriptTab(ScriptRef script)
@@ -323,27 +322,14 @@ namespace VaporDAW
             });
         }
 
-        private void AddTrack(Track track = null)
+        private void AddTrack()
         {
             if (Env.Song == null)
             {
                 return;
             }
 
-            if (track == null)
-            {
-                track = Env.Song.AddTrack();
-            }
-
-            // Add control
-            var trackHeadControl = TrackHeadControl.Create(this.trackHeadPanel, track);
-            var trackControl = TrackControl.Create(this.trackPanel, trackHeadControl, track);
-
-            // Add parts
-            foreach (var part in Env.Song.Parts.Where(p => p.TrackId == track.Id))
-            {
-                PartControl.Create(trackControl, part);
-            }
+            Env.Song.AddTrack();
         }
 
         private void Zoom(bool zoomIn)
@@ -352,7 +338,7 @@ namespace VaporDAW
             Env.TimePerPixel = zoomIn ?
                 (stringRep.Contains("5") ? Env.TimePerPixel / 5 * 2 : Env.TimePerPixel / 2) :
                 (stringRep.Contains("2") ? Env.TimePerPixel / 2 * 5 : Env.TimePerPixel * 2);
-            RedrawSong();
+            this.guiManager.RedrawSong();
             Env.OnViewChanged();
         }
     }

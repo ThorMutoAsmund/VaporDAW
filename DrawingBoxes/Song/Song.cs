@@ -24,21 +24,38 @@ namespace VaporDAW
         [JsonProperty] public double SampleFrequency { get; set; }
         [JsonProperty] public double SongLength { get; set; }
 
-        //[JsonIgnore] public List<ScriptRef> ScriptRefs => this.Scripts;
-        //[JsonIgnore] public List<SampleRef> SampleRefs => this.Samples;
-        public static bool ChangesMade { get; set; } = false;
+        [JsonIgnore] public string ProjectFilePath => Path.Combine(this.projectPath, $"{Env.ProjectFileName}.json");
+        [JsonIgnore] public string ScriptsPath => Path.Combine(this.projectPath, Env.ScriptsFolder);
+        [JsonIgnore] public string SamplesPath => Path.Combine(this.projectPath, Env.SamplesFolder);
+
+        public static bool ChangesMade
+        {
+            get => changesMade;
+            set
+            {
+                if (value != changesMade)
+                {
+                    changesMade = value;
+                    ChangeStateChanged?.Invoke();
+                }
+            }
+        }
+        public static event Action ChangeStateChanged;
         public static List<TrackControl> SelectedTracks = new List<TrackControl>();
         public static List<PartControl> SelectedParts = new List<PartControl>();
 
         public static event Action<bool> ProjectLoaded;
         public static event Action<ScriptRef> RequestEditScript;
-        public static event Action<Track> TrackChanged;
+        
+        public static event Action<Part> PartAdded; 
         public static event Action<Part> PartChanged;
+        public static event Action<Part> PartDeleted;
 
+        public static event Action<Track> TrackAdded;
+        public static event Action<Track> TrackChanged;
+        
+        private static bool changesMade = false;
         private string projectPath;
-        [JsonIgnore] public string ProjectFilePath => Path.Combine(this.projectPath, $"{Env.ProjectFileName}.json");
-        [JsonIgnore] public string ScriptsPath => Path.Combine(this.projectPath, Env.ScriptsFolder);
-        [JsonIgnore] public string SamplesPath => Path.Combine(this.projectPath, Env.SamplesFolder);
 
         public static void ClearVolatile()
         {
@@ -227,8 +244,15 @@ namespace VaporDAW
             this.Tracks.Add(track);
 
             Song.ChangesMade = true;
+            Song.TrackAdded?.Invoke(track);
 
             return track;
+        }
+
+        public void OnTrackChanged(Track track)
+        {
+            Song.TrackChanged?.Invoke(track);
+            Song.ChangesMade = true;
         }
 
         public Part AddPart(Track track, System.Windows.Point? point = null, string title = null)
@@ -257,8 +281,24 @@ namespace VaporDAW
             this.Parts.Add(part);
 
             Song.ChangesMade = true;
+            Song.PartAdded?.Invoke(part);
 
             return part;
+        }
+
+        public void OnPartChanged(Part part)
+        {
+            Song.PartChanged?.Invoke(part);
+            Song.ChangesMade = true;
+        }
+
+        public void DeletePart(Part part)
+        {
+            if (this.Parts.Remove(part))
+            {
+                Song.ChangesMade = true;
+                Song.PartDeleted?.Invoke(part);
+            }
         }
 
         public string GetNextAvailableScriptName()
@@ -424,18 +464,6 @@ namespace VaporDAW
             }
 
             return string.Empty;
-        }
-
-        public void OnTrackChanged(Track track)
-        {
-            Song.TrackChanged?.Invoke(track);
-            Song.ChangesMade = true;
-        }
-
-        public void OnPartChanged(Part part)
-        {
-            Song.PartChanged?.Invoke(part);
-            Song.ChangesMade = true;
         }
 
         public ScriptRef GetScriptRef(string id)

@@ -18,10 +18,10 @@ namespace VaporDAW
     public partial class TrackControl : UserControl
     {
         public Action Selected;
+        //public Action MouseUp;
         public TrackHeadControl TrackHeadControl { get; set; }
 
         private Point contextMousePosition;
-        private Panel ParentPanel { get; set; }
 
         private Track track;
         public Track Track 
@@ -56,33 +56,19 @@ namespace VaporDAW
             this.grid.Background = new SolidColorBrush(Colors.Track);
             this.border.BorderBrush = new SolidColorBrush(Colors.TrackBorder);
 
-            Song.TrackChanged += changedTrack =>
-            {
-                if (changedTrack == this.Track)
-                {
-                    this.Track = changedTrack;
-                }
-            };
-
-            // Store mouse down on context menu click
-            this.MouseDown += (sender, e) =>
-                this.contextMousePosition = e.ChangedButton == MouseButton.Right ? e.GetPosition(this.grid) : this.contextMousePosition;
-
             // Context menu
             this.addPartMenuItem.Click += (sender, e) => AddPart(point: this.contextMousePosition);
             this.propertiesMenuItem.Click += (sender, e) => ShowProperties();
         }
 
-        public static TrackControl Create(Panel panel, TrackHeadControl trackHeadControl, Track track)
+        public static TrackControl Create(TrackHeadControl trackHeadControl, Track track)
         {
             var trackControl = new TrackControl()
             {
-                ParentPanel = panel,
                 TrackHeadControl = trackHeadControl,
                 Track = track,
                 Width = Env.Song.SongLength / (double)Env.TimePerPixel
             };
-            panel.Children.Add(trackControl);
             trackHeadControl.TrackControl = trackControl;
 
             return trackControl;
@@ -97,14 +83,13 @@ namespace VaporDAW
 
             Part part = Env.Song.AddPart(this.track, point, title);
 
-            // Add control
-            var partControl = PartControl.Create(this, part);
-
             return part;
         }
 
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
         {
+            this.contextMousePosition = e.ChangedButton == MouseButton.Right ? e.GetPosition(this.grid) : this.contextMousePosition;
+
             Select();
         }
 
@@ -143,13 +128,19 @@ namespace VaporDAW
         }
 
         private void ShowProperties()
-        { 
+        {
+            if (Env.Song == null)
+            {
+                return;
+            }
+
             var dialog = EditTrackDialog.Create(Env.MainWindow, this.Track);
             if (dialog.ShowDialog() ?? false)
             {
                 Env.Song.OnTrackChanged(this.Track);
             }
         }
+
         private void Canvas_DragEnterOver(object sender, DragEventArgs e)
         {
             if (!(e.Data.GetDataPresent("sample") || e.Data.GetDataPresent("script")))

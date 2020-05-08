@@ -68,6 +68,8 @@
     <Compile Include="Controls\PartControl.xaml.cs">
       <DependentUpon>PartControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TrackPanel.cs" />
+    <Compile Include="Controls\TextBoxEx.cs" />
     <Compile Include="Controls\TimeRulerControl.xaml.cs">
       <DependentUpon>TimeRulerControl.xaml</DependentUpon>
     </Compile>
@@ -76,6 +78,9 @@
     </Compile>
     <Compile Include="Controls\TrackHeadControl.xaml.cs">
       <DependentUpon>TrackHeadControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\EditPartDialog.xaml.cs">
+      <DependentUpon>EditPartDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="GUI\SelectScriptDialog.xaml.cs">
       <DependentUpon>SelectScriptDialog.xaml</DependentUpon>
@@ -134,6 +139,8 @@
     </Compile>
     <Compile Include="Song\Song.cs" />
     <Compile Include="Song\SongSerializer.cs" />
+    <Compile Include="Util\GuiManager.cs" />
+    <Compile Include="Util\MouseHook.cs" />
     <Compile Include="Util\NamePath.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
     <Compile Include="Util\Watchers.cs" />
@@ -158,6 +165,10 @@
     <Page Include="Controls\TrackHeadControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\EditPartDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="GUI\SelectScriptDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

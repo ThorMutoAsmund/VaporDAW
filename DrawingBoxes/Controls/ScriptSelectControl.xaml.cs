@@ -35,7 +35,9 @@ namespace VaporDAW
 
         public ScriptSelectControl()
         {
-            InitializeComponent();            
+            InitializeComponent();
+
+            // Subscribe to events
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)

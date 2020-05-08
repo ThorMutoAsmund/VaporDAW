@@ -11,7 +11,7 @@
             <Grid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Properties..." Name="propertiesMenuItem"/>
-                    <MenuItem Header="Delete..." Name="deletePartMenuItem"/>
+                    <MenuItem Header="Delete..." Name="deleteMenuItem"/>
                 </ContextMenu>
             </Grid.ContextMenu>
         </Grid>

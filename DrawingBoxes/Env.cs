@@ -21,6 +21,7 @@ namespace VaporDAW
         private static string TemplateFolder => "Templates";
         public static string LastProjectPath { get; set; }
         public static MainWindow MainWindow { get; set; }
+        public static StackPanel TrackPanel { get; set; }
 
         public static string DefaultPartTitle { get; set; } = "Untitled";
 
