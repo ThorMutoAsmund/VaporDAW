@@ -14,5 +14,15 @@ namespace VaporDAW
         [JsonProperty] public Dictionary<string, object> Settings { get; set; }
         //[JsonProperty] public List<InputOutput> Inputs { get; set; }
         //[JsonProperty] public List<InputOutput> Outputs { get; set; }
+
+        public Generator Clone()
+        {
+            return new Generator()
+            {
+                Id = Base64.UUID(),
+                ScriptId = this.ScriptId,
+                //TBD Settings = original.Settings.Cl
+            };
+        }
     }
 }

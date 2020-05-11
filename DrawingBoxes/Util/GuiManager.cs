@@ -38,13 +38,18 @@ namespace VaporDAW
             Song.ClearVolatile += ClearVolatile;
             Song.ProjectLoaded += loaded => RedrawSong();
             Song.TrackAdded += AddTrackControl;
-            Song.TrackChanged += TrackChanged;
             Song.PartAdded += AddPartControl;
-            Song.PartChanged += PartChanged;
             Song.PartDeleted += PartDeleted;
 
             this.keyPressThread = new Thread(DetectKeyPress);
             this.keyPressThread.Start();
+
+            Application.Current.Exit += ApplicationExit;
+        }
+
+        private void ApplicationExit(object sender, ExitEventArgs e)
+        {
+            this.keyPressThread?.Abort();
         }
 
         public static void Create(MainWindow mainWindow, StackPanel trackHeadPanel, StackPanel trackPanel)
@@ -116,6 +121,11 @@ namespace VaporDAW
             return trackNo >= 0 && trackNo < this.trackControlsByIndex.Count() ? this.trackControlsByIndex[trackNo] : null;
         }
 
+        public PartControl GetPartControl(string id)
+        {
+            return this.partControls.ContainsKey(id) ? this.partControls[id] : null;
+        }
+
         public bool TryGetPartControlSnapValue(PartControl self, double left, out double snapPosition, out double snapValue, double margin = 8d)
         {
             var result = false;
@@ -144,9 +154,6 @@ namespace VaporDAW
             return result;
         }
 
-        private void TrackChanged(Track track)
-        {
-        }
 
         private void AddPartControl(Part part)
         {
@@ -155,7 +162,7 @@ namespace VaporDAW
             trackControl.Children.Add(partControl);
             this.partControls[part.Id] = partControl;
             
-            SetPartControlProperties(part, partControl);
+            //SetPartControlProperties(part, partControl);
 
 
             partControl.PreviewMouseDown += (sender, e) => ChangeZIndex(sender, Int32.MaxValue);
@@ -171,7 +178,7 @@ namespace VaporDAW
             }
         }
 
-        private void SelectPartControl(PartControl partControl)
+        public void SelectPartControl(PartControl partControl)
         {
             if (!partControl.IsSelected)
             {
@@ -184,6 +191,20 @@ namespace VaporDAW
 
                 partControl.IsSelected = true;
                 this.selectedParts.Add(partControl);
+            }
+        }
+
+        public void DeleteSelectedParts()
+        {
+            if (this.selectedParts.Count() > 0)
+            {
+                if (MessageBox.Show($"Are you sure you want to delete the selected {this.selectedParts.Count()} part(s)?", "Delete part(s)", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+                {
+                    foreach (var partControl in this.selectedParts.ToArray())
+                    {
+                        Env.Song.DeletePart(partControl.Part);
+                    }
+                }
             }
         }
 
@@ -212,18 +233,19 @@ namespace VaporDAW
         }
 
 
-        private void PartChanged(Part part)
-        {
-            var partControl = this.partControls[part.Id];
-            SetPartControlProperties(part, partControl);
-        }
+        //private void PartChanged(Part part)
+        //{
+        //    var partControl = this.partControls[part.Id];
+        //    SetPartControlProperties(part, partControl);
+        //}
 
-        private void SetPartControlProperties(Part part, PartControl partControl)
-        {
-            var left = part.Start / (double)Env.TimePerPixel;
-            partControl.Width = part.Length / (double)Env.TimePerPixel;
-            Canvas.SetLeft(partControl, left);
-        }
+        //private void SetPartControlProperties(Part part, PartControl partControl)
+        //{
+        //    var left = part.Start / (double)Env.TimePerPixel;
+        //    partControl.Width = part.Length / (double)Env.TimePerPixel;
+        //    Canvas.SetLeft(partControl, left);
+        //    partControl.Title = part.Title;
+        //}
 
         private void PartDeleted(Part part)
         {

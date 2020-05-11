@@ -33,6 +33,15 @@ namespace VaporDAW
                 this.titleTextBox.Text = this.Part.Title;
                 this.startTextBox.DoubleValue = this.Part.Start;
                 this.lengthTextBox.DoubleValue = this.Part.Length;
+
+                this.scriptSelectControl.IsReadOnly = this.Part.IsReference;
+                this.titleTextBox.IsReadOnly = this.Part.IsReference;
+                this.lengthTextBox.IsReadOnly = this.Part.IsReference;
+                if (this.Part.IsReference)
+                {
+                    this.titleTextBox.Background = SystemColors.ControlBrush;
+                    this.lengthTextBox.Background = SystemColors.ControlBrush;
+                }
             }
         }
 

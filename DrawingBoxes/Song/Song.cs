@@ -175,11 +175,6 @@ namespace VaporDAW
 
         public Task<GenerateResult> Generate(StandardAudioFormat audioFormat = StandardAudioFormat.PCM, float startTime = 0f, float length = 5f)
         {
-            if (Env.Song == null)
-            {
-                return null;
-            }
-
             // Create script classes
             var processEnv = new ProcessEnv().CreateFrom(Env.Song);
                         
@@ -189,11 +184,12 @@ namespace VaporDAW
                 watch.Start();
 
                 // Create script classes
-                processEnv.InitProcessors();
+                if (processEnv.InitProcessors())
+                {
+                    var processParams = new ProcessParams(processEnv, startTime, length);
+                    processEnv.Process(processParams);
+                }
 
-                var processParams = new ProcessParams(processEnv, startTime, length);
-                processEnv.Process(processParams);
-                
                 watch.Stop();
 
                 return new GenerateResult(processEnv.Mixer.GetOutput(Tags.MainOutput), watch.ElapsedMilliseconds);
@@ -268,6 +264,45 @@ namespace VaporDAW
                 Length = length,
                 Title = title ?? Env.DefaultPartTitle,
                 Generators = new List<Generator>(),
+                TrackId = track.Id
+            };
+
+            this.Parts.Add(part);
+
+            Song.ChangesMade = true;
+            Song.PartAdded?.Invoke(part);
+
+            return part;
+        }
+
+        public Part RefClonePart(Part original, double start, Track track)
+        {
+            var part = new Part()
+            {
+                Id = Base64.UUID(),
+                RefId = original.Id,
+                Start = start,
+                TrackId = track.Id
+            };
+
+            this.Parts.Add(part);
+
+            Song.ChangesMade = true;
+            Song.PartAdded?.Invoke(part);
+
+            return part;
+        }
+
+        public Part ClonePart(Part original, double start, Track track)
+        {
+            var part = new Part()
+            {
+                Id = Base64.UUID(),
+                ScriptId = original.ScriptId,
+                Start = start,
+                Length = original.Length,
+                Title = original.Title,
+                Generators = original.Generators.Select(g => g.Clone()).ToList(),
                 TrackId = track.Id
             };
 
@@ -467,6 +502,10 @@ namespace VaporDAW
         public SampleRef GetSampleRef(string id)
         {
             return this.Samples.FirstOrDefault(s => s.Id == id);
+        }
+        public Part GetPart(string id)
+        {
+            return this.Parts.FirstOrDefault(s => s.Id == id);
         }
     }
 

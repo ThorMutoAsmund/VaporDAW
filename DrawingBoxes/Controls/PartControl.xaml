@@ -5,14 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:VaporDAW"
              mc:Ignorable="d" 
-             d:DesignHeight="80" d:DesignWidth="800">
-    <Border Name="border" BorderThickness="1" Width="auto">
-        <Grid Name="grid" Cursor="SizeAll">
+             d:DesignHeight="80" d:DesignWidth="800"
+             Focusable="True">
+    <Border Name="border" BorderThickness="1" Width="auto" Focusable="True">
+        <Grid Name="grid" Cursor="SizeAll" Focusable="True">
+            <Label Name="titleLabel" Foreground="White" Content="Part" Height="30" VerticalAlignment='Top'></Label>
             <Canvas x:Name="canvas">
             </Canvas>
             <!--<Canvas x:Name="leftHandle" Width="10" HorizontalAlignment="Left">
             </Canvas>-->
-            <Canvas x:Name="rightHandle" Width="6" HorizontalAlignment="Right" Cursor="SizeWE">
+            <Canvas x:Name="rightHandle" Width="6" HorizontalAlignment="Right">
             </Canvas>
             <Grid.ContextMenu>
                 <ContextMenu>

@@ -27,12 +27,22 @@ namespace VaporDAW
             return this;
         }
 
-        public void InitProcessors()
+        public bool InitProcessors()
         {
             foreach (var processor in this.Processors.Values)
             {
-                processor.Init(this, this.song);
+                try
+                {
+                    processor.Init(this, this.song);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Processor {processor.ElementId} failed init: {e.Message}");
+                    return false;
+                }
             }
+
+            return true;
         }
 
         public void Process(ProcessParams processParams) => this.Mixer.Process(processParams);

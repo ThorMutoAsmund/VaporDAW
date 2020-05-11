@@ -31,17 +31,22 @@ namespace VaporDAW
             }
         }
 
+        public bool IsReadOnly { get; set; }
+
         public Action<ScriptRef> ScriptChanged;
 
         public ScriptSelectControl()
         {
             InitializeComponent();
-
-            // Subscribe to events
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
         {
+            if (this.IsReadOnly)
+            {
+                return;
+            }
+
             var dialog = SelectScriptDialog.Create(Env.MainWindow, this.Script);
             if (dialog.ShowDialog() ?? false)
             {

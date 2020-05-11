@@ -1,6 +1,3 @@
 ﻿
-Create the part control
-Create part properties window
-In TrackControl, add the part at the correct place
-When project is refereshed, the part controls should be added to the tracks
+Refpart generators...
 

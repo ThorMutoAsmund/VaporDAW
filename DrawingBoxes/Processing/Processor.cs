@@ -8,7 +8,7 @@ namespace VaporDAW
 {
     public abstract class Processor
     {
-        protected string ElementId { get; private set; }
+        public string ElementId { get; private set; }
 
         public static readonly Processor Empty = new EmptyProcessor();
         public virtual void Init(ProcessEnv env, Song song) {  }

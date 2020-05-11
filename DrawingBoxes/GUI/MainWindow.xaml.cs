@@ -340,5 +340,27 @@ namespace VaporDAW
             GuiManager.Instance.RedrawSong();
             Env.OnViewChanged();
         }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Prevent alt key from stopping a snap-drag
+            if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt)) // && e.OriginalSource is TextBox)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            switch (e.Key)
+            {
+                case Key.Delete:
+                    GuiManager.Instance.DeleteSelectedParts();
+                    break;
+            }
+        }
     }
 }
+

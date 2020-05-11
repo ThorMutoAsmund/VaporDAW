@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:VaporDAW"
         mc:Ignorable="d"
         Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-        Title="MainWindow" Height="900" Width="1200" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="900" Width="1200" WindowStartupLocation="CenterScreen"
+        KeyDown="Window_KeyDown">
     <Window.Resources>
         <DrawingBrush x:Key="CheckerBoard" Viewport="0,0,8,8" ViewportUnits="Absolute" Stretch="None" TileMode="Tile">
             <DrawingBrush.Drawing>

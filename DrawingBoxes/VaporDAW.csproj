@@ -143,6 +143,7 @@
     <Compile Include="Util\MouseHook.cs" />
     <Compile Include="Util\NamePath.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
+    <Compile Include="Util\SimpleCommand.cs" />
     <Compile Include="Util\Watchers.cs" />
     <Compile Include="Util\Extensions\WpfExtensions.cs" />
     <Resource Include="Structure.txt" />

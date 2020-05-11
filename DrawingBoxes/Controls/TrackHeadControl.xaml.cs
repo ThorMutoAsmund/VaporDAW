@@ -20,18 +20,16 @@ namespace VaporDAW
     {
         public TrackControl TrackControl { get; set; }
 
-        private Track track;
         public Track Track 
         {
             get => this.track;
             private set
             {
                 this.track = value;
-                SetTrackProperties();
+                SetProperties();
             }
         }
 
-        private bool isSelected;
         public bool IsSelected
         {
             get => this.isSelected;
@@ -45,6 +43,9 @@ namespace VaporDAW
             }
         }
 
+        private Track track;
+        private bool isSelected;
+
         public TrackHeadControl()
         {
             InitializeComponent();
@@ -52,7 +53,7 @@ namespace VaporDAW
             this.header.Background = new SolidColorBrush(Colors.TrackHead);
             this.border.BorderBrush = new SolidColorBrush(Colors.TrackHeadBorder);
 
-            Song.TrackChanged += track => { if (track == this.Track) SetTrackProperties(); };
+            Song.TrackChanged += track => { if (track == this.Track) SetProperties(); };
         }
 
         public static TrackHeadControl Create(Track track)
@@ -66,9 +67,9 @@ namespace VaporDAW
             return trackHeadControl;
         }
 
-        private void SetTrackProperties()
+        private void SetProperties()
         {
-            this.titleLabel.Content = this.track.Title;
+            this.titleLabel.Content = this.Track.Title;
         }
     }
 }

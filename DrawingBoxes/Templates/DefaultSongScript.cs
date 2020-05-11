@@ -5,6 +5,7 @@ public class DefaultMixer : Processor
 {
     private Processor[] inputs;
     private Channel mainOutput;
+
     public override void Init(ProcessEnv env, Song song)
     {
         // TBD sort by dependency

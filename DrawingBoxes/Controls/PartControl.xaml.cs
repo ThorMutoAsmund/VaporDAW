@@ -25,7 +25,15 @@ namespace VaporDAW
             Resize
         }
 
-        public Part Part { get; private set; }
+        public Part Part
+        {
+            get => this.part;
+            private set
+            {
+                this.part = value;
+                SetProperties();
+            }
+        }
 
         public bool IsSelected
         {
@@ -35,13 +43,14 @@ namespace VaporDAW
                 if (value != this.isSelected)
                 {
                     this.isSelected = value;
-                    this.grid.Background = new SolidColorBrush(this.IsSelected ? Colors.PartSelected : Colors.Part);
+                    this.grid.Background = new SolidColorBrush(this.IsSelected ? Colors.PartSelected : (this.Part.IsReference ? Colors.RefPart : Colors.Part));
                 }
             }
         }
 
         private TrackControl ParentTrackControl { get; set; }
 
+        private Part part;
         private bool mouseDownInLeftHalf;
         private Point mouseDownTrackPosition;
         private bool isSelected;
@@ -51,6 +60,7 @@ namespace VaporDAW
         private double mouseDownWidth;
         private TrackControl mouseDownTrackControl;
         private int mouseMoveTrackNo;
+        private bool mouseDownCopyMade;
 
         private double newStart;
         private double newLength;
@@ -60,14 +70,20 @@ namespace VaporDAW
             InitializeComponent();
 
             this.border.BorderBrush = new SolidColorBrush(Colors.PartBorder);
-            this.grid.Background = new SolidColorBrush(Colors.Part);
             this.rightHandle.Background = new SolidColorBrush(Colors.PartHandle);
 
             // Context menu
             this.propertiesMenuItem.Click += (sender, e) => ShowProperties();
             this.deleteMenuItem.Click += (sender, e) => DeletePart();
 
-            MouseHook.OnMouseUp += (sender, p) => MouseHookMouseUp();
+            MouseHook.OnMouseUp += (sender, p) => CompleteMouseMoveAction();
+            Song.PartChanged += part => 
+            { 
+                if (part == this.Part || part.Id == this.Part.RefId)
+                {
+                    SetProperties();
+                }
+            };
         }
 
         public static PartControl Create(Part part, TrackControl parentTrackControl)
@@ -82,20 +98,22 @@ namespace VaporDAW
             return partControl;
         }
 
-        protected override void OnMouseDown(MouseButtonEventArgs e)
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
         {
             if (Env.Song == null)
             {
                 return;
             }
 
+            this.mouseMoveAction = e.OriginalSource == this.rightHandle && !this.Part.IsReference ? MouseMoveAction.Resize :MouseMoveAction.Move;
+
             var mouseDownPosition = e.GetPosition(this);
             this.mouseDownInLeftHalf = mouseDownPosition.X < this.Width / 2;
             this.mouseDownTrackPosition = e.GetPosition(this.ParentTrackControl);
-            this.mouseMoveAction = e.OriginalSource == this.grid ? MouseMoveAction.Move : (e.OriginalSource == this.rightHandle? MouseMoveAction.Resize : MouseMoveAction.None);
             this.mouseDownLeft = Canvas.GetLeft(this);
             this.mouseDownWidth = this.Width;
             this.mouseDownTrackControl = this.ParentTrackControl;
+            this.mouseDownCopyMade = false;
             this.newLength = this.Part.Length;
             this.newStart = this.Part.Start;
 
@@ -103,6 +121,23 @@ namespace VaporDAW
             this.mouseMoveTrackNo =  (int)(trackPanelPosition.Y / Env.TrackHeight);
             
             this.didMove = false;
+
+            Env.TrackPanel.MouseMove += TrackPanelMouseMove;
+            GuiManager.Instance.EscapePressed += EscapePressed;
+        }
+
+        public void ForceMoveStart(bool mouseDownInLeftHalf, Point mouseDownTrackPosition, double mouseDownLeft, double mouseDownWidth, 
+            TrackControl mouseDownTrackControl, int mouseMoveTrackNo)
+        {
+            this.mouseMoveAction = MouseMoveAction.Move;
+            this.mouseDownInLeftHalf = mouseDownInLeftHalf;
+            this.mouseDownTrackPosition = mouseDownTrackPosition;
+            this.mouseDownLeft = mouseDownLeft;
+            this.mouseDownWidth = mouseDownWidth;
+            this.mouseDownTrackControl = mouseDownTrackControl;
+            this.mouseMoveTrackNo = mouseMoveTrackNo;
+            this.didMove = true;
+            this.mouseDownCopyMade = true;
 
             Env.TrackPanel.MouseMove += TrackPanelMouseMove;
             GuiManager.Instance.EscapePressed += EscapePressed;
@@ -120,7 +155,7 @@ namespace VaporDAW
                 this.ParentTrackControl = this.mouseDownTrackControl;
             }
 
-            MouseHookMouseUp();
+            CompleteMouseMoveAction();
         }
 
 
@@ -136,7 +171,7 @@ namespace VaporDAW
                     this.newStart = newLeft * (double)Env.TimePerPixel;
 
                     // Snap
-                    if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+                    if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
                     {
                         if (GuiManager.Instance.TryGetPartControlSnapValue(this, this.mouseDownInLeftHalf ? newLeft : newLeft + this.Width, out var snapPosition, out var snapValue))
                         {
@@ -153,6 +188,33 @@ namespace VaporDAW
                     }
 
                     Canvas.SetLeft(this, newLeft);
+                }
+
+                // Create copy
+                if (!this.mouseDownCopyMade && !this.Part.IsReference && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+                {
+                    this.mouseDownCopyMade = true;
+                    Part clonedPart;
+                    if (Keyboard.IsKeyDown(Key.RightCtrl))
+                    {
+                        clonedPart = Env.Song.ClonePart(this.Part, this.newStart, this.ParentTrackControl.Track);
+                    }
+                    else
+                    {
+                        clonedPart = Env.Song.RefClonePart(this.Part, this.newStart, this.ParentTrackControl.Track);
+                    }
+
+                    // Reset original control
+                    EscapePressed();
+
+                    // Get cloned control
+                    var clonedPartControl = GuiManager.Instance.GetPartControl(clonedPart.Id);
+
+                    // Force action on new control
+                    clonedPartControl?.ForceMoveStart(this.mouseDownInLeftHalf, this.mouseDownTrackPosition, this.mouseDownLeft, this.mouseDownWidth,
+                        this.mouseDownTrackControl, this.mouseMoveTrackNo);
+
+                    GuiManager.Instance.SelectPartControl(clonedPartControl);
                 }
 
                 // Track
@@ -174,7 +236,7 @@ namespace VaporDAW
                 this.newLength = newWidth * (double)Env.TimePerPixel;
 
                 // Snap
-                if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+                if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
                 {
                     if (GuiManager.Instance.TryGetPartControlSnapValue(this, this.mouseDownLeft + newWidth, out var snapPosition, out var snapValue))
                     {
@@ -194,7 +256,7 @@ namespace VaporDAW
             this.didMove = true;
         }
 
-        private void MouseHookMouseUp()
+        private void CompleteMouseMoveAction()
         {
             if (this.mouseMoveAction != MouseMoveAction.None)
             {
@@ -205,12 +267,8 @@ namespace VaporDAW
                 {
                     if (this.mouseMoveAction == MouseMoveAction.Move)
                     {
-                        // Position in track
                         this.Part.Start = this.newStart;
-
-                        // Track
                         this.Part.TrackId = this.ParentTrackControl.Track.Id;
-
                         Env.Song.OnPartChanged(this.Part);
                     }
                     else if (this.mouseMoveAction == MouseMoveAction.Resize)
@@ -227,6 +285,14 @@ namespace VaporDAW
         protected override void OnPreviewMouseDoubleClick(MouseButtonEventArgs e)
         {
             ShowProperties();
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                Console.WriteLine("Delete " + this.Part.Title);
+            }
         }
 
         private void ShowProperties()
@@ -251,6 +317,17 @@ namespace VaporDAW
             }
 
             Env.Song.DeletePart(this.Part);
+        }
+
+        private void SetProperties()
+        {
+            this.grid.Background = new SolidColorBrush(this.Part.IsReference ? Colors.RefPart : Colors.Part);
+            this.rightHandle.Cursor = this.Part.IsReference ? Cursors.SizeAll : Cursors.SizeWE;
+
+            var left = part.Start / (double)Env.TimePerPixel;
+            this.Width = part.Length / (double)Env.TimePerPixel;
+            Canvas.SetLeft(this, left);
+            this.titleLabel.Content = this.Part.Title;
         }
     }
 }
