@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -22,11 +22,6 @@ namespace VaporDAW
             get => this.track;
             private set
             {
-                if (Env.Song == null)
-                {
-                    return;
-                }
-
                 this.track = value;
 
                 this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Track.ScriptId);

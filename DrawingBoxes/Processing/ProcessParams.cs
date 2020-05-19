@@ -2,29 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace VaporDAW
 {
     public class ProcessParams
     {
-        public ProcessEnv Env { get; private set; }
         public double Start { get; private set; }
         public double Length { get; private set; }
 
-        public float SampleRate { get; private set; }
+        public double SampleFrequency { get; private set; }
 
-        public int SampleLength { get; private set; }
+        public int NumSamples { get; private set; }
         public double End { get; private set; }
 
         public ProcessParams(ProcessEnv env, double start, double length)
         {
-            this.SampleRate = 96000;
-            this.Env = env;
             this.Start = start;
             this.Length = length;
+            this.SampleFrequency = env.Song.SampleFrequency;
 
-            this.SampleLength = (int)(this.Length * this.SampleRate);
+            this.NumSamples = (int)(this.Length * this.SampleFrequency);
             this.End = this.Start + this.Length;
         }
     }    

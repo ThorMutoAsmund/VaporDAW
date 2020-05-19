@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -22,11 +22,6 @@ namespace VaporDAW
             get => this.part;
             private set
             {
-                if (Env.Song == null)
-                {
-                    return;
-                }
-
                 this.part = value;
 
                 this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Part.ScriptId);
@@ -42,6 +37,8 @@ namespace VaporDAW
                     this.titleTextBox.Background = SystemColors.ControlBrush;
                     this.lengthTextBox.Background = SystemColors.ControlBrush;
                 }
+
+                this.DataContext = this.part.Generators.Select(g => new NamedObject<Generator>(g, Env.Song.GetScriptRef(g.ScriptId)?.Name ?? "(illegal script)"));
             }
         }
 
@@ -51,6 +48,25 @@ namespace VaporDAW
 
             this.okButton.Click += (_, __) => OK();
             this.titleTextBox.Focus();
+        }
+
+        public static EditPartDialog Create(Window owner, Part part)
+        {
+            var dialog = new EditPartDialog()
+            {
+                Owner = owner,
+                Part = part
+            };
+
+            return dialog;
+        }
+
+        private void GeneratorsListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                ShowGeneratorProperties((this.generatorsListView.SelectedItem as NamedObject<Generator>).Object);
+            }
         }
 
         private void OK()
@@ -63,15 +79,13 @@ namespace VaporDAW
             this.DialogResult = true;
         }
 
-        public static EditPartDialog Create(Window owner, Part part)
+        private void ShowGeneratorProperties(Generator generator)
         {
-            var dialog = new EditPartDialog()
+            var dialog = EditGeneratorDialog.Create(Env.MainWindow, generator);
+            if (dialog.ShowDialog() ?? false)
             {
-                Owner = owner,
-                Part = part
-            };
-
-            return dialog;
+                Env.Song.OnGeneratorChanged(generator);
+            }
         }
     }
 }

@@ -2,44 +2,51 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace VaporDAW
 {
     public class Channel
     {
-        public static readonly Channel Empty = new Channel();
-        public Sample[] Samples { get; set; }
+        public Sample[] Data { get; private set; }
+        public string Tag { get; private set; }
+        public Processor Owner { get; private set; }
+        public int SampleRate { get; private set; }
 
-        public Channel()
+        public Channel(Processor owner, string tag = null, int size = 0, int sampleRate = 44100)
         {
-            this.Samples = new Sample[0];
-        }
-        public Channel(int size)
-        {
-            this.Samples = new Sample[size];
+            this.Owner = owner;
+            this.Tag = tag;
+            this.Data = new Sample[size];
+            this.SampleRate = sampleRate;
         }
 
-        public int SampleLength => this.Samples.Length;
+        public int SampleLength => this.Data.Length;
 
         public void Clear(int? resize)
         {
             if (resize.HasValue && resize.Value != this.SampleLength)
             {
-                this.Samples = new Sample[resize.Value];
+                this.Data = new Sample[resize.Value];
             }
             for (int s = 0; s < this.SampleLength; ++s)
             {
-                this.Samples[s].Left = 0;
-                this.Samples[s].Right = 0;
+                this.Data[s].Left = 0;
+                this.Data[s].Right = 0;
             }
+        }
+
+        public void Reset(int size, int sampleRate)
+        {
+            this.Data = new Sample[size];
+            this.SampleRate = sampleRate;
         }
 
         public void Add(Channel channel)
         {
             for (int s = 0; s < Math.Min(this.SampleLength, channel.SampleLength); ++s)
             {
-                this.Samples[s].Add(channel.Samples[s]);
+                this.Data[s].Add(channel.Data[s]);
             }
         }
     }

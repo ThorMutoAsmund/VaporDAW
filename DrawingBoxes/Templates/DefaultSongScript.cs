@@ -3,33 +3,38 @@ using System.Linq;
 
 public class DefaultMixer : Processor
 {
-    private Processor[] inputs;
     private Channel mainOutput;
 
-    public override void Init(ProcessEnv env, Song song)
+    public override void Init()
     {
         // TBD sort by dependency
         //env.TrackScriptClasses.Select()
         //this.inputPorts = this.Tracks.Select(track => track.Processor).ToArray();
 
         //this.TrackProcessors = trackProcessors.ToArray();
-        this.inputs = song.Tracks.Select(track => env.Processors[track.Id]).ToArray();
+        var i = 0;
+        foreach (var input in this.Song.Tracks.Select(track => this.Env.Processors[track.Id]))
+        {
+            this.SetInput($"C{i++}", Tags.MainOutput, input);
+        }
+                
         this.mainOutput = this.AddOutputChannel(Tags.MainOutput);
-
     }
 
     public override Mode Process(ProcessParams p)
     {
-        this.mainOutput.Clear(p.SampleLength);
+        var result = Mode.Silence;
+        this.mainOutput.Clear(p.NumSamples);
 
-        foreach (var input in this.inputs)
+        foreach (var inputChannel in this.Inputs)
         {
-            if (input.Process(p) == Mode.ReadWrite)
+            if (inputChannel.Provider.ProcessResult == Mode.ReadWrite)
             {
-                this.mainOutput.Add(input.GetOutput(Tags.MainOutput));
+                this.mainOutput.Add(inputChannel.ProviderOutputChannel);
+                result = Mode.ReadWrite;
             }
         }
 
-        return Mode.ReadWrite;
+        return result;
     }
 }

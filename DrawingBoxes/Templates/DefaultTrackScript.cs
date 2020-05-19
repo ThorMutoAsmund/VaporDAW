@@ -1,31 +1,36 @@
 ﻿using VaporDAW;
 using System.Linq;
-using System.Threading.Tasks;
+
 
 public class DefaultTrack : Processor
 {
-    private Processor[] inputs;
     private Channel mainOutput;
 
-    public override void Init(ProcessEnv env, Song song)
+    public override void Init()
     {
-        var track = song.Tracks.FirstOrDefault(t => t.Id == this.ElementId);
-        this.inputs = song.Parts.Where(part => part.TrackId == track.Id).Select(part => env.Processors[part.Id]).ToArray();
+        var i = 0;
+        foreach (var input in this.Song.Parts.Where(part => part.TrackId == this.ElementId).Select(part => this.Env.Processors[part.Id]))
+        {
+            this.SetInput($"T{i++}", Tags.MainOutput, input);
+        }
+
         this.mainOutput = this.AddOutputChannel(Tags.MainOutput);
     }
 
     public override Mode Process(ProcessParams p)
     {
-        this.mainOutput.Clear(p.SampleLength);
+        var result = Mode.Silence;
+        this.mainOutput.Clear(p.NumSamples);
 
-        foreach (var input in this.inputs)
+        foreach (var inputChannel in this.Inputs)
         {
-            if (input.Process(p) == Mode.ReadWrite)
+            if (inputChannel.Provider.ProcessResult == Mode.ReadWrite)
             {
-                this.mainOutput.Add(input.GetOutput(Tags.MainOutput));
+                this.mainOutput.Add(inputChannel.ProviderOutputChannel);
+                result = Mode.ReadWrite;
             }
         }
 
-        return Mode.ReadWrite;
+        return result;
     }
 }

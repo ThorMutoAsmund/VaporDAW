@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 using System.Windows;
 using System.Windows.Controls;
 
@@ -12,11 +12,12 @@ namespace VaporDAW
     {
         public static void CheckDragDropMove<T>(this ListView listView, Vector diff, Object originalSource, string dataObjectFormat)
         {
-            if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance || Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+            // Get the dragged ListViewItem
+            ListViewItem listViewItem =
+                FindAncestor<ListViewItem>((DependencyObject)originalSource);
+
+            if (listViewItem != null && (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance || Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance))
             {
-                // Get the dragged ListViewItem
-                ListViewItem listViewItem =
-                    FindAncestor<ListViewItem>((DependencyObject)originalSource);
 
                 // Find the data behind the ListViewItem
                 T data = (T)listView.ItemContainerGenerator.ItemFromContainer(listViewItem);

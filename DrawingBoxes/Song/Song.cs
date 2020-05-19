@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -45,14 +43,16 @@ namespace VaporDAW
 
         public static event Action<bool> ProjectLoaded;
         public static event Action<ScriptRef> RequestEditScript;
-        
+
+        public static event Action<Track> TrackAdded;
+        public static event Action<Track> TrackChanged;
+
         public static event Action<Part> PartAdded; 
         public static event Action<Part> PartChanged;
         public static event Action<Part> PartDeleted;
 
-        public static event Action<Track> TrackAdded;
-        public static event Action<Track> TrackChanged;
-        
+        public static event Action<Generator> GeneratorChanged;
+       
         private static bool changesMade = false;
         private string projectPath;
 
@@ -145,7 +145,7 @@ namespace VaporDAW
             }
         }
 
-        public Processor CreateProcessor(string scriptId, string id)
+        public Processor CreateProcessor(ProcessEnv env, string scriptId, string id, Part part = null)
         {
             var scriptRef = GetScriptRef(scriptId);
 
@@ -168,7 +168,7 @@ namespace VaporDAW
             }
 
             var processor = Activator.CreateInstance(type) as Processor ?? Processor.Empty;
-            processor.SetElementId(id);
+            processor.Setup(env, this, id, part);
 
             return processor;
         }
@@ -177,23 +177,7 @@ namespace VaporDAW
         {
             // Create script classes
             var processEnv = new ProcessEnv().CreateFrom(Env.Song);
-                        
-            return Task.Run(() =>
-            {
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
-
-                // Create script classes
-                if (processEnv.InitProcessors())
-                {
-                    var processParams = new ProcessParams(processEnv, startTime, length);
-                    processEnv.Process(processParams);
-                }
-
-                watch.Stop();
-
-                return new GenerateResult(processEnv.Mixer.GetOutput(Tags.MainOutput), watch.ElapsedMilliseconds);
-            });
+            return processEnv.Generate(startTime, length);
         }
 
         public void Save()
@@ -327,6 +311,12 @@ namespace VaporDAW
                 Song.ChangesMade = true;
                 Song.PartDeleted?.Invoke(part);
             }
+        }
+
+        public void OnGeneratorChanged(Generator generator)
+        {
+            Song.GeneratorChanged?.Invoke(generator);
+            Song.ChangesMade = true;
         }
 
         public string GetNextAvailableScriptName()

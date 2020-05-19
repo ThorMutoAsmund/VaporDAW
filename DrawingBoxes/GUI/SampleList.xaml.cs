@@ -33,14 +33,12 @@ namespace VaporDAW
 
         private void SamplesListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
             if (e.ClickCount == 2)
             {
-                MessageBox.Show("Sample edit not implemented yet.");
+                AudioPlaybackEngine.Instance.StopPlayback();
+
+                var sampleName = this.samplesListView.SelectedItem as string;
+                AudioPlaybackEngine.Instance.PlaySound(Path.Combine(Env.Song.SamplesPath, sampleName));
             }
 
             this.startPoint = e.GetPosition(null);

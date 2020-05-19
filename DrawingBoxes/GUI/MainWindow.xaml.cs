@@ -1,7 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -24,6 +25,7 @@ namespace VaporDAW
             Env.TimePerPixel = 0.01m;
             Env.MainWindow = this;
             Env.TrackPanel = this.trackPanel;
+            Env.SongPanel = this.songPanel;
 
             this.Closing += (sender, e) => e.Cancel = !Env.ConfirmChangesMade();
 
@@ -34,6 +36,7 @@ namespace VaporDAW
             this.addTrackMenuItem.Click += (__, _) => AddTrack();
             this.zoomInButton.Click += (__, _) => Zoom(true);
             this.zoomOutButton.Click += (__, _) => Zoom(false);
+            this.stopPlaybackButton.Click += (__, _) => StopAudioPlayback();
             Song.RequestEditScript += script => OpenScriptTab(script);
             Song.ProjectLoaded += loaded => ProjectLoaded(loaded);
             Song.ChangeStateChanged += UpdateTitle;
@@ -150,11 +153,6 @@ namespace VaporDAW
 
         private void NewScript()
         {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
             var newScriptName = Env.Song.GetNextAvailableScriptName();
             var dialog = EditStringDialog.Create(this, "Enter Script Name", "Script name", newScriptName);
             if (dialog.ShowDialog() ?? false)
@@ -165,11 +163,6 @@ namespace VaporDAW
 
         private void CloseProject()
         {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
             if (!Env.ConfirmChangesMade())
             {
                 return;
@@ -188,11 +181,6 @@ namespace VaporDAW
 
         private void SaveProject()
         {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
             // Save tabs
             foreach (var scriptTabItem in this.tabControl.Items.WhereIs<ScriptTabItem>())
             {
@@ -251,11 +239,6 @@ namespace VaporDAW
 
         private void OpenScriptTab(ScriptRef script)
         {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
             // Check if already open
             foreach (var scriptTabItem in this.tabControl.Items.WhereIs<ScriptTabItem>())
             {
@@ -277,11 +260,6 @@ namespace VaporDAW
 
         private void ImportSamples()
         {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
             string[] selectedFiles;
             if (Dialogs.BrowseFiles("Select samples ot import", Env.ApplicationPath, out selectedFiles))
             {
@@ -306,11 +284,6 @@ namespace VaporDAW
 
         private void GenerateOutput()
         {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
             var task = Env.Song.Generate();
 
             task.ContinueWith(taskResult =>
@@ -323,11 +296,6 @@ namespace VaporDAW
 
         private void AddTrack()
         {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
             Env.Song.AddTrack();
         }
 
@@ -339,6 +307,11 @@ namespace VaporDAW
                 (stringRep.Contains("2") ? Env.TimePerPixel / 2 * 5 : Env.TimePerPixel * 2);
             GuiManager.Instance.RedrawSong();
             Env.OnViewChanged();
+        }
+
+        private void StopAudioPlayback()
+        {
+            AudioPlaybackEngine.Instance.StopPlayback();
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -360,6 +333,11 @@ namespace VaporDAW
                     GuiManager.Instance.DeleteSelectedParts();
                     break;
             }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            AudioPlaybackEngine.Instance.Dispose();
         }
     }
 }

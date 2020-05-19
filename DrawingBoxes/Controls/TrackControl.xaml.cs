@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -67,11 +67,6 @@ namespace VaporDAW
 
         private Part AddPart(Point? point = null, string title = null)
         {
-            if (Env.Song == null)
-            {
-                return null;
-            }
-
             return Env.Song.AddPart(this.Track, point, title);
         }
 
@@ -86,12 +81,7 @@ namespace VaporDAW
         }
 
         private void ShowProperties()
-        {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
+        {            
             var dialog = EditTrackDialog.Create(Env.MainWindow, this.Track);
             if (dialog.ShowDialog() ?? false)
             {
@@ -111,11 +101,6 @@ namespace VaporDAW
 
         private void Canvas_Drop(object sender, DragEventArgs e)
         {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
             var point = e.GetPosition(this.grid);
 
             if (e.Data.GetDataPresent("sample"))

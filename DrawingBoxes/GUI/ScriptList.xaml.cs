@@ -1,11 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Shapes;
 
 namespace VaporDAW
 {
@@ -35,11 +30,6 @@ namespace VaporDAW
 
         private void ScriptsListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (Env.Song == null)
-            {
-                return;
-            }
-
             if (e.ClickCount == 2)
             {
                 var fileName = this.scriptsListView.SelectedItem as string;

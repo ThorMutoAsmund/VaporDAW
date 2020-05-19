@@ -1,0 +1,73 @@
+﻿<Window x:Class="VaporDAW.EditGeneratorDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VaporDAW"
+        mc:Ignorable="d"
+        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+        Title="Edit Generator" Height="300" Width="613" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="119"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Height="auto" Width="auto" Margin="12,12,12,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.Resources>
+                <Style TargetType="{x:Type Label}">
+                    <Setter Property="Margin" Value="0,-3,0,0"/>
+                </Style>
+            </Grid.Resources>
+            <!--<Label Grid.Row="0" Grid.Column="0" Content="Title" VerticalAlignment="Top" HorizontalAlignment="Right" />
+            <TextBox x:Name="titleTextBox" Grid.Row="0" Grid.Column="1" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
+            <Label Grid.Row="1" Grid.Column="0" Content="Start" VerticalAlignment="Top" HorizontalAlignment="Right" />
+            <local:TextBoxEx x:Name="startTextBox" Grid.Row="1" Grid.Column="1" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
+            <Label Grid.Row="2" Grid.Column="0" Content="Length" VerticalAlignment="Top" HorizontalAlignment="Right" />
+            <local:TextBoxEx x:Name="lengthTextBox" Grid.Row="2" Grid.Column="1" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
+            <Label Grid.Row="3" Grid.Column="0" Content="Generators" VerticalAlignment="Top" HorizontalAlignment="Right" />
+            <ListView x:Name="generatorsListView" Grid.Row="3" Grid.Column="1" ItemsSource="{Binding}"
+                      PreviewMouseLeftButtonDown="GeneratorsListView_PreviewMouseLeftButtonDown">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding Path=(ItemsControl.AlternationIndex), 
+                RelativeSource={RelativeSource TemplatedParent}, 
+                StringFormat={}{0}}" />
+                            <TextBlock Text=" - " />
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>-->
+
+        </Grid>
+        <DockPanel Grid.Column="1" Height="auto" Margin="12,12,12,12">
+            <DockPanel.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="0,0,0,10"/>
+                </Style>
+            </DockPanel.Resources>
+            <StackPanel Orientation="Vertical" DockPanel.Dock="Top" >
+                <Button x:Name="okButton" Content="OK" Width="95" IsDefault="true" />
+                <Button x:Name="cancelButton" Content="Cancel" Width="95" IsCancel="True"  />
+            </StackPanel>
+            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                <Label Content="Script" ></Label>
+                <local:ScriptSelectControl x:Name="scriptSelectControl"></local:ScriptSelectControl>
+            </StackPanel>
+
+        </DockPanel>
+
+
+    </Grid>
+</Window>

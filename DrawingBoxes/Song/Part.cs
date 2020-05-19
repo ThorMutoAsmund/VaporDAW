@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace VaporDAW
 {
@@ -79,7 +79,7 @@ namespace VaporDAW
                 ScriptId = sampleScriptRef.Id,
                 Settings = new Dictionary<string, object>()
                 {
-                    { "sampleId", Env.Song.FindSample(sampleName).Id }
+                    { Tags.SampleId, Env.Song.FindSample(sampleName).Id }
                 }
             };
             this.Generators.Add(generator);

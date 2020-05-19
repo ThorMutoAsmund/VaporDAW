@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace VaporDAW
 {
@@ -10,5 +10,7 @@ namespace VaporDAW
     {
         public const string MainInput = "IN";
         public const string MainOutput = "OUT";
+
+        public const string SampleId = "SampleId";
     }
 }

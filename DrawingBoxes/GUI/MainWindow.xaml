@@ -89,7 +89,16 @@
                     <Border>
                         <StackPanel Margin="3">
                             <StackPanel>
-                                <Label  Height="25" Content="Samples" Background="LightGray" />
+                                <DockPanel Height="25" Background="LightGray" DockPanel.Dock="Bottom">
+                                    <Button x:Name="stopPlaybackButton" Width="21" Padding="5" DockPanel.Dock="Right" Margin="2">
+                                        <Path Data="M0.3,0.3 L0.7,0.3 L0.7,0.7 L0.3,0.7"
+                                        StrokeThickness="2"
+                                        Stretch="Fill"
+                                        Fill="Black"
+                                        Stroke="Black" />
+                                    </Button>
+                                    <Label Height="25" Content="Samples" DockPanel.Dock="Left" />
+                                </DockPanel>
                                 <local:SampleList Height="auto" Width="200" HorizontalAlignment="Left"/>
                                 <StackPanel.ContextMenu>
                                     <ContextMenu>
@@ -108,7 +117,7 @@
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <DockPanel Background="{StaticResource CheckerBoard}">
+                    <DockPanel x:Name="songPanel" Background="{StaticResource CheckerBoard}">
                         <DockPanel DockPanel.Dock="Left" Width="100">
                             <DockPanel DockPanel.Dock="Top" Height="28" HorizontalAlignment="Right">                                
                             </DockPanel>

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace VaporDAW
 {
@@ -12,6 +12,6 @@ namespace VaporDAW
     {
         [JsonProperty] public string Id { get; set; }
         [JsonProperty] public string FileName { get; set; }
-        public string Name => Path.GetFileNameWithoutExtension(this.FileName);
+        [JsonIgnore] public string Name => Path.GetFileNameWithoutExtension(this.FileName);
     }
 }
