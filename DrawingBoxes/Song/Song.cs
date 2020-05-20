@@ -173,7 +173,7 @@ namespace VaporDAW
             return processor;
         }
 
-        public Task<GenerateResult> Generate(StandardAudioFormat audioFormat = StandardAudioFormat.PCM, float startTime = 0f, float length = 5f)
+        public Task<ProcessResult> Generate(StandardAudioFormat audioFormat = StandardAudioFormat.PCM, double startTime = 0f, double length = 5f)
         {
             // Create script classes
             var processEnv = new ProcessEnv().CreateFrom(Env.Song);
@@ -496,24 +496,6 @@ namespace VaporDAW
         public Part GetPart(string id)
         {
             return this.Parts.FirstOrDefault(s => s.Id == id);
-        }
-    }
-
-    public class GenerateResult
-    {
-        //public string FileName { get; private set; }
-
-        //public GenerateResult()
-        //{
-        //    this.FileName = Path.GetRandomFileName();
-        //}
-        public Channel Channel { get; private set; }
-
-        public long ElapsedMilliseconds { get; private set; }
-        public GenerateResult(Channel channel, long elapsedMilliseconds)
-        {
-            this.Channel = channel;
-            this.ElapsedMilliseconds = elapsedMilliseconds;
         }
     }
 }

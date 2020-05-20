@@ -15,7 +15,7 @@ public class DefaultMixer : Processor
         var i = 0;
         foreach (var input in this.Song.Tracks.Select(track => this.Env.Processors[track.Id]))
         {
-            this.SetInput($"C{i++}", Tags.MainOutput, input);
+            this.SetInput($"M{i++}", Tags.MainOutput, input);
         }
                 
         this.mainOutput = this.AddOutputChannel(Tags.MainOutput);

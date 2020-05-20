@@ -1,6 +1,6 @@
 ﻿using VaporDAW;
 using System.Linq;
-
+using System;
 
 public class DefaultPart : Processor
 {
@@ -38,14 +38,21 @@ public class DefaultPart : Processor
         var result = Mode.Silence;
         this.mainOutput.Clear(p.NumSamples);
 
-        //Channel previousInput = default;
-        //var lastInput = this.InputChannels.Last();
-
         foreach (var inputChannel in this.Inputs)
         {
             if (inputChannel.Provider.ProcessResult == Mode.ReadWrite)
             {
-                this.mainOutput.Add(inputChannel.ProviderOutputChannel);
+                var srcOffset = 0;
+                var destOffset = (int)(p.SampleRate * Math.Max(this.start - p.Start, 0));
+                var destLen = p.NumSamples - destOffset;
+                var srcLen = (int)(p.SampleRate * this.length);
+
+                this.mainOutput.AddRange(inputChannel.ProviderOutputChannel, 0, destOffset, Math.Min(srcLen, destLen));
+
+                //for (int s = sStart; s < sEnd; ++s)
+                //{
+                //}
+                //this.mainOutput.Add(inputChannel.ProviderOutputChannel);
                 result = Mode.ReadWrite;
             }
         }

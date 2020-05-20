@@ -29,10 +29,9 @@ namespace VaporDAW
             {
                 this.Data = new Sample[resize.Value];
             }
-            for (int s = 0; s < this.SampleLength; ++s)
+            else
             {
-                this.Data[s].Left = 0;
-                this.Data[s].Right = 0;
+                Array.Clear(this.Data, 0, this.Data.Length);
             }
         }
 
@@ -47,6 +46,14 @@ namespace VaporDAW
             for (int s = 0; s < Math.Min(this.SampleLength, channel.SampleLength); ++s)
             {
                 this.Data[s].Add(channel.Data[s]);
+            }
+        }
+
+        public void AddRange(Channel channel, int srcOffset, int destOffset, int length)
+        {
+            for (int s = 0; s < length; ++s) // Tbd Math.Min(length, this.SampleLength, channel.SampleLength); ++s)
+            {
+                this.Data[s + destOffset].Add(channel.Data[s + srcOffset]);
             }
         }
     }

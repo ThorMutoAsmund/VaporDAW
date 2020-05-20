@@ -18,7 +18,7 @@ namespace VaporDAW
         public static readonly Processor Empty = new EmptyProcessor();
         
         public virtual void Init() {  }
-        public Mode ProcessResult { get; private set; } = Mode.Silence;
+        public Mode ProcessResult { get; set; } = Mode.Silence;
         public abstract Mode Process(ProcessParams p);
 
         private Dictionary<string, Channel> outputChannels = new Dictionary<string, Channel>();
@@ -68,6 +68,7 @@ namespace VaporDAW
 
     public static class WavFileUtils
     {
+        // https://github.com/naudio/NAudio
         public static void ReadWavFile(string fileName, Channel channel)
         {
             var inPath = System.IO.Path.Combine(Env.Song.SamplesPath, fileName);

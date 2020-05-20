@@ -22,11 +22,11 @@ public class DefaultTrack : Processor
         var result = Mode.Silence;
         this.mainOutput.Clear(p.NumSamples);
 
-        foreach (var inputChannel in this.Inputs)
+        foreach (var input in this.Inputs)
         {
-            if (inputChannel.Provider.ProcessResult == Mode.ReadWrite)
+            if (input.Provider.ProcessResult == Mode.ReadWrite)
             {
-                this.mainOutput.Add(inputChannel.ProviderOutputChannel);
+                this.mainOutput.Add(input.ProviderOutputChannel);
                 result = Mode.ReadWrite;
             }
         }

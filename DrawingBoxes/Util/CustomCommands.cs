@@ -9,28 +9,8 @@ namespace VaporDAW
 {
     static class CustomCommands
     {
-        static CustomCommands()
-        {
-            exitCommand = new RoutedCommand("Exit", typeof(CustomCommands));
-            closeTabCommand = new RoutedCommand("CloseTab", typeof(CustomCommands));
-        }
-
-        public static RoutedCommand Exit
-        {
-            get
-            {
-                return (exitCommand);
-            }
-        }
-        static RoutedCommand exitCommand;
-
-        public static RoutedCommand CloseTab
-        {
-            get
-            {
-                return (closeTabCommand);
-            }
-        }
-        static RoutedCommand closeTabCommand;
+        public static RoutedCommand PlaySong = new RoutedCommand();
+        public static RoutedCommand ExitApp = new RoutedCommand();
+        public static RoutedCommand CloseTab = new RoutedCommand();
     }
 }

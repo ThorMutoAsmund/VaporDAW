@@ -11,7 +11,7 @@ namespace VaporDAW
         public double Start { get; private set; }
         public double Length { get; private set; }
 
-        public double SampleFrequency { get; private set; }
+        public double SampleRate { get; private set; }
 
         public int NumSamples { get; private set; }
         public double End { get; private set; }
@@ -20,9 +20,9 @@ namespace VaporDAW
         {
             this.Start = start;
             this.Length = length;
-            this.SampleFrequency = env.Song.SampleFrequency;
+            this.SampleRate = env.Song.SampleFrequency;
 
-            this.NumSamples = (int)(this.Length * this.SampleFrequency);
+            this.NumSamples = (int)(this.Length * this.SampleRate);
             this.End = this.Start + this.Length;
         }
     }    

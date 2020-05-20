@@ -51,6 +51,10 @@ namespace VaporDAW
         {
             AddMixerInput(new CachedSoundSampleProvider(sound));
         }
+        public void PlaySound(Channel channel)
+        {
+            AddMixerInput(new ChannelSampleProvider(channel));
+        }
 
         private void AddMixerInput(ISampleProvider input)
         {

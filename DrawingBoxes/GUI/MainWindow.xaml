@@ -39,24 +39,33 @@
                 </Grid>
             </VisualBrush.Visual>
         </VisualBrush>
-    </Window.Resources>
-    
+    </Window.Resources>    
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.New" Executed="OnNew" />
         <CommandBinding Command="ApplicationCommands.Open" Executed="OnOpen" />
         <CommandBinding Command="ApplicationCommands.Close" Executed="OnClose" />
         <CommandBinding Command="ApplicationCommands.Save" Executed="OnSave" />
-        <CommandBinding Command="{x:Static local:CustomCommands.Exit}"  Executed="OnExit" />
-        <CommandBinding Command="{x:Static local:CustomCommands.CloseTab}"  Executed="OnCloseTab" />
+        <CommandBinding Command="local:CustomCommands.ExitApp"  Executed="OnExit" />
+        <CommandBinding Command="local:CustomCommands.CloseTab"  Executed="OnCloseTab" />
+        <CommandBinding Command="local:CustomCommands.PlaySong" Executed="OnPlay" />
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Key="N" Modifiers="Ctrl" Command="ApplicationCommands.New"/>
         <KeyBinding Key="O" Modifiers="Ctrl" Command="ApplicationCommands.Open"/>
         <KeyBinding Key="S" Modifiers="Ctrl" Command="ApplicationCommands.Save"/>
-        <KeyBinding Key="F4" Modifiers="Alt" Command="{x:Static local:CustomCommands.Exit}"/>
-        <KeyBinding Key="F4" Modifiers="Ctrl" Command="{x:Static local:CustomCommands.CloseTab}"/>
+        <KeyBinding Key="F4" Modifiers="Alt" Command="local:CustomCommands.ExitApp"/>
+        <KeyBinding Key="F4" Modifiers="Ctrl" Command="local:CustomCommands.CloseTab"/>
+        <KeyBinding Key="F5" Command="local:CustomCommands.PlaySong"/>
     </Window.InputBindings>
     <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Name="cpuUsageTextBlock" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Name="ramUsageTextBlock" />
+            </StatusBarItem>
+        </StatusBar>
         <Menu DockPanel.Dock="Top" >
             <MenuItem Header="_File" Name="fileMenu" >
                 <MenuItem Header="_New" Name="newMenu" InputGestureText="Ctrl+N" Command="New" />
@@ -70,12 +79,12 @@
                 <Separator />
                 <MenuItem Header="Recent _Files..." Name="recentFilesMenu" />
                 <Separator />
-                <MenuItem Header="_Exit"  Name="exitMenu" InputGestureText="Alt+F4" Command="{x:Static local:CustomCommands.Exit}"/>
+                <MenuItem Header="_Exit"  Name="exitMenu" InputGestureText="Alt+F4" Command="local:CustomCommands.ExitApp"/>
             </MenuItem>
             <MenuItem Name="toolsMenu" Header="_Tools" >
                 <MenuItem Header="_New script..." Name="newScriptMenu" />
                 <MenuItem Header="_Import samples..." Name="importSamplesMenu" />
-                <MenuItem Header="_Generate output" Name="generateOutputMenu" />
+                <MenuItem Header="_Play" Name="playMenu" InputGestureText="F5" Command="local:CustomCommands.PlaySong" />
             </MenuItem>
             <MenuItem Header="_Help" >
                 <MenuItem Header="_About" Name="aboutMenu" InputGestureText="Shift+F1" />

@@ -32,7 +32,7 @@ namespace VaporDAW
             return this;
         }
 
-        public Task<GenerateResult> Generate(float startTime, float length)
+        public Task<ProcessResult> Generate(double startTime, double length)
         {
             return Task.Run(() =>
             {
@@ -52,7 +52,7 @@ namespace VaporDAW
 
                 watch.Stop();
 
-                return new GenerateResult(this.Mixer.GetOutputChannel(Tags.MainOutput), watch.ElapsedMilliseconds);
+                return new ProcessResult(this.Mixer.GetOutputChannel(Tags.MainOutput), watch.ElapsedMilliseconds);
             });
 
         }
@@ -115,7 +115,9 @@ namespace VaporDAW
             {
                 foreach (string elementId in dependanceTree.Where(kvp => kvp.Value.Count == 0).Select(kvp => kvp.Key).ToArray())
                 {
-                    this.Processors[elementId].Process(processParams);
+                    var processor = this.Processors[elementId];
+                    processor.ProcessResult = processor.Process(processParams);
+
                     dependanceTree.Remove(elementId);
                     foreach (var kvp in dependanceTree)
                     {

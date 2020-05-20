@@ -19,15 +19,16 @@ public class DefaultSample : Processor
 
         // Read data
         WavFileUtils.ReadWavFile(this.sampleRef.FileName, this.data);
+
+        // Tbd UP/DOWN sample
     }
 
     public override Mode Process(ProcessParams p)
     {
-        this.mainOutput.Clear(p.NumSamples);
+        this.mainOutput.Clear(this.data.SampleLength);
 
-        // TBD
+        this.mainOutput.AddRange(this.data, 0, 0, this.data.SampleLength); // tbd copy only to max sample
         
-
-        return Mode.Silence;
+        return Mode.ReadWrite;
     }
 }

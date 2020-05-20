@@ -2,10 +2,8 @@
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 
 namespace VaporDAW
@@ -13,7 +11,7 @@ namespace VaporDAW
     public partial class MainWindow : Window
     {
         private string title;
-
+        
         public MainWindow()
         {
             this.FontFamily = new System.Windows.Media.FontFamily("Arial");
@@ -32,7 +30,7 @@ namespace VaporDAW
             this.fileMenu.SubmenuOpened += (__, _) => FileMenuSubmenuOpened();
             this.newScriptMenu.Click += (__, _) => NewScript();
             this.importSamplesMenu.Click += (__, _) => ImportSamples();
-            this.generateOutputMenu.Click += (__, _) => GenerateOutput();
+            this.playMenu.Click += (__, _) => GenerateOutput();
             this.addTrackMenuItem.Click += (__, _) => AddTrack();
             this.zoomInButton.Click += (__, _) => Zoom(true);
             this.zoomOutButton.Click += (__, _) => Zoom(false);
@@ -59,18 +57,8 @@ namespace VaporDAW
                 }
             };
 
-            this.SizeChanged += (sender, e) =>
-            {
-                if (isActivated)
-                {
-                    //foreach (FrameworkElement element in this.canvas.Children)
-                    //{
-                    //    element.InvalidateVisual();
-                    //}
-                }
-            };
-
             GuiManager.Create(this, this.trackHeadPanel, this.trackPanel);
+            ResourceMonitor.Create(this.cpuUsageTextBlock, this.ramUsageTextBlock);
         }
 
         private void OnNew(object sender, ExecutedRoutedEventArgs e) => NewProject();
@@ -79,7 +67,8 @@ namespace VaporDAW
         private void OnSave(object sender, ExecutedRoutedEventArgs e) => SaveProject();
         private void OnExit(object sender, ExecutedRoutedEventArgs e) => this.Close();
         private void OnCloseTab(object sender, ExecutedRoutedEventArgs e) => CloseTab();
-        
+        private void OnPlay(object sender, ExecutedRoutedEventArgs e) => GenerateOutput();
+
 
         private void SetTitle(string projectName = null)
         {
@@ -289,6 +278,9 @@ namespace VaporDAW
             task.ContinueWith(taskResult =>
             {
                 var result = taskResult.Result;
+
+                AudioPlaybackEngine.Instance.StopPlayback();
+                AudioPlaybackEngine.Instance.PlaySound(result.Channel);
 
                 Console.WriteLine($"Generate async task finished in {result.ElapsedMilliseconds} ms");
             });
