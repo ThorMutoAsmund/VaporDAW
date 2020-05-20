@@ -99,8 +99,10 @@
     <Compile Include="Playback\CachedSound.cs" />
     <Compile Include="Playback\ChannelSampleProvider.cs" />
     <Compile Include="Playback\CachedSoundSampleProvider.cs" />
+    <Compile Include="Processing\EmptyProcessor.cs" />
     <Compile Include="Processing\ProcessorInput.cs" />
     <Compile Include="Processing\ProcessResult.cs" />
+    <Compile Include="Processing\WavFileUtils.cs" />
     <Compile Include="Song\Generator.cs" />
     <Compile Include="Song\Part.cs" />
     <Compile Include="Song\SampleRef.cs" />
