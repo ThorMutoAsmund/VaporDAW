@@ -7,10 +7,13 @@ using System.Threading.Tasks;
 
 namespace VaporDAW
 {
-    public class ChannelSampleProvider : ISampleProvider
+    public class ChannelSampleProvider : IPositionedSampleProvider
     {
+        public event Action<long> PositionUpdated;
+
         private readonly Channel channel;
         private long position;
+
         public WaveFormat WaveFormat
         {
             get => new WaveFormat(this.channel.SampleRate, 2);
@@ -23,6 +26,8 @@ namespace VaporDAW
 
         public int Read(float[] buffer, int offset, int count)
         {
+            PositionUpdated?.Invoke(position/2);
+
             var availableSamples = channel.Data.Length - position;
             var samplesToCopy = Math.Min(availableSamples, count);
             for (int s=0; s < samplesToCopy/2; ++s)

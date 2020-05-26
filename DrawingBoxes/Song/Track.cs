@@ -12,5 +12,8 @@ namespace VaporDAW
         [JsonProperty] public string Id { get; set; }
         [JsonProperty] public string ScriptId { get; set; }
         [JsonProperty] public string Title { get; set; }
+        [JsonProperty] public bool IsAudible { get; set; }
+        [JsonProperty] public bool IsMuted { get; set; }
+        [JsonProperty] public bool IsSolo { get; set; }
     }
 }

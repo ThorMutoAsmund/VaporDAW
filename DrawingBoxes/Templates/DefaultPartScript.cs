@@ -9,15 +9,17 @@ public class DefaultPart : Processor
     private double start;
     private double length;
     private double end;
+    private int sampleLength;
 
-    public override void Init()
+    public override void Init(ProcessParams p)
     {
-        var part = this.Song.Parts.FirstOrDefault(p => p.Id == this.ElementId);
+        var part = this.Song.Parts.FirstOrDefault(pa => pa.Id == this.ElementId);
         this.start = part.Start;
         this.length = part.Length;
+        this.sampleLength = part.SampleLength;
         this.end = this.start + this.length;
 
-        var lastGenerator = part.Generators.Last();
+        var lastGenerator = part.Generators.LastOrDefault();
         if (lastGenerator != null)
         {
             var i = 0;
@@ -30,29 +32,26 @@ public class DefaultPart : Processor
 
     public override Mode Process(ProcessParams p)
     {
-        if (p.End < this.start || p.Start > this.end || this.Inputs.Count == 0)
+        if (this.Inputs.Count == 0)
         {
             return Mode.Silence;
         }
 
         var result = Mode.Silence;
-        this.mainOutput.Clear(p.NumSamples);
+        this.mainOutput.Clear(this.sampleLength);
 
         foreach (var inputChannel in this.Inputs)
         {
             if (inputChannel.Provider.ProcessResult == Mode.ReadWrite)
             {
-                var srcOffset = 0;
-                var destOffset = (int)(p.SampleRate * Math.Max(this.start - p.Start, 0));
-                var destLen = p.NumSamples - destOffset;
-                var srcLen = (int)(p.SampleRate * this.length);
+                //var destOffset = (int)(p.SampleRate * Math.Max(this.start - p.Start, 0));
+                //var destLen = p.SampleLength - destOffset;
+                //var srcLen = (int)(p.SampleRate * this.length);
 
-                this.mainOutput.AddRange(inputChannel.ProviderOutputChannel, 0, destOffset, Math.Min(srcLen, destLen));
+                //this.mainOutput.AddRange(inputChannel.ProviderOutputChannel, 0, destOffset, Math.Min(srcLen, destLen));
 
-                //for (int s = sStart; s < sEnd; ++s)
-                //{
-                //}
-                //this.mainOutput.Add(inputChannel.ProviderOutputChannel);
+                this.mainOutput.Add(inputChannel.ProviderOutputChannel);
+
                 result = Mode.ReadWrite;
             }
         }

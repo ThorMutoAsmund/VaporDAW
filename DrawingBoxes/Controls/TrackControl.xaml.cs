@@ -21,7 +21,15 @@ namespace VaporDAW
 
         private Point contextMousePosition;
 
-        public Track Track { get; private set; }
+        public Track Track
+        {
+            get => this.track;
+            private set
+            {
+                this.track = value;
+                SetProperties();
+            }
+        }
 
         private bool isSelected;
         public bool IsSelected
@@ -32,13 +40,14 @@ namespace VaporDAW
                 if (value != this.isSelected)
                 {
                     this.isSelected = value;
-                    this.grid.Background = new SolidColorBrush(this.IsSelected ? Colors.TrackSelected : Colors.Track );
+                    SetProperties();
                 }
             }
         }
 
-        public UIElementCollection Children => this.grid.Children;        
+        public UIElementCollection Children => this.grid.Children;
 
+        private Track track;
         public TrackControl()
         {
             InitializeComponent();
@@ -49,6 +58,15 @@ namespace VaporDAW
             // Context menu
             this.addPartMenuItem.Click += (sender, e) => AddPart(point: this.contextMousePosition);
             this.propertiesMenuItem.Click += (sender, e) => ShowProperties();
+
+            // React to changes
+            Song.TrackChanged += track =>
+            {
+                if (track == this.Track)
+                {
+                    SetProperties();
+                }
+            };
         }
 
         public static TrackControl Create(TrackHeadControl trackHeadControl, Track track)
@@ -118,6 +136,13 @@ namespace VaporDAW
                 var part = AddPart(point: point, title: scriptName); 
                 part.AddScript(scriptName);
             }
+        }
+
+        private void SetProperties()
+        {
+            this.grid.Background = new SolidColorBrush(this.Track.IsAudible ?
+                (this.IsSelected ? Colors.TrackSelected : Colors.Track) :
+                (this.IsSelected ? Colors.InaudibleTrackSelected : Colors.InaudibleTrack));
         }
     }
 }

@@ -17,7 +17,7 @@ namespace VaporDAW
 
         public static readonly Processor Empty = new EmptyProcessor();
         
-        public virtual void Init() {  }
+        public virtual void Init(ProcessParams p) { }
         public Mode ProcessResult { get; set; } = Mode.Silence;
         public abstract Mode Process(ProcessParams p);
 
@@ -33,9 +33,12 @@ namespace VaporDAW
             return this.outputChannels.ContainsKey(tag) ? this.outputChannels[tag] : this.Env.EmptyChannel;
         }
 
-        public void SetInput(string inputTag, string outputTag, Processor input)
+        public ProcessorInput SetInput(string inputTag, string outputTag, Processor processor, object originator = null)
         {
-            this.inputs[inputTag] = new ProcessorInput(input, outputTag);
+            var processorInput = new ProcessorInput(processor, outputTag, originator);
+            this.inputs[inputTag] = processorInput;
+            
+            return processorInput;
         }
 
         protected Channel AddOutputChannel(string tag)

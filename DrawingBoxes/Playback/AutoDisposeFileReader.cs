@@ -7,10 +7,14 @@ using System.Threading.Tasks;
 
 namespace VaporDAW
 {
-    public class AutoDisposeFileReader : ISampleProvider
+    public class AutoDisposeFileReader : IPositionedSampleProvider
     {
+        public event Action<long> PositionUpdated;
+
         private readonly AudioFileReader reader;
+        private long position;
         private bool isDisposed;
+
         public AutoDisposeFileReader(AudioFileReader reader)
         {
             this.reader = reader;
@@ -19,14 +23,21 @@ namespace VaporDAW
 
         public int Read(float[] buffer, int offset, int count)
         {
-            if (isDisposed)
+            if (this.isDisposed)
+            {
                 return 0;
-            int read = reader.Read(buffer, offset, count);
+            }
+            this.PositionUpdated?.Invoke(position / this.WaveFormat.Channels);
+
+            int read = this.reader.Read(buffer, offset, count);
             if (read == 0)
             {
-                reader.Dispose();
-                isDisposed = true;
+                this.reader.Dispose();
+                this.isDisposed = true;
+                return read;
             }
+
+            position += count;
             return read;
         }
 

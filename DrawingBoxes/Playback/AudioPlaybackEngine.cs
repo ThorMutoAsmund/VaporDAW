@@ -8,26 +8,29 @@ using System.Threading.Tasks;
 
 namespace VaporDAW
 {
-    class AudioPlaybackEngine : IDisposable
+    public delegate double GetPositionDelegate();
+    public class AudioPlaybackEngine : IDisposable
     {
+        public event Action<TimeSpan> TimeUpdated;
+
         private readonly IWavePlayer outputDevice;
         private readonly MixingSampleProvider mixer;
 
-        public AudioPlaybackEngine(int sampleRate = 44100, int channelCount = 2)
+        public static readonly AudioPlaybackEngine Instance = new AudioPlaybackEngine(44100, 2);
+
+        private AudioPlaybackEngine(int sampleRate = 44100, int channelCount = 2)
         {
-            this.outputDevice = new WaveOutEvent();
+            var waveOutEvent = new WaveOutEvent();
+            this.outputDevice = waveOutEvent;
             this.mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount));
             this.mixer.ReadFully = true;
             this.outputDevice.Init(mixer);
             this.outputDevice.Play();
+
+            this.GetPosition = () => waveOutEvent.GetPosition();
         }
 
-        public void PlaySound(string fileName)
-        {
-            this.outputDevice.Play();
-            var input = new AudioFileReader(fileName);
-            AddMixerInput(new AutoDisposeFileReader(input));
-        }
+        public GetPositionDelegate GetPosition { get; private set; } = () => 0d;
 
         public void StopPlayback()
         {
@@ -47,25 +50,33 @@ namespace VaporDAW
             throw new NotImplementedException("Not yet implemented this channel count conversion");
         }
 
-        public void PlaySound(CachedSound sound)
+        //public void PlaySound(CachedSound sound)
+        //{
+        //    AddMixerInput(new CachedSoundSampleProvider(sound));
+        //}
+        public void PlaySound(string fileName)
         {
-            AddMixerInput(new CachedSoundSampleProvider(sound));
-        }
-        public void PlaySound(Channel channel)
-        {
-            AddMixerInput(new ChannelSampleProvider(channel));
+            AddMixerInput(new AutoDisposeFileReader(new AudioFileReader(fileName)), 0d);
         }
 
-        private void AddMixerInput(ISampleProvider input)
+        public void PlaySound(Channel channel, double startTime)
         {
-            this.mixer.AddMixerInput(ConvertToRightChannelCount(input));
+            AddMixerInput(new ChannelSampleProvider(channel), startTime);
+        }
+
+        private void AddMixerInput(IPositionedSampleProvider sampleProvider, double startTime)
+        {
+            sampleProvider.PositionUpdated += position =>
+            {
+                var t = position / Env.Song.SampleFrequency + startTime;
+                this.TimeUpdated?.Invoke(TimeSpan.FromSeconds(t));
+            };
+            this.mixer.AddMixerInput(ConvertToRightChannelCount(sampleProvider));
         }
 
         public void Dispose()
         {
             this.outputDevice.Dispose();
         }
-
-        public static readonly AudioPlaybackEngine Instance = new AudioPlaybackEngine(44100, 2);
     }
 }

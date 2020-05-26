@@ -43,6 +43,8 @@ namespace VaporDAW
         public bool ShouldSerializeGenerators() => !this.IsReference;
 
         [JsonIgnore] public bool IsReference => !string.IsNullOrEmpty(this.RefId);
+        [JsonIgnore] public double End => this.Start + this.Length;
+        [JsonIgnore] public int SampleLength => (int)(this.Length * Env.Song.SampleFrequency);
 
         private Part referencedPart;
         private Part ReferencedPart

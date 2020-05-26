@@ -15,18 +15,32 @@
         <Grid Grid.Column="0" Height="auto" Width="auto" Margin="12,12,12,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
             <Grid.Resources>
                 <Style TargetType="{x:Type Label}">
                     <Setter Property="Margin" Value="0,-3,0,0"/>
                 </Style>
+                <Style TargetType="{x:Type CheckBox}">
+                    <Setter Property="Margin" Value="0,3,0,0"/>
+                </Style>
             </Grid.Resources>
             <Label Grid.Row="0" Grid.Column="0" Content="Title" VerticalAlignment="Top" HorizontalAlignment="Right" />
-            <TextBox x:Name="titleTextBox" Grid.Row="0" Grid.Column="1" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
+            <TextBox x:Name="titleTextBox" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
+            <Label Grid.Row="1" Grid.Column="0" Content="Audible" VerticalAlignment="Top" HorizontalAlignment="Right" />
+            <CheckBox x:Name="audibleCheckBox" Grid.Row="1" Grid.Column="1" />
+            <Label Content="Muted" VerticalAlignment="Top" Grid.Row="1" Grid.Column="2"  HorizontalAlignment="Right"/>
+            <CheckBox x:Name="mutedCheckBox" Grid.Row="1" Grid.Column="3" />
+            <Label Content="Solo" VerticalAlignment="Top" Grid.Row="1" Grid.Column="4"  HorizontalAlignment="Right"/>
+            <CheckBox x:Name="soloCheckBox" Grid.Row="1" Grid.Column="5" />
         </Grid>
         <DockPanel Grid.Column="1" Height="auto" Margin="12,12,12,12">
             <DockPanel.Resources>

@@ -66,7 +66,8 @@ namespace VaporDAW
             // Context menu
             this.propertiesMenuItem.Click += (sender, e) => ShowProperties();
             this.deleteMenuItem.Click += (sender, e) => DeletePart();
-                        
+
+            // React to changes
             Song.PartChanged += part => 
             { 
                 if (part == this.Part || part.Id == this.Part.RefId)

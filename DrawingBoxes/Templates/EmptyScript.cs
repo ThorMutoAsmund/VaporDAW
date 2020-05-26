@@ -3,7 +3,7 @@
 
 public class __CLASS_NAME__ : Processor
 {
-    public override void Init()
+    public override void Init(ProcessParams p)
     {
     }
 

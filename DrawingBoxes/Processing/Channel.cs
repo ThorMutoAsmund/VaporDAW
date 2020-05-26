@@ -41,6 +41,16 @@ namespace VaporDAW
             this.SampleRate = sampleRate;
         }
 
+        public void Set(Channel channel)
+        {
+            this.Data = new Sample[channel.SampleLength];
+            this.SampleRate = channel.SampleRate;
+            for (int s = 0; s < Math.Min(this.SampleLength, channel.SampleLength); ++s)
+            {
+                this.Data[s] = channel.Data[s];
+            }
+        }
+
         public void Add(Channel channel)
         {
             for (int s = 0; s < Math.Min(this.SampleLength, channel.SampleLength); ++s)
@@ -54,6 +64,16 @@ namespace VaporDAW
             for (int s = 0; s < length; ++s) // Tbd Math.Min(length, this.SampleLength, channel.SampleLength); ++s)
             {
                 this.Data[s + destOffset].Add(channel.Data[s + srcOffset]);
+            }
+        }
+
+        public void SetRange(Channel srcChannel, int srcOffset, int destOffset, int length)
+        {
+            this.Data = new Sample[length];
+            this.SampleRate = srcChannel.SampleRate;
+            for (int s = 0; s < length; ++s) // Tbd Math.Min(length, this.SampleLength, channel.SampleLength); ++s)
+            {
+                this.Data[s + destOffset] = srcChannel.Data[s + srcOffset];
             }
         }
     }

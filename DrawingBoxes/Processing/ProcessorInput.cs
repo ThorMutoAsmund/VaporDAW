@@ -10,6 +10,7 @@ namespace VaporDAW
     {
         public Processor Provider { get; private set; }
         public string OutputTag { get; private set; }
+        private object Originator { get; set; }
 
         private Channel channel;
         public Channel ProviderOutputChannel 
@@ -25,10 +26,16 @@ namespace VaporDAW
             }
         }
 
-        public ProcessorInput(Processor input, string outputTag)
+        public ProcessorInput(Processor input, string outputTag, object originator = null)
         {
             this.Provider = input;
             this.OutputTag = outputTag;
+            this.Originator = originator;
+        }
+
+        public T GetOriginator<T>() where T: class
+        {
+            return this.Originator as T;
         }
     }
 }

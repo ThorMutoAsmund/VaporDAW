@@ -26,6 +26,9 @@ namespace VaporDAW
 
                 this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Track.ScriptId);
                 this.titleTextBox.Text = this.Track.Title;
+                this.audibleCheckBox.IsChecked = this.Track.IsAudible;
+                this.mutedCheckBox.IsChecked = this.Track.IsMuted;
+                this.soloCheckBox.IsChecked = this.Track.IsSolo;
             }
         }
 
@@ -41,6 +44,9 @@ namespace VaporDAW
         {
             this.Track.Title = this.titleTextBox.Text;
             this.Track.ScriptId = this.scriptSelectControl.Script.Id;
+            this.Track.IsAudible = this.audibleCheckBox.IsChecked ?? false;
+            this.Track.IsMuted = this.mutedCheckBox.IsChecked ?? false;
+            this.Track.IsSolo = this.soloCheckBox.IsChecked ?? false;
 
             this.DialogResult = true;
         }

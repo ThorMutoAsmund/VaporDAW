@@ -16,11 +16,17 @@ using System.Windows.Shapes;
 
 namespace VaporDAW
 {
+    public delegate void SetSelectorDelegate(double startPosition, double endPosition, bool noSelection);
     /// <summary>
     /// Interaction logic for TimeRulerControl.xaml
     /// </summary>
     public partial class TimeRulerControl : UserControl
     {
+        public event SetSelectorDelegate SetSelector;
+
+        private bool isMouseDown;
+        private Point mouseDownPosition;
+
         public TimeRulerControl()
         {
             InitializeComponent();
@@ -33,6 +39,33 @@ namespace VaporDAW
         private void Env_ViewChanged(double startTime)
         {
             this.panel.StartTime = startTime;
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            this.mouseDownPosition = e.GetPosition(this);
+            this.SetSelector?.Invoke(this.mouseDownPosition.X, 0, true);
+            this.isMouseDown = true;
+            
+        }
+
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
+            this.isMouseDown = false;
+        }
+
+        protected override void OnMouseLeave(MouseEventArgs e)
+        {
+            this.isMouseDown = false;
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            if (this.isMouseDown)
+            {
+                var mouseEndPosition = e.GetPosition(this);
+                this.SetSelector?.Invoke(this.mouseDownPosition.X, mouseEndPosition.X, false);
+            }
         }
     }
 

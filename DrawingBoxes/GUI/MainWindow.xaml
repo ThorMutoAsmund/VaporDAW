@@ -31,23 +31,25 @@
                 </DrawingGroup>
             </DrawingBrush.Drawing>
         </DrawingBrush>
-        <VisualBrush x:Key="MyVisualBrush" TileMode="Tile" Viewport="0,0,15,15" ViewportUnits="Absolute" Viewbox="0,0,15,15" ViewboxUnits="Absolute">
-            <VisualBrush.Visual>
-                <Grid Background="Black">
-                    <Path Data="M 0 15 L 15 0" Stroke="Gray" />
-                    <Path Data="M 0 0 L 15 15" Stroke="Gray" />
-                </Grid>
-            </VisualBrush.Visual>
-        </VisualBrush>
+
     </Window.Resources>    
     <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.New" Executed="OnNew" />
-        <CommandBinding Command="ApplicationCommands.Open" Executed="OnOpen" />
-        <CommandBinding Command="ApplicationCommands.Close" Executed="OnClose" />
-        <CommandBinding Command="ApplicationCommands.Save" Executed="OnSave" />
-        <CommandBinding Command="local:CustomCommands.ExitApp"  Executed="OnExit" />
-        <CommandBinding Command="local:CustomCommands.CloseTab"  Executed="OnCloseTab" />
-        <CommandBinding Command="local:CustomCommands.PlaySong" Executed="OnPlay" />
+        <CommandBinding x:Name="newCommand" Command="ApplicationCommands.New" Executed="OnNewProject" />
+        <CommandBinding x:Name="OpenCommand" Command="ApplicationCommands.Open" Executed="OnOpenProject" />
+        <CommandBinding x:Name="closeCommand" Command="ApplicationCommands.Close" Executed="OnCloseProject" />
+        <CommandBinding x:Name="saveCommand" Command="ApplicationCommands.Save" Executed="OnSaveProject" />
+        <CommandBinding x:Name="exitCommand" Command="local:CustomCommands.ExitApp"  Executed="OnExit" />
+        <CommandBinding x:Name="closeTabCommand" Command="local:CustomCommands.CloseTab"  Executed="OnCloseTab" />
+        <CommandBinding x:Name="playSongCommand" Command="local:CustomCommands.PlaySong" Executed="OnPlay" />
+        <CommandBinding x:Name="stopSongCommand" Command="local:CustomCommands.StopSong" Executed="OnStop" />
+        <CommandBinding x:Name="newScriptCommand" Command="local:CustomCommands.NewScript" Executed="OnNewScript" />
+        <CommandBinding x:Name="importSamplesCommand" Command="local:CustomCommands.ImportSamples" Executed="OnImportSamples" />
+        <CommandBinding x:Name="aboutCommand" Command="local:CustomCommands.About" Executed="OnAbout" />
+        <CommandBinding x:Name="checkForUpdatesCommand" Command="local:CustomCommands.CheckForUpdates" Executed="OnCheckForUpdates" />
+        <CommandBinding x:Name="settingsCommand" Command="local:CustomCommands.Settings" Executed="OnSettings" />
+        <CommandBinding x:Name="addTrackCommand" Command="local:CustomCommands.AddTrack" Executed="OnAddTrack" />
+        <CommandBinding x:Name="zoomInCommand" Command="local:CustomCommands.ZoomIn" Executed="OnZoomIn" />
+        <CommandBinding x:Name="zoomOutCommand" Command="local:CustomCommands.ZoomOut" Executed="OnZoomOut" />
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Key="N" Modifiers="Ctrl" Command="ApplicationCommands.New"/>
@@ -56,6 +58,9 @@
         <KeyBinding Key="F4" Modifiers="Alt" Command="local:CustomCommands.ExitApp"/>
         <KeyBinding Key="F4" Modifiers="Ctrl" Command="local:CustomCommands.CloseTab"/>
         <KeyBinding Key="F5" Command="local:CustomCommands.PlaySong"/>
+        <KeyBinding Key="Space" Command="local:CustomCommands.StopSong"/>
+        <KeyBinding Key="F1" Modifiers="Shift" Command="local:CustomCommands.About"/>
+        <KeyBinding Key="F1" Command="local:CustomCommands.Settings"/>
     </Window.InputBindings>
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
@@ -68,28 +73,30 @@
         </StatusBar>
         <Menu DockPanel.Dock="Top" >
             <MenuItem Header="_File" Name="fileMenu" >
-                <MenuItem Header="_New" Name="newMenu" InputGestureText="Ctrl+N" Command="New" />
-                <MenuItem Header="_Open" Name="openMenu" InputGestureText="Ctrl+O" Command="Open" />
+                <MenuItem Header="_New" InputGestureText="Ctrl+N" Command="New" />
+                <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="Open" />
                 <Separator />
-                <MenuItem Header="_Close" Name="closeMenu" IsEnabled="False" Command="Close" />
+                <MenuItem Header="_Close" Command="Close" />
                 <Separator />
-                <MenuItem Header="_Save" Name="saveMenu" IsEnabled="False" InputGestureText="Ctrl+S" Command="Save" />
-                <Separator />
-                <MenuItem Header="S_ettings..." Name="settingsMenu" />
+                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="Save" />
                 <Separator />
                 <MenuItem Header="Recent _Files..." Name="recentFilesMenu" />
                 <Separator />
-                <MenuItem Header="_Exit"  Name="exitMenu" InputGestureText="Alt+F4" Command="local:CustomCommands.ExitApp"/>
+                <MenuItem Header="_Exit" InputGestureText="Alt+F4" Command="local:CustomCommands.ExitApp"/>
             </MenuItem>
-            <MenuItem Name="toolsMenu" Header="_Tools" >
-                <MenuItem Header="_New script..." Name="newScriptMenu" />
-                <MenuItem Header="_Import samples..." Name="importSamplesMenu" />
-                <MenuItem Header="_Play" Name="playMenu" InputGestureText="F5" Command="local:CustomCommands.PlaySong" />
+            <MenuItem Header="_Tools" >
+                <MenuItem Header="_New script..." Command="local:CustomCommands.NewScript" />
+                <MenuItem Header="_Import samples..." Command="local:CustomCommands.ImportSamples" />
+                <Separator />
+                <MenuItem Header="_Play" InputGestureText="F5" Command="local:CustomCommands.PlaySong" />
+                <MenuItem Header="_Stop" InputGestureText="Space" Command="local:CustomCommands.StopSong" />
+                <Separator />
+                <MenuItem Header="S_ettings..." InputGestureText="F1" Command="local:CustomCommands.Settings" />
             </MenuItem>
             <MenuItem Header="_Help" >
-                <MenuItem Header="_About" Name="aboutMenu" InputGestureText="Shift+F1" />
+                <MenuItem Header="_About" InputGestureText="Shift+F1" Command="local:CustomCommands.About" />
                 <Separator />
-                <MenuItem Header="_Check for updates" Name="checkForUpdatesMenu" />
+                <MenuItem Header="_Check for updates" Command="local:CustomCommands.CheckForUpdates" />
             </MenuItem>
         </Menu>
         <TabControl x:Name="tabControl" Grid.ColumnSpan="3" Margin="0,0,0,0" IsEnabled="False">
@@ -99,7 +106,7 @@
                         <StackPanel Margin="3">
                             <StackPanel>
                                 <DockPanel Height="25" Background="LightGray" DockPanel.Dock="Bottom">
-                                    <Button x:Name="stopPlaybackButton" Width="21" Padding="5" DockPanel.Dock="Right" Margin="2">
+                                    <Button x:Name="stopPlaybackButton" Width="21" Padding="5" DockPanel.Dock="Right" Margin="2" Command="local:CustomCommands.StopSong">
                                         <Path Data="M0.3,0.3 L0.7,0.3 L0.7,0.7 L0.3,0.7"
                                         StrokeThickness="2"
                                         Stretch="Fill"
@@ -128,16 +135,17 @@
                     </Border>
                     <DockPanel x:Name="songPanel" Background="{StaticResource CheckerBoard}">
                         <DockPanel DockPanel.Dock="Left" Width="100">
-                            <DockPanel DockPanel.Dock="Top" Height="28" HorizontalAlignment="Right">                                
+                            <DockPanel DockPanel.Dock="Top" Height="28" Width="100" >
+                                <TextBlock x:Name="timeCounterText" Width="100" Foreground="White" FontSize="18" TextAlignment="Center" Text="0:00:00"></TextBlock>
                             </DockPanel>
                             <DockPanel DockPanel.Dock="Bottom" Height="18" HorizontalAlignment="Right">
-                                <Button x:Name="zoomInButton" Width="18" Padding="4" HorizontalAlignment="Right">
+                                <Button Width="18" Padding="4" HorizontalAlignment="Right" Command="local:CustomCommands.ZoomIn">
                                     <Path Data="M0.5,0 L0.5,1 M0,0.5 L1,0.5"
                                         StrokeThickness="2"
                                         Stretch="Fill"
                                         Stroke="Black" />
                                 </Button>
-                                <Button x:Name="zoomOutButton" Width="18" Padding="4">
+                                <Button Width="18" Padding="4" Command="local:CustomCommands.ZoomOut">
                                     <Path Data="M0,0.5 L1,0.5"
                                         StrokeThickness="2"
                                         Stretch="Fill"
@@ -147,17 +155,23 @@
                             <StackPanel x:Name="trackHeadPanel" Orientation="Vertical" Width="100">
                             </StackPanel>
                         </DockPanel>
-                        <DockPanel DockPanel.Dock="Right">
-                            <local:TimeRulerControl Width="auto" DockPanel.Dock="Top" Height="28"></local:TimeRulerControl>
-                            <!--<local:TimeRulerPanel  DockPanel.Dock="Top" Height="28"></local:TimeRulerPanel>-->
+                        <Grid DockPanel.Dock="Right">
+                            
+                        </Grid>
+                        <DockPanel >
+                            <local:TimeRulerControl x:Name="timeRuler" Width="auto" DockPanel.Dock="Top" Height="28"></local:TimeRulerControl>
                             <ScrollViewer x:Name="scrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Visible">
-                                <StackPanel x:Name="trackPanel" Orientation="Vertical" >
-                                </StackPanel>
+                                <Grid>
+                                    <StackPanel x:Name="trackPanel" Orientation="Vertical"></StackPanel>
+                                    <Canvas x:Name="selectorParentCanvas" Width="auto">
+                                        <Canvas x:Name="selector" Background="Cornsilk" Opacity="0.4" Width="1" Height="{Binding ActualHeight, ElementName=selectorParentCanvas}" Visibility="Hidden"></Canvas>
+                                    </Canvas>
+                                </Grid>
                             </ScrollViewer>
                         </DockPanel>
                         <DockPanel.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Add track" Name="addTrackMenuItem"/>
+                                <MenuItem Header="Add track" Command="local:CustomCommands.AddTrack"/>
                             </ContextMenu>
                         </DockPanel.ContextMenu>
                     </DockPanel>

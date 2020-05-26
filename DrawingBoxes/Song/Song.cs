@@ -145,6 +145,14 @@ namespace VaporDAW
             }
         }
 
+        public Processor CreateSampleDataProcessor(ProcessEnv env, string sampleRefId)
+        {
+            var processor = new SampleDataProcessor();
+            processor.Setup(env, this, sampleRefId, null);
+
+            return processor;
+        }
+
         public Processor CreateProcessor(ProcessEnv env, string scriptId, string id, Part part = null)
         {
             var scriptRef = GetScriptRef(scriptId);
@@ -496,6 +504,20 @@ namespace VaporDAW
         public Part GetPart(string id)
         {
             return this.Parts.FirstOrDefault(s => s.Id == id);
+        }
+
+        public double GetActualLength()
+        {
+            double end = 0d;
+            foreach (var part in this.Parts)
+            {
+                if (part.End > end)
+                {
+                    end = part.End;
+                }
+            }
+
+            return end;
         }
     }
 }

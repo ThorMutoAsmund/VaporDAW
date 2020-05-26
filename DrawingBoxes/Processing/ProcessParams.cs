@@ -13,7 +13,7 @@ namespace VaporDAW
 
         public double SampleRate { get; private set; }
 
-        public int NumSamples { get; private set; }
+        public int SampleLength { get; private set; }
         public double End { get; private set; }
 
         public ProcessParams(ProcessEnv env, double start, double length)
@@ -22,7 +22,7 @@ namespace VaporDAW
             this.Length = length;
             this.SampleRate = env.Song.SampleFrequency;
 
-            this.NumSamples = (int)(this.Length * this.SampleRate);
+            this.SampleLength = (int)(this.Length * this.SampleRate);
             this.End = this.Start + this.Length;
         }
     }    

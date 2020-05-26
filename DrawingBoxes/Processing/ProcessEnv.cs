@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace VaporDAW
 {
@@ -28,7 +29,7 @@ namespace VaporDAW
             song.Parts.ForEach(part => this.Processors[part.Id] = song.CreateProcessor(this, part.ScriptId, part.Id));
             song.Parts.SelectMany(part => part.Generators.Select(generator => new { part, generator })).
                 ToList().ForEach(partAndGenerator => this.Processors[partAndGenerator.generator.Id] = song.CreateProcessor(this, partAndGenerator.generator.ScriptId, partAndGenerator.generator.Id, part: partAndGenerator.part));
-
+            song.Samples.ForEach(sample => this.Processors[sample.Id] = song.CreateSampleDataProcessor(this, sample.Id));
             return this;
         }
 
@@ -39,15 +40,11 @@ namespace VaporDAW
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
 
-                // Create script classes
-                if (InitProcessors())
+                var processParams = new ProcessParams(this, startTime, length);
+                var dependanceTree = new Dictionary<string, List<string>>();
+                if (BuildDependanceTree(dependanceTree, processParams))
                 {
-                    var dependanceTree = new Dictionary<string, List<string>>();
-                    if (BuildDependanceTree(dependanceTree))
-                    {
-                        var processParams = new ProcessParams(this, startTime, length);
-                        Process(dependanceTree, processParams);
-                    }
+                    Process(dependanceTree, processParams);
                 }
 
                 watch.Stop();
@@ -57,51 +54,57 @@ namespace VaporDAW
 
         }
 
-        /// <summary>
-        /// Initialize all processors before Process is called
-        /// </summary>
-        /// <returns></returns>
-        public bool InitProcessors()
+        private class InitProcessorException : Exception 
         {
-            foreach (var processor in this.Processors.Values)
+            public InitProcessorException(string message, Exception innerException) :
+                base(message, innerException)
             {
-                try
-                {
-                    processor.Init();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Processor {processor.ElementId} failed init: {e.Message}");
-                    return false;
-                }
             }
-
-            return true;
         }
 
         /// <summary>
         /// Value is the generators depending on Key
         /// </summary>        
-        public bool BuildDependanceTree(Dictionary<string, List<string>> dependanceTree)
+        public bool BuildDependanceTree(Dictionary<string, List<string>> dependanceTree, ProcessParams processParams)
         {
             void Recurse(Processor processor)
             {
                 if (!dependanceTree.ContainsKey(processor.ElementId))
                 {
                     dependanceTree[processor.ElementId] = new List<string>();
-                }
-
-                foreach (var input in processor.Inputs)
-                {
-                    if (!dependanceTree[processor.ElementId].Contains(input.Provider.ElementId))
+                    try
                     {
-                        dependanceTree[processor.ElementId].Add(input.Provider.ElementId);
-                        Recurse(input.Provider);
+                        processor.Init(processParams);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InitProcessorException($"Processor {processor.ElementId} failed init: {ex.Message}", ex);
+                    }
+
+                    foreach (var input in processor.Inputs)
+                    {
+                        if (!dependanceTree[processor.ElementId].Contains(input.Provider.ElementId))
+                        {
+                            dependanceTree[processor.ElementId].Add(input.Provider.ElementId);
+                            Recurse(input.Provider);
+                        }
                     }
                 }
             }
 
-            Recurse(this.Mixer);
+            try
+            {
+                Recurse(this.Mixer);
+            }
+            catch (InitProcessorException e)
+            {
+                MessageBox.Show(e.Message, "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unhandled initializationfailure: {ex.Message}", "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
 
             // TBD check for loops
             // 

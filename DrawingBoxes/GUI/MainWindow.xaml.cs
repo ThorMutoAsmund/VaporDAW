@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace VaporDAW
 {
@@ -25,19 +26,24 @@ namespace VaporDAW
             Env.TrackPanel = this.trackPanel;
             Env.SongPanel = this.songPanel;
 
-            this.Closing += (sender, e) => e.Cancel = !Env.ConfirmChangesMade();
+            this.timeCounterText.Background = new SolidColorBrush(Colors.TrackHead);
+            this.fileMenu.SubmenuOpened += (sender, e) => FileMenuSubmenuOpened();
 
-            this.fileMenu.SubmenuOpened += (__, _) => FileMenuSubmenuOpened();
-            this.newScriptMenu.Click += (__, _) => NewScript();
-            this.importSamplesMenu.Click += (__, _) => ImportSamples();
-            this.playMenu.Click += (__, _) => GenerateOutput();
-            this.addTrackMenuItem.Click += (__, _) => AddTrack();
-            this.zoomInButton.Click += (__, _) => Zoom(true);
-            this.zoomOutButton.Click += (__, _) => Zoom(false);
-            this.stopPlaybackButton.Click += (__, _) => StopAudioPlayback();
             Song.RequestEditScript += script => OpenScriptTab(script);
             Song.ProjectLoaded += loaded => ProjectLoaded(loaded);
             Song.ChangeStateChanged += UpdateTitle;
+
+            this.saveCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
+            this.closeCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
+            this.newScriptCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
+            this.importSamplesCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
+            this.playSongCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
+            this.stopSongCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
+            this.addTrackCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
+            this.zoomInCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
+            this.zoomOutCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
+
+            this.timeRuler.SetSelector += SetSelector;
 
             this.scrollViewer.ScrollChanged += (object sender, ScrollChangedEventArgs e) =>
             {
@@ -59,20 +65,14 @@ namespace VaporDAW
 
             GuiManager.Create(this, this.trackHeadPanel, this.trackPanel);
             ResourceMonitor.Create(this.cpuUsageTextBlock, this.ramUsageTextBlock);
+            AudioPlaybackEngine.Instance.TimeUpdated += PlaybackTimeUpdated;
         }
 
-        private void OnNew(object sender, ExecutedRoutedEventArgs e) => NewProject();
-        private void OnOpen(object sender, ExecutedRoutedEventArgs e) => OpenProject();
-        private void OnClose(object sender, ExecutedRoutedEventArgs e) => CloseProject();
-        private void OnSave(object sender, ExecutedRoutedEventArgs e) => SaveProject();
-        private void OnExit(object sender, ExecutedRoutedEventArgs e) => this.Close();
-        private void OnCloseTab(object sender, ExecutedRoutedEventArgs e) => CloseTab();
-        private void OnPlay(object sender, ExecutedRoutedEventArgs e) => GenerateOutput();
-
+        private string AppNameAndVersion => $"{Env.ApplicationName} {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
 
         private void SetTitle(string projectName = null)
         {
-            this.title = $"{(String.IsNullOrEmpty(projectName) ? String.Empty : $"{projectName} - ")}{Env.ApplicationName}";
+            this.title = $"{(String.IsNullOrEmpty(projectName) ? String.Empty : $"{projectName} - ")}{this.AppNameAndVersion}";
             UpdateTitle();
         }
 
@@ -81,8 +81,9 @@ namespace VaporDAW
             this.Title = $"{title}{(Song.ChangesMade ? " *" : String.Empty)}";
         }
 
+        private void OnExit(object sender, ExecutedRoutedEventArgs e) => this.Close();
 
-        private void NewProject()
+        private void OnNewProject(object sender, ExecutedRoutedEventArgs e)
         {
             if (!Env.ConfirmChangesMade())
             {
@@ -99,6 +100,8 @@ namespace VaporDAW
             }
         }
 
+        private void OnOpenProject(object sender, ExecutedRoutedEventArgs e) => OpenProject();
+        
         private void OpenProject(string path = null)
         {
             if (!Env.ConfirmChangesMade())
@@ -135,12 +138,12 @@ namespace VaporDAW
                 {
                     Header = recentFilePath,
                 };
-                menuItem.Click += (__, _) => OpenProject(recentFilePath);
+                menuItem.Click += (sender, e) => OpenProject(recentFilePath);
                 this.recentFilesMenu.Items.Add(menuItem);
             }
         }
 
-        private void NewScript()
+        private void OnNewScript(object sender, ExecutedRoutedEventArgs e)
         {
             var newScriptName = Env.Song.GetNextAvailableScriptName();
             var dialog = EditStringDialog.Create(this, "Enter Script Name", "Script name", newScriptName);
@@ -150,14 +153,13 @@ namespace VaporDAW
             }
         }
 
-        private void CloseProject()
+        private void OnCloseProject(object sender, ExecutedRoutedEventArgs e)
         {
             if (!Env.ConfirmChangesMade())
             {
                 return;
             }
 
-            // Close song
             Song.Close();
 
             // Remove tabs
@@ -168,7 +170,7 @@ namespace VaporDAW
             this.tabControl.SelectedIndex = 0;
         }
 
-        private void SaveProject()
+        private void OnSaveProject(object sender, ExecutedRoutedEventArgs e)
         {
             // Save tabs
             foreach (var scriptTabItem in this.tabControl.Items.WhereIs<ScriptTabItem>())
@@ -183,6 +185,7 @@ namespace VaporDAW
             Env.Song.Save();
         }
 
+        private void OnCloseTab(object sender, ExecutedRoutedEventArgs e) => CloseTab();
         private void CloseTab(ScriptTabItem scriptTabItem = null)
         {
             // Close tab
@@ -210,18 +213,12 @@ namespace VaporDAW
             if (!loaded)
             {
                 this.tabControl.IsEnabled = false;
-                this.saveMenu.IsEnabled = false;
-                this.closeMenu.IsEnabled = false;
-                this.toolsMenu.IsEnabled = false;
-
+                this.selector.Visibility = Visibility.Hidden;
                 SetTitle();
             }
             else
             {
                 this.tabControl.IsEnabled = true;
-                this.saveMenu.IsEnabled = true;
-                this.closeMenu.IsEnabled = true;
-                this.toolsMenu.IsEnabled = true;
                 SetTitle(Env.Song.SongName);
             }
         }
@@ -247,7 +244,7 @@ namespace VaporDAW
             this.tabControl.SelectedIndex = this.tabControl.Items.Count - 1;
         }
 
-        private void ImportSamples()
+        private void OnImportSamples(object sender, ExecutedRoutedEventArgs e)
         {
             string[] selectedFiles;
             if (Dialogs.BrowseFiles("Select samples ot import", Env.ApplicationPath, out selectedFiles))
@@ -271,26 +268,30 @@ namespace VaporDAW
             }
         }
 
+        private void OnPlay(object sender, ExecutedRoutedEventArgs e) => GenerateOutput();
         private void GenerateOutput()
         {
-            var task = Env.Song.Generate();
+            var startTime = 0d;
+            var task = Env.Song.Generate(startTime: 0d, length: Env.Song.GetActualLength());
 
             task.ContinueWith(taskResult =>
             {
                 var result = taskResult.Result;
 
                 AudioPlaybackEngine.Instance.StopPlayback();
-                AudioPlaybackEngine.Instance.PlaySound(result.Channel);
+                AudioPlaybackEngine.Instance.PlaySound(result.Channel, startTime);
 
                 Console.WriteLine($"Generate async task finished in {result.ElapsedMilliseconds} ms");
             });
         }
 
-        private void AddTrack()
+        private void OnAddTrack(object sender, ExecutedRoutedEventArgs e)
         {
             Env.Song.AddTrack();
         }
 
+        private void OnZoomIn(object sender, ExecutedRoutedEventArgs e) => Zoom(true);
+        private void OnZoomOut(object sender, ExecutedRoutedEventArgs e) => Zoom(false); 
         private void Zoom(bool zoomIn)
         {
             var stringRep = Env.TimePerPixel.ToString();
@@ -301,13 +302,40 @@ namespace VaporDAW
             Env.OnViewChanged();
         }
 
+        private void OnStop(object sender, ExecutedRoutedEventArgs e) => StopAudioPlayback();
         private void StopAudioPlayback()
         {
             AudioPlaybackEngine.Instance.StopPlayback();
         }
 
-        protected override void OnMouseDown(MouseButtonEventArgs e)
+ 
+        private void SetSelector(double startPosition, double endPosition, bool noSelection)
         {
+            this.selector.Visibility = Visibility.Visible;
+
+            if (noSelection)
+            {
+                this.selector.Width = 1d;
+                Canvas.SetLeft(this.selector, startPosition);
+            }
+            else
+            {
+                var width = endPosition - startPosition;
+                if (width == 0)
+                {
+                    width = 1;
+                }
+                if (width >= 0)
+                {
+                    this.selector.Width = width;
+                    Canvas.SetLeft(this.selector, startPosition);
+                }
+                else
+                {
+                    this.selector.Width = -width;
+                    Canvas.SetLeft(this.selector, endPosition);
+                }
+            }
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -329,7 +357,34 @@ namespace VaporDAW
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            AudioPlaybackEngine.Instance.Dispose();
+            //AudioPlaybackEngine.Instance.StopPlayback();
+            e.Cancel = !Env.ConfirmChangesMade();
+            if (!e.Cancel)
+            {
+                AudioPlaybackEngine.Instance.Dispose();
+            }
+        }
+
+        private void OnAbout(object sender, ExecutedRoutedEventArgs e)
+        {
+            MessageBox.Show($"{this.AppNameAndVersion}\n\n(c) 2020 by Thor Muto Asmund\nthorasmund@gmail.com");
+        }
+
+        private void OnCheckForUpdates(object sender, ExecutedRoutedEventArgs e)
+        {
+            MessageBox.Show("Not implemented yet");
+        }
+        private void OnSettings(object sender, ExecutedRoutedEventArgs e)
+        {
+            MessageBox.Show("Not implemented yet");
+        }
+
+        private void PlaybackTimeUpdated(TimeSpan newTime)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.timeCounterText.Text = String.Format("{0:m\\:ss\\:ff}", newTime);
+            });
         }
     }
 }

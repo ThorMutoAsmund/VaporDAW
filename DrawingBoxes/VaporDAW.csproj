@@ -99,6 +99,10 @@
     <Compile Include="Playback\CachedSound.cs" />
     <Compile Include="Playback\ChannelSampleProvider.cs" />
     <Compile Include="Playback\CachedSoundSampleProvider.cs" />
+    <Compile Include="Playback\IReportsPosition.cs" />
+    <Compile Include="Processing\SampleDataProcessor.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Processing\EmptyProcessor.cs" />
     <Compile Include="Processing\ProcessorInput.cs" />
     <Compile Include="Processing\ProcessResult.cs" />

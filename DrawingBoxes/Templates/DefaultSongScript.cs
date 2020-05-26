@@ -5,15 +5,13 @@ public class DefaultMixer : Processor
 {
     private Channel mainOutput;
 
-    public override void Init()
+    public override void Init(ProcessParams p)
     {
-        // TBD sort by dependency
-        //env.TrackScriptClasses.Select()
-        //this.inputPorts = this.Tracks.Select(track => track.Processor).ToArray();
-
-        //this.TrackProcessors = trackProcessors.ToArray();
         var i = 0;
-        foreach (var input in this.Song.Tracks.Select(track => this.Env.Processors[track.Id]))
+        var tracks = this.Song.Tracks.Any(track => track.IsSolo) ?
+            this.Song.Tracks.Where(track => track.IsAudible && track.IsSolo) :
+            this.Song.Tracks.Where(track => track.IsAudible && !track.IsMuted);
+        foreach (var input in tracks.Select(track => this.Env.Processors[track.Id]))
         {
             this.SetInput($"M{i++}", Tags.MainOutput, input);
         }
@@ -24,13 +22,13 @@ public class DefaultMixer : Processor
     public override Mode Process(ProcessParams p)
     {
         var result = Mode.Silence;
-        this.mainOutput.Clear(p.NumSamples);
+        this.mainOutput.Clear(p.SampleLength);
 
-        foreach (var inputChannel in this.Inputs)
+        foreach (var input in this.Inputs)
         {
-            if (inputChannel.Provider.ProcessResult == Mode.ReadWrite)
+            if (input.Provider.ProcessResult == Mode.ReadWrite)
             {
-                this.mainOutput.Add(inputChannel.ProviderOutputChannel);
+                this.mainOutput.Add(input.ProviderOutputChannel);
                 result = Mode.ReadWrite;
             }
         }
