@@ -164,7 +164,7 @@
                                 <Grid>
                                     <StackPanel x:Name="trackPanel" Orientation="Vertical"></StackPanel>
                                     <Canvas x:Name="selectorParentCanvas" Width="auto">
-                                        <Canvas x:Name="selector" Background="Cornsilk" Opacity="0.4" Width="1" Height="{Binding ActualHeight, ElementName=selectorParentCanvas}" Visibility="Hidden"></Canvas>
+                                        <Canvas x:Name="selector" Background="Cornsilk" Opacity="0.4" Width="1" Height="{Binding ActualHeight, ElementName=selectorParentCanvas}"></Canvas>
                                     </Canvas>
                                 </Grid>
                             </ScrollViewer>

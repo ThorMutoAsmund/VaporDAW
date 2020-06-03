@@ -88,13 +88,17 @@ namespace VaporDAW
             return Env.Song.AddPart(this.Track, point, title);
         }
 
-        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+        protected override void OnMouseDown(MouseButtonEventArgs e)
         {
+            Console.WriteLine("Track down");
+            e.Handled = true;
             this.contextMousePosition = e.ChangedButton == MouseButton.Right ? e.GetPosition(this.grid) : this.contextMousePosition;
+            GuiManager.Instance.SelectTrackControl(this.TrackHeadControl, this);
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
         {
+            e.Handled = true;
             ShowProperties();
         }
 

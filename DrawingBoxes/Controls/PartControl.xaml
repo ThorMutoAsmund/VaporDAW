@@ -9,7 +9,11 @@
              Focusable="True">
     <Border Name="border" BorderThickness="1" Width="auto" Focusable="True">
         <Grid Name="grid" Cursor="SizeAll" Focusable="True">
-            <Label Name="titleLabel" Foreground="White" Content="Part" Height="30" VerticalAlignment='Top'></Label>
+            <Label Name="titleLabel" Foreground="White" Content="Part" Height="30" VerticalAlignment='Top'>
+                <Label.Effect>
+                    <DropShadowEffect ShadowDepth="3" Direction="330" Color="Black" Opacity="0.5" BlurRadius="4"/>
+                </Label.Effect>
+            </Label>
             <Canvas x:Name="canvas">
             </Canvas>
             <!--<Canvas x:Name="leftHandle" Width="10" HorizontalAlignment="Left">

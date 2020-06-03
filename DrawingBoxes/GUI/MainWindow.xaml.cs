@@ -213,13 +213,13 @@ namespace VaporDAW
             if (!loaded)
             {
                 this.tabControl.IsEnabled = false;
-                this.selector.Visibility = Visibility.Hidden;
                 SetTitle();
             }
             else
             {
                 this.tabControl.IsEnabled = true;
                 SetTitle(Env.Song.SongName);
+                SetSelector(0, 0, true);
             }
         }
 
@@ -268,18 +268,33 @@ namespace VaporDAW
             }
         }
 
-        private void OnPlay(object sender, ExecutedRoutedEventArgs e) => GenerateOutput();
-        private void GenerateOutput()
+        private void OnPlay(object sender, ExecutedRoutedEventArgs e) => PlaySong();
+
+        private void PlaySong()
         {
-            var startTime = 0d;
-            var task = Env.Song.Generate(startTime: 0d, length: Env.Song.GetActualLength());
+            var songLength = Env.Song.GetActualLength();
+            if (this.selectStart >= songLength)
+            {
+                return;
+            }
+            PlaySongRange(this.selectStart, this.selectLength == 0f ? songLength - this.selectStart : this.selectLength);
+        }
+
+        private void PlayFullSong()
+        {
+            PlaySongRange(0d, Env.Song.GetActualLength());
+        }
+
+        private void PlaySongRange(double startTime, double length)
+        {
+            var task = Env.Song.Generate(startTime: startTime, length: length);
 
             task.ContinueWith(taskResult =>
             {
                 var result = taskResult.Result;
 
                 AudioPlaybackEngine.Instance.StopPlayback();
-                AudioPlaybackEngine.Instance.PlaySound(result.Channel, startTime);
+                AudioPlaybackEngine.Instance.PlaySound(result.Channel, 0d);
 
                 Console.WriteLine($"Generate async task finished in {result.ElapsedMilliseconds} ms");
             });
@@ -308,10 +323,13 @@ namespace VaporDAW
             AudioPlaybackEngine.Instance.StopPlayback();
         }
 
- 
+        private double selectStart;
+        private double selectLength;
+
         private void SetSelector(double startPosition, double endPosition, bool noSelection)
         {
-            this.selector.Visibility = Visibility.Visible;
+            this.selectStart = startPosition * (double)Env.TimePerPixel;
+            this.selectLength = 0d;
 
             if (noSelection)
             {
@@ -321,6 +339,7 @@ namespace VaporDAW
             else
             {
                 var width = endPosition - startPosition;
+                this.selectLength = width * (double)Env.TimePerPixel;
                 if (width == 0)
                 {
                     width = 1;

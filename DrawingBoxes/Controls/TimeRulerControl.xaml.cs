@@ -43,29 +43,32 @@ namespace VaporDAW
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
+            if (e.ChangedButton != MouseButton.Left)
+            {
+                return;
+            }
+
+            this.isMouseDown = true;
             this.mouseDownPosition = e.GetPosition(this);
             this.SetSelector?.Invoke(this.mouseDownPosition.X, 0, true);
-            this.isMouseDown = true;
-            
+            Mouse.Capture(this);
         }
 
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
             this.isMouseDown = false;
-        }
-
-        protected override void OnMouseLeave(MouseEventArgs e)
-        {
-            this.isMouseDown = false;
+            Mouse.Capture(null);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            if (this.isMouseDown)
+            if (!this.isMouseDown)
             {
-                var mouseEndPosition = e.GetPosition(this);
-                this.SetSelector?.Invoke(this.mouseDownPosition.X, mouseEndPosition.X, false);
+                return;
             }
+
+            var mouseEndPosition = e.GetPosition(this);
+            this.SetSelector?.Invoke(this.mouseDownPosition.X, mouseEndPosition.X, false);
         }
     }
 

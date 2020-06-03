@@ -25,6 +25,7 @@ namespace VaporDAW
 
         public Action EscapePressed;
 
+        public int NumberOfTrackControls => this.trackControlsByIndex.Count();
         public static GuiManager Instance { get; private set; }
         
         private GuiManager(MainWindow mainWindow, StackPanel trackHeadPanel, StackPanel trackPanel)
@@ -106,8 +107,8 @@ namespace VaporDAW
             this.trackControls[track.Id] = trackControl;
             this.trackControlsByIndex.Add(trackControl);
 
-            trackHeadControl.MouseDown += (sender, e) => SelectTrackControl(trackHeadControl, trackControl);
-            trackControl.PreviewMouseDown += (sender, e) => SelectTrackControl(trackHeadControl, trackControl);
+            //trackHeadControl.MouseDown += (sender, e) => SelectTrackControl(trackHeadControl, trackControl);
+            //trackControl.PreviewMouseDown += (sender, e) => SelectTrackControl(trackHeadControl, trackControl);
 
             // Add parts
             foreach (var part in Env.Song.Parts.Where(p => p.TrackId == track.Id))
@@ -163,11 +164,16 @@ namespace VaporDAW
             this.partControls[part.Id] = partControl;
             
             //SetPartControlProperties(part, partControl);
+        }
 
+        public void MoveToFront(object sender)
+        {
+            ChangeZIndex(sender, Int32.MaxValue);
+        }
 
-            partControl.PreviewMouseDown += (sender, e) => ChangeZIndex(sender, Int32.MaxValue);
-            partControl.PreviewMouseUp += (sender, e) => ChangeZIndex(sender, this.zIndex++);
-            partControl.MouseDown += (sender, e) => SelectPartControl(partControl);
+        public void MoveToNormal(object sender)
+        {
+            ChangeZIndex(sender, this.zIndex++);
         }
 
         private void ChangeZIndex(object sender, int zIndex)
@@ -208,7 +214,7 @@ namespace VaporDAW
             }
         }
 
-        private void SelectTrackControl(TrackHeadControl trackHeadControl, TrackControl trackControl)
+        public void SelectTrackControl(TrackHeadControl trackHeadControl, TrackControl trackControl)
         {
             foreach (var partControl in this.selectedParts)
             {

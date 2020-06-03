@@ -160,7 +160,6 @@
     <Compile Include="Song\SongSerializer.cs" />
     <Compile Include="Util\GuiManager.cs" />
     <Compile Include="Util\ResourceMonitor.cs" />
-    <Compile Include="Util\Unused\MouseHook.cs" />
     <Compile Include="Util\NamedObject.cs" />
     <Compile Include="Util\NamePath.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
