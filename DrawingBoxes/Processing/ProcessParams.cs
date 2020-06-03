@@ -8,22 +8,19 @@ namespace VaporDAW
 {
     public class ProcessParams
     {
-        public double Start { get; private set; }
-        public double Length { get; private set; }
+        public int SampleStart { get; private set; }
+        public int SampleLength { get; private set; }
 
         public double SampleRate { get; private set; }
+        public int SampleEnd { get; private set; }
 
-        public int SampleLength { get; private set; }
-        public double End { get; private set; }
-
-        public ProcessParams(ProcessEnv env, double start, double length)
+        public ProcessParams(ProcessEnv env, int sampleStart, int sampleLength)
         {
-            this.Start = start;
-            this.Length = length;
-            this.SampleRate = env.Song.SampleFrequency;
+            this.SampleStart = sampleStart;
+            this.SampleLength = sampleLength;
+            this.SampleRate = env.Song.SampleRate;
 
-            this.SampleLength = (int)(this.Length * this.SampleRate);
-            this.End = this.Start + this.Length;
+            this.SampleEnd = this.SampleStart + this.SampleLength;
         }
     }    
 }

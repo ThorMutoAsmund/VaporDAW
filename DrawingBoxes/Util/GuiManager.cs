@@ -127,11 +127,11 @@ namespace VaporDAW
             return this.partControls.ContainsKey(id) ? this.partControls[id] : null;
         }
 
-        public bool TryGetPartControlSnapValue(PartControl self, double left, out double snapPosition, out double snapValue, double margin = 8d)
+        public bool TryGetPartControlSnapValue(PartControl self, double left, out double snapPosition, out int snapValue, double margin = 8d)
         {
             var result = false;
             snapPosition = double.PositiveInfinity;
-            snapValue = double.PositiveInfinity;
+            snapValue = int.MaxValue;
             foreach (var partControl in this.partControls.Values.Where(pc => pc != self))
             {
                 var otherLeft = Canvas.GetLeft(partControl);
@@ -139,7 +139,7 @@ namespace VaporDAW
                 if (difference < margin && difference < snapPosition)
                 {
                     snapPosition = otherLeft;
-                    snapValue = partControl.Part.Start;
+                    snapValue = partControl.Part.SampleStart;
                     result = true;
                 }
                 var otherRight = otherLeft + partControl.Width;
@@ -147,7 +147,7 @@ namespace VaporDAW
                 if (difference < margin && difference < snapPosition)
                 {
                     snapPosition = otherRight;
-                    snapValue = partControl.Part.Start + partControl.Part.Length;
+                    snapValue = partControl.Part.SampleStart + partControl.Part.SampleLength;
                     result = true;
                 }
             }

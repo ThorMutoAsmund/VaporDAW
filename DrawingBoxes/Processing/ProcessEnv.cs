@@ -36,14 +36,14 @@ namespace VaporDAW
             return this;
         }
 
-        public Task<ProcessResult> Generate(double startTime, double length)
+        public Task<ProcessResult> Generate(int startSampleTime, int sampleLength)
         {
             return Task.Run(() =>
             {
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
 
-                var processParams = new ProcessParams(this, startTime, length);
+                var processParams = new ProcessParams(this, startSampleTime, sampleLength);
                 var dependanceTree = new Dictionary<string, List<string>>();
                 if (BuildDependancyTree(dependanceTree, processParams))
                 {

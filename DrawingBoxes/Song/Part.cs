@@ -12,11 +12,11 @@ namespace VaporDAW
         [JsonProperty] public string Id { get; set; }
         [JsonProperty] public string RefId { get; set; }
         [JsonProperty] public string TrackId { get; set; }
-        [JsonProperty] public double Start { get; set; }
-        [JsonProperty] public double Length
+        [JsonProperty] public int SampleStart { get; set; }
+        [JsonProperty] public int SampleLength
         {
-            get => this.IsReference ? this.ReferencedPart.Length : this.length;
-            set { this.length = value; }
+            get => this.IsReference ? this.ReferencedPart.SampleLength : this.sampleLength;
+            set { this.sampleLength = value; }
         }
         public bool ShouldSerializeLength() => !this.IsReference;
 
@@ -40,8 +40,8 @@ namespace VaporDAW
         public bool ShouldSerializeGenerators() => !this.IsReference;
 
         [JsonIgnore] public bool IsReference => !string.IsNullOrEmpty(this.RefId);
-        [JsonIgnore] public double End => this.Start + this.Length;
-        [JsonIgnore] public int SampleLength => (int)(this.Length * Env.Song.SampleFrequency);
+        [JsonIgnore] public int SampleEnd => this.SampleStart + this.SampleLength;
+        //[JsonIgnore] public int OldSampleLength => (int)(this.Length * Env.Song.SampleFrequency);
 
         private Part referencedPart;
         private Part ReferencedPart
@@ -56,7 +56,7 @@ namespace VaporDAW
             }
         }
 
-        private double length;
+        private int sampleLength;
         private string title;
 
         public void ChangeTrack(string trackId)

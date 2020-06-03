@@ -75,7 +75,7 @@ namespace VaporDAW
             {
                 TrackHeadControl = trackHeadControl,
                 Track = track,
-                Width = Env.Song.SongLength / (double)Env.TimePerPixel,
+                Width = (int)(Env.Song.SongSampleLength / Env.SamplesPerPixel),
                 Height = Env.TrackHeight
             };
             trackHeadControl.TrackControl = trackControl;
@@ -135,8 +135,7 @@ namespace VaporDAW
                 if (generator.Settings.ContainsKey(Tags.SampleId))
                 {
                     var sampleId = generator.Settings[Tags.SampleId] as string;
-                    var length = SampleDataProcessor.GetSampleLength(sampleId) / Env.Song.SampleFrequency;
-                    part.Length = length;
+                    part.SampleLength = SampleDataProcessor.GetSampleLength(sampleId);
                     Env.Song.OnPartChanged(part);
                 }
             }

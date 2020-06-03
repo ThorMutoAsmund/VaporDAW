@@ -6,18 +6,16 @@ public class DefaultPart : Processor
 {
     private Channel mainOutput;
 
-    private double start;
-    private double length;
-    private double end;
+    private int sampleStart;
     private int sampleLength;
+    private int sampleEnd;
 
     public override void Init(ProcessParams p)
     {
         var part = this.Song.Parts.FirstOrDefault(pa => pa.Id == this.Part.Id);
-        this.start = part.Start;
-        this.length = part.Length;
+        this.sampleStart = part.SampleStart;
         this.sampleLength = part.SampleLength;
-        this.end = this.start + this.length;
+        this.sampleEnd = this.sampleStart + this.sampleLength;
 
         var lastGenerator = part.Generators.LastOrDefault();
         if (lastGenerator != null)
@@ -44,12 +42,6 @@ public class DefaultPart : Processor
         {
             if (inputChannel.Provider.ProcessResult == Mode.ReadWrite)
             {
-                //var destOffset = (int)(p.SampleRate * Math.Max(this.start - p.Start, 0));
-                //var destLen = p.SampleLength - destOffset;
-                //var srcLen = (int)(p.SampleRate * this.length);
-
-                //this.mainOutput.AddRange(inputChannel.ProviderOutputChannel, 0, destOffset, Math.Min(srcLen, destLen));
-
                 this.mainOutput.Add(inputChannel.ProviderOutputChannel);
 
                 result = Mode.ReadWrite;
@@ -57,20 +49,5 @@ public class DefaultPart : Processor
         }
 
         return result;
-
-        //foreach (var inputChannel in this.InputChannels)
-        //{
-        //    if (previousInput != null)
-        //    {
-        //        inputChannel.SetInput(Tags.MainInput, Tags.MainOutput, previousInput);
-        //    }
-
-        //    if (inputChannel == lastInput && inputChannel.Process(p) == Mode.ReadWrite)
-        //    {
-        //        this.mainOutput.Add(inputChannel.GetOutput(Tags.MainOutput));
-        //    }
-
-        //    previousInput = inputChannel;
-        //}
     }
 }

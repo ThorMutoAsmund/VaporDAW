@@ -11,7 +11,7 @@ namespace VaporDAW
 {
     public static class Env
     {
-        public static event Action<double> ViewChanged;
+        public static event Action<int> ViewChanged;
         public static string ApplicationName { get; set; } = "Vapor DAW";
         public static string ApplicationPath => System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         public static string SamplesFolder => "Samples";
@@ -26,12 +26,12 @@ namespace VaporDAW
 
         public static string DefaultPartTitle { get; set; } = "Untitled";
 
-        public static decimal TimePerPixel { get; set; }
+        public static int SamplesPerPixel { get; set; }
 
         //public static Conf Conf { get; set; } = new Conf()
         public static List<string> RecentFiles { get; } = new List<string>();
         public static double TrackHeight { get; set; } = 75d;
-        public static double PartLength { get; set; } = 1d; // seconds
+        public static int PartDefaultSampleLength { get; set; } = 44100;
 
         public static Song Song { get; set; }
         public static bool ChangesMade => Song.ChangesMade;
@@ -76,10 +76,10 @@ namespace VaporDAW
 
         public static void OnViewChanged()
         {
-            var span = Env.Song.SongLength - (Env.MainWindow.scrollViewer.ActualWidth * (double)Env.TimePerPixel);
-            var startTime = span * Env.MainWindow.scrollViewer.HorizontalOffset / Env.MainWindow.scrollViewer.ExtentWidth;
+            var span = Env.Song.SongSampleLength - (int)(Env.MainWindow.scrollViewer.ActualWidth * Env.SamplesPerPixel);
+            var sampleStart = (int)(span * Env.MainWindow.scrollViewer.HorizontalOffset / Env.MainWindow.scrollViewer.ExtentWidth);
 
-            ViewChanged?.Invoke(startTime);
+            ViewChanged?.Invoke(sampleStart);
         }
 
         public static string EmptyTemplateScriptName = "EmptyScript.cs";

@@ -68,7 +68,7 @@ namespace VaporDAW
         {
             sampleProvider.PositionUpdated += position =>
             {
-                var t = position / Env.Song.SampleFrequency + startTime;
+                var t = position / Env.Song.SampleRate + startTime;
                 this.TimeUpdated?.Invoke(TimeSpan.FromSeconds(t));
             };
             this.mixer.AddMixerInput(ConvertToRightChannelCount(sampleProvider));

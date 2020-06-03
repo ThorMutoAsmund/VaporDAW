@@ -21,7 +21,7 @@ public class SampleDataProcessor : Processor
         return Mode.ReadWrite;
     }
 
-    public static double GetSampleLength(string sampleId)
+    public static int GetSampleLength(string sampleId)
     {
         var sampleRef = Env.Song.GetSampleRef(sampleId);
         return WavFileUtils.GetWavFileSampleLength(sampleRef.FileName);

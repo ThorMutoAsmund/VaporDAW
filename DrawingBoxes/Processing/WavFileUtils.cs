@@ -104,10 +104,9 @@ namespace VaporDAW
             }
         }
 
-        public static double GetWavFileSampleLength(string fileName)
+        public static int GetWavFileSampleLength(string fileName)
         {
             var inPath = System.IO.Path.Combine(Env.Song.SamplesPath, fileName);
-            byte[] samples = null;
 
             using (WaveFileReader reader = new WaveFileReader(inPath))
             {
@@ -122,7 +121,7 @@ namespace VaporDAW
                 }
 
                 int bytesPerFrame = reader.WaveFormat.Channels * reader.WaveFormat.BitsPerSample / 8;
-                return reader.Length / bytesPerFrame;
+                return (int)(reader.Length / bytesPerFrame);
             }
         }
     }

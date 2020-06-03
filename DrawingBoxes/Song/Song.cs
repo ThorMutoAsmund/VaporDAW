@@ -19,8 +19,8 @@ namespace VaporDAW
         [JsonProperty] public List<Part> Parts { get; set; }
         [JsonProperty] public List<ScriptRef> Scripts { get; set; }
         [JsonProperty] public List<SampleRef> Samples { get; set; }
-        [JsonProperty] public double SampleFrequency { get; set; }
-        [JsonProperty] public double SongLength { get; set; }
+        [JsonProperty] public double SampleRate { get; set; }
+        [JsonProperty] public int SongSampleLength { get; set; }
 
         [JsonIgnore] public string ProjectFilePath => Path.Combine(this.projectPath, $"{Env.ProjectFileName}.json");
         [JsonIgnore] public string ScriptsPath => Path.Combine(this.projectPath, Env.ScriptsFolder);
@@ -65,11 +65,11 @@ namespace VaporDAW
             }
             else
             {
-                CreateNew(projectPath, "Autocreated song", 4, 44100d, 120d);
+                CreateNew(projectPath, "Autocreated song", 4, 44100d, 120 * 44100);
             }
         }
 
-        public static void CreateNew(string projectPath, string songName, int numberOfTracks, double sampleFrequency, double songLength)
+        public static void CreateNew(string projectPath, string songName, int numberOfTracks, double sampleFrequency, int songSampleLength)
         {
             Song.ChangesMade = false;
             Song.ClearVolatile?.Invoke();
@@ -85,8 +85,8 @@ namespace VaporDAW
                 Parts = new List<Part>(),
                 Scripts = new List<ScriptRef>(),
                 Samples = new List<SampleRef>(),
-                SampleFrequency = sampleFrequency,
-                SongLength = songLength                
+                SampleRate = sampleFrequency,
+                SongSampleLength = songSampleLength
             };
 
             CreateFolders(projectPath);
@@ -183,11 +183,11 @@ namespace VaporDAW
             return processor;
         }
 
-        public Task<ProcessResult> Generate(StandardAudioFormat audioFormat = StandardAudioFormat.PCM, double startTime = 0f, double length = 5f)
+        public Task<ProcessResult> Generate(int startSampleTime, int sampleLength, StandardAudioFormat audioFormat = StandardAudioFormat.PCM)
         {
             // Create script classes
             var processEnv = new ProcessEnv().CreateFrom(Env.Song);
-            return processEnv.Generate(startTime, length);
+            return processEnv.Generate(startSampleTime, sampleLength);
         }
 
         public void Save()
@@ -246,16 +246,16 @@ namespace VaporDAW
                 point = new System.Windows.Point(0d, 0d);
             }
 
-            var start = point.Value.X * (double)Env.TimePerPixel;
-            var length = Env.PartLength;
+            var sampleStart = (int)(point.Value.X * (double)Env.SamplesPerPixel);
+            var sampleLength = Env.PartDefaultSampleLength;
 
             var partScriptRef = Env.Song.FindOrAddScript(Env.DefaultPartScriptName, Env.PartTemplateScriptName);
 
             var part = new Part()
             {
                 Id = Base64.UUID(),
-                Start = start,
-                Length = length,
+                SampleStart = sampleStart,
+                SampleLength = sampleLength,
                 Title = title ?? Env.DefaultPartTitle,
                 TrackId = track.Id
             };
@@ -268,13 +268,13 @@ namespace VaporDAW
             return part;
         }
 
-        public Part RefClonePart(Part original, double start, Track track)
+        public Part RefClonePart(Part original, int sampleStart, Track track)
         {
             var part = new Part()
             {
                 Id = Base64.UUID(),
                 RefId = original.Id,
-                Start = start,
+                SampleStart = sampleStart,
                 TrackId = track.Id
             };
 
@@ -286,13 +286,13 @@ namespace VaporDAW
             return part;
         }
 
-        public Part ClonePart(Part original, double start, Track track)
+        public Part ClonePart(Part original, int sampleStart, Track track)
         {
             var part = new Part()
             {
                 Id = Base64.UUID(),
-                Start = start,
-                Length = original.Length,
+                SampleStart = sampleStart,
+                SampleLength = original.SampleLength,
                 Title = original.Title,
                 Generators = original.Generators.Select(g => g.Clone()).ToList(),
                 PartGenerators = original.PartGenerators.Select(g => g.Clone()).ToList(),
@@ -510,18 +510,18 @@ namespace VaporDAW
             return this.Parts.FirstOrDefault(s => s.Id == id);
         }
 
-        public double GetActualLength()
+        public int GetActualSampleLength()
         {
-            double end = 0d;
+            int sampleEnd = 0;
             foreach (var part in this.Parts)
             {
-                if (part.End > end)
+                if (part.SampleEnd > sampleEnd)
                 {
-                    end = part.End;
+                    sampleEnd = part.SampleEnd;
                 }
             }
 
-            return end;
+            return sampleEnd;
         }
     }
 }

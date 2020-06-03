@@ -26,8 +26,8 @@ namespace VaporDAW
 
                 //this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Part.ScriptId);
                 this.titleTextBox.Text = this.Part.Title;
-                this.startTextBox.DoubleValue = this.Part.Start;
-                this.lengthTextBox.DoubleValue = this.Part.Length;
+                this.startTextBox.DoubleValue = this.Part.SampleStart / Env.Song.SampleRate;
+                this.lengthTextBox.DoubleValue = this.Part.SampleLength / Env.Song.SampleRate;
 
                 this.scriptSelectControl.IsReadOnly = this.Part.IsReference;
                 this.titleTextBox.IsReadOnly = this.Part.IsReference;
@@ -72,8 +72,8 @@ namespace VaporDAW
         private void OK()
         {
             this.Part.Title = this.titleTextBox.Text;
-            this.Part.Start = this.startTextBox.DoubleValue;
-            this.Part.Length = this.lengthTextBox.DoubleValue;
+            this.Part.SampleStart = (int)(this.startTextBox.DoubleValue * Env.Song.SampleRate);
+            this.Part.SampleLength = (int)(this.lengthTextBox.DoubleValue * Env.Song.SampleRate);
             //this.Part.ScriptId = this.scriptSelectControl.Script.Id;
 
             this.DialogResult = true;

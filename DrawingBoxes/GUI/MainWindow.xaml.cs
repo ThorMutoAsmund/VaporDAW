@@ -22,7 +22,8 @@ namespace VaporDAW
 
             SetTitle();
 
-            Env.TimePerPixel = 0.01m;
+            //Env.TimePerPixel = 0.01m;
+            Env.SamplesPerPixel = 441;
             Env.MainWindow = this;
             Env.TrackPanel = this.trackPanel;
             Env.SongPanel = this.songPanel;
@@ -102,7 +103,7 @@ namespace VaporDAW
                 var dialog = NewProjectDialog.Create(this, selectedPath);
                 if (dialog.ShowDialog() ?? false)
                 {
-                    Song.CreateNew(selectedPath, dialog.SongName, dialog.NumberOfTracks, dialog.SampleFrequency, dialog.SongLength);
+                    Song.CreateNew(selectedPath, dialog.SongName, dialog.NumberOfTracks, dialog.SampleFrequency, (int)(dialog.SongLength * dialog.SampleFrequency));
                 }
             }
         }
@@ -279,17 +280,17 @@ namespace VaporDAW
 
         private void PlaySong()
         {
-            var songLength = Env.Song.GetActualLength();
-            if (this.selectStart >= songLength)
+            var songLength = Env.Song.GetActualSampleLength();
+            if (this.selectSampleStart >= songLength)
             {
                 return;
             }
-            PlaySongRange(this.selectStart, this.selectLength == 0f ? songLength - this.selectStart : this.selectLength);
+            PlaySongRange(this.selectSampleStart, this.selectSampleLength == 0f ? songLength - this.selectSampleStart : this.selectSampleLength);
         }
 
-        private void PlaySongRange(double startTime, double length)
+        private void PlaySongRange(int sampleStart, int sampleLength)
         {
-            var task = Env.Song.Generate(startTime: startTime, length: length);
+            var task = Env.Song.Generate(sampleStart, sampleLength);
 
             task.ContinueWith(taskResult =>
             {
@@ -317,12 +318,12 @@ namespace VaporDAW
         private void OnZoomOut(object sender, ExecutedRoutedEventArgs e) => Zoom(false); 
         private void Zoom(bool zoomIn)
         {
-            var stringRep = Env.TimePerPixel.ToString();
-            Env.TimePerPixel = zoomIn ?
-                (stringRep.Contains("5") ? Env.TimePerPixel / 5 * 2 : Env.TimePerPixel / 2) :
-                (stringRep.Contains("2") ? Env.TimePerPixel / 2 * 5 : Env.TimePerPixel * 2);
-            GuiManager.Instance.RedrawSong();
-            Env.OnViewChanged();
+            //var stringRep = Env.TimePerPixel.ToString();
+            //Env.TimePerPixel = zoomIn ?
+            //    (stringRep.Contains("5") ? Env.TimePerPixel / 5 * 2 : Env.TimePerPixel / 2) :
+            //    (stringRep.Contains("2") ? Env.TimePerPixel / 2 * 5 : Env.TimePerPixel * 2);
+            //GuiManager.Instance.RedrawSong();
+            //Env.OnViewChanged();
         }
 
         private void OnStop(object sender, ExecutedRoutedEventArgs e) => StopAudioPlayback();
@@ -331,13 +332,13 @@ namespace VaporDAW
             AudioPlaybackEngine.Instance.StopPlayback();
         }
 
-        private double selectStart;
-        private double selectLength;
+        private int selectSampleStart;
+        private int selectSampleLength;
 
         private void SetSelector(double startPosition, double endPosition, bool noSelection)
         {
-            this.selectStart = startPosition * (double)Env.TimePerPixel;
-            this.selectLength = 0d;
+            this.selectSampleStart = (int)(startPosition * Env.SamplesPerPixel);
+            this.selectSampleLength = 0;
 
             if (noSelection)
             {
@@ -347,7 +348,8 @@ namespace VaporDAW
             else
             {
                 var width = endPosition - startPosition;
-                this.selectLength = width * (double)Env.TimePerPixel;
+                this.selectSampleLength = (int)(width * Env.SamplesPerPixel);
+                
                 if (width == 0)
                 {
                     width = 1;

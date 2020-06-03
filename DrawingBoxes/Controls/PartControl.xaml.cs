@@ -53,8 +53,8 @@ namespace VaporDAW
         private int mouseMoveTrackNo;
         private bool mouseDownCopyMade;
 
-        private double newStart;
-        private double newLength;
+        private int newStart;
+        private int newLength;
 
         public PartControl()
         {
@@ -107,8 +107,8 @@ namespace VaporDAW
             this.mouseDownWidth = this.Width;
             this.mouseDownTrackControl = this.ParentTrackControl;
             this.mouseDownCopyMade = false;
-            this.newLength = this.Part.Length;
-            this.newStart = this.Part.Start;
+            this.newLength = this.Part.SampleLength;
+            this.newStart = this.Part.SampleStart;
             var trackPanelPosition = e.GetPosition(Env.TrackPanel);
             this.mouseMoveTrackNo = (int)(trackPanelPosition.Y / Env.TrackHeight);
             this.didMove = false;
@@ -154,7 +154,7 @@ namespace VaporDAW
                 {
                     var trackPosition = e.GetPosition(this.ParentTrackControl);
                     var newLeft = this.mouseDownLeft + (trackPosition.X - this.mouseDownTrackPosition.X);
-                    this.newStart = newLeft * (double)Env.TimePerPixel;
+                    this.newStart = (int)(newLeft * Env.SamplesPerPixel);
 
                     // Snap
                     if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
@@ -162,15 +162,15 @@ namespace VaporDAW
                         if (GuiManager.Instance.TryGetPartControlSnapValue(this, this.mouseDownInLeftHalf ? newLeft : newLeft + this.Width, out var snapPosition, out var snapValue))
                         {
                             newLeft = this.mouseDownInLeftHalf ? snapPosition : snapPosition - this.Width;
-                            this.newStart = mouseDownInLeftHalf ? snapValue : snapValue - this.Part.Length;
+                            this.newStart = mouseDownInLeftHalf ? snapValue : snapValue - this.Part.SampleLength;
                         }
                     }
 
                     // Don't go under 0
-                    if (newLeft < 0d || this.newStart < 0d)
+                    if (newLeft < 0d || this.newStart < 0)
                     {
                         newLeft = 0d;
-                        this.newStart = 0d;
+                        this.newStart = 0;
                     }
 
                     Canvas.SetLeft(this, newLeft);
@@ -219,7 +219,7 @@ namespace VaporDAW
             {
                 var position = e.GetPosition(this.ParentTrackControl);
                 var newWidth = this.mouseDownWidth + (position.X - this.mouseDownTrackPosition.X);
-                this.newLength = newWidth * (double)Env.TimePerPixel;
+                this.newLength = (int)(newWidth * Env.SamplesPerPixel);
 
                 // Snap
                 if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
@@ -227,14 +227,14 @@ namespace VaporDAW
                     if (GuiManager.Instance.TryGetPartControlSnapValue(this, this.mouseDownLeft + newWidth, out var snapPosition, out var snapValue))
                     {
                         newWidth = snapPosition - this.mouseDownLeft;
-                        this.newLength = snapValue - this.Part.Start;
+                        this.newLength = snapValue - this.Part.SampleStart;
                     }
                 }
 
                 if (newWidth < 12d)
                 {
                     newWidth = 12d;
-                    this.newLength = newWidth * (double)Env.TimePerPixel;
+                    this.newLength = (int)(newWidth * Env.SamplesPerPixel);
                 }
 
                 this.Width = newWidth;
@@ -259,7 +259,7 @@ namespace VaporDAW
             {
                 case MouseMoveAction.Move:
                     {
-                        this.Part.Start = this.newStart;
+                        this.Part.SampleStart = this.newStart;
                         this.Part.TrackId = this.ParentTrackControl.Track.Id;
                         Env.Song.OnPartChanged(this.Part);
 
@@ -267,7 +267,7 @@ namespace VaporDAW
                     }
                 case MouseMoveAction.Resize:
                     {
-                        Part.Length = this.newLength;
+                        Part.SampleLength = this.newLength;
                         Env.Song.OnPartChanged(this.Part);
                         break;
                     }
@@ -328,8 +328,8 @@ namespace VaporDAW
         {
             this.rightHandle.Cursor = this.Part.IsReference ? Cursors.SizeAll : Cursors.SizeWE;
             SetBackgroundColor();
-            var left = part.Start / (double)Env.TimePerPixel;
-            this.Width = part.Length / (double)Env.TimePerPixel;
+            var left = part.SampleStart / Env.SamplesPerPixel;
+            this.Width = part.SampleLength / Env.SamplesPerPixel;
             Canvas.SetLeft(this, left);
             this.titleLabel.Content = this.Part.Title;
         }

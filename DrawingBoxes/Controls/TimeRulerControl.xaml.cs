@@ -36,9 +36,9 @@ namespace VaporDAW
             Env.ViewChanged += Env_ViewChanged;
         }
 
-        private void Env_ViewChanged(double startTime)
+        private void Env_ViewChanged(int sampleStart)
         {
-            this.panel.StartTime = startTime;
+            this.panel.StartTime = sampleStart / Env.Song.SampleRate;
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -89,21 +89,21 @@ namespace VaporDAW
         {
             base.OnRender(dc);
 
-            var pen = new Pen(Brushes.Black, 1);
-            Typeface typeface = new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);            
+            //var pen = new Pen(Brushes.Black, 1);
+            //Typeface typeface = new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);            
             
-            var step = (double)Env.TimePerPixel * 100d;
-            var firstTime = (Math.Truncate(this.StartTime / step) + 1) * step;
+            //var step = (double)Env.TimePerPixel * 100d;
+            //var firstTime = (Math.Truncate(this.StartTime / step) + 1) * step;
 
-            var x = (firstTime - this.StartTime) / (double)Env.TimePerPixel;
-            while (x < this.ActualWidth)
-            {
-                FormattedText text = new FormattedText(firstTime.ToString("0.##"), CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, typeface, 12, Brushes.Black);
-                dc.DrawLine(pen, new Point(x, this.ActualHeight - 2), new Point(x, this.ActualHeight / 2));
-                dc.DrawText(text, new Point(x+2, 6));
-                firstTime += step;
-                x = (firstTime - this.StartTime) / (double)Env.TimePerPixel;
-            }
+            //var x = (firstTime - this.StartTime) / (double)Env.TimePerPixel;
+            //while (x < this.ActualWidth)
+            //{
+            //    FormattedText text = new FormattedText(firstTime.ToString("0.##"), CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, typeface, 12, Brushes.Black);
+            //    dc.DrawLine(pen, new Point(x, this.ActualHeight - 2), new Point(x, this.ActualHeight / 2));
+            //    dc.DrawText(text, new Point(x+2, 6));
+            //    firstTime += step;
+            //    x = (firstTime - this.StartTime) / (double)Env.TimePerPixel;
+            //}
         }
     }
 }

@@ -12,7 +12,7 @@ public class DefaultTrack : Processor
         var parts = this.Song.Parts.Where(part =>
         {
             return part.TrackId == this.Track.Id &&
-                    !(p.End < part.Start || p.Start > part.End) &&
+                    !(p.SampleEnd < part.SampleStart || p.SampleStart > part.SampleEnd) &&
                     part.PartGenerators.Count > 0;
         });
 
@@ -34,20 +34,20 @@ public class DefaultTrack : Processor
             if (input.Provider.ProcessResult == Mode.ReadWrite)
             {
                 var part = input.GetOriginator<Part>();
-                if (part.Start >= p.Start)
+                if (part.SampleStart >= p.SampleStart)
                 {
                     var srcOffset = 0;
-                    var destOffset = (int)((part.Start - p.Start) * ProcessEnv.Song.SampleFrequency);
-                    var length = part.End < p.End ? part.SampleLength :
+                    var destOffset = part.SampleStart - p.SampleStart;
+                    var length = part.SampleEnd < p.SampleEnd ? part.SampleLength :
                         p.SampleLength - destOffset;
 
                     this.mainOutput.AddRange(input.ProviderOutputChannel, srcOffset, destOffset, length);
                 }
                 else
                 {
-                    var srcOffset = (int)((p.Start - part.Start) * ProcessEnv.Song.SampleFrequency);
+                    var srcOffset = p.SampleStart - part.SampleStart;
                     var destOffset = 0;
-                    var length = part.End < p.End ? part.SampleLength - srcOffset :
+                    var length = part.SampleEnd < p.SampleEnd ? part.SampleLength - srcOffset :
                         p.SampleLength;
 
                     this.mainOutput.AddRange(input.ProviderOutputChannel, srcOffset, destOffset, length);
