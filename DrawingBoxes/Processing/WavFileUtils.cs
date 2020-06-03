@@ -103,6 +103,28 @@ namespace VaporDAW
 
             }
         }
+
+        public static double GetWavFileSampleLength(string fileName)
+        {
+            var inPath = System.IO.Path.Combine(Env.Song.SamplesPath, fileName);
+            byte[] samples = null;
+
+            using (WaveFileReader reader = new WaveFileReader(inPath))
+            {
+                if (reader.WaveFormat.Channels != 1 && reader.WaveFormat.Channels != 2)
+                {
+                    throw new Exception($"Unsupported number of channels {reader.WaveFormat.Channels} in sample {fileName}");
+                }
+                if (reader.WaveFormat.BitsPerSample != 8 && reader.WaveFormat.BitsPerSample != 16 &&
+                    reader.WaveFormat.BitsPerSample != 24)
+                {
+                    throw new Exception($"Unsupported number of bits per sample {reader.WaveFormat.Channels} in sample {fileName}");
+                }
+
+                int bytesPerFrame = reader.WaveFormat.Channels * reader.WaveFormat.BitsPerSample / 8;
+                return reader.Length / bytesPerFrame;
+            }
+        }
     }
 
 }

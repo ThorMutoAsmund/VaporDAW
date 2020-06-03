@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -28,6 +29,8 @@ namespace VaporDAW
 
             this.timeCounterText.Background = new SolidColorBrush(Colors.TrackHead);
             this.fileMenu.SubmenuOpened += (sender, e) => FileMenuSubmenuOpened();
+            this.songPanel.Zoom += Zoom;
+            this.headButtons.Background = new SolidColorBrush(Colors.TrackHead);
 
             Song.RequestEditScript += script => OpenScriptTab(script);
             Song.ProjectLoaded += loaded => ProjectLoaded(loaded);
@@ -44,6 +47,8 @@ namespace VaporDAW
             this.zoomOutCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
 
             this.timeRuler.SetSelector += SetSelector;
+
+            this.timeCounterBorder.BorderBrush = new SolidColorBrush(Colors.TrackHeadBorder);
 
             this.scrollViewer.ScrollChanged += (object sender, ScrollChangedEventArgs e) =>
             {
@@ -62,6 +67,8 @@ namespace VaporDAW
                     isActivated = true;
                 }
             };
+
+            this.timeCounterText.MouseDown += (sender, e) => SetSelector(0, 0, true);
 
             GuiManager.Create(this, this.trackHeadPanel, this.trackPanel);
             ResourceMonitor.Create(this.cpuUsageTextBlock, this.ramUsageTextBlock);
@@ -280,17 +287,18 @@ namespace VaporDAW
             PlaySongRange(this.selectStart, this.selectLength == 0f ? songLength - this.selectStart : this.selectLength);
         }
 
-        private void PlayFullSong()
-        {
-            PlaySongRange(0d, Env.Song.GetActualLength());
-        }
-
         private void PlaySongRange(double startTime, double length)
         {
             var task = Env.Song.Generate(startTime: startTime, length: length);
 
             task.ContinueWith(taskResult =>
             {
+                if (taskResult.IsFaulted)
+                {
+                    Console.WriteLine("Error playing song: " + taskResult.Exception.Message);
+                    return;
+                }
+
                 var result = taskResult.Result;
 
                 AudioPlaybackEngine.Instance.StopPlayback();

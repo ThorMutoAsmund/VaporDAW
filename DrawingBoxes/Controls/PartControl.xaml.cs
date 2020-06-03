@@ -92,17 +92,12 @@ namespace VaporDAW
         //protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            e.Handled = true;
-
             if (e.ChangedButton != MouseButton.Left)
             {
                 return;
             }
 
-            Mouse.Capture(this);
-
-            GuiManager.Instance.EscapePressed += OnCancelAction;
-
+            e.Handled = true;
             this.mouseMoveAction = e.OriginalSource == this.rightHandle && !this.Part.IsReference ? MouseMoveAction.Resize : MouseMoveAction.Move;
 
             var mouseDownPosition = e.GetPosition(this);
@@ -125,10 +120,6 @@ namespace VaporDAW
         public void ForceMoveStart(bool mouseDownInLeftHalf, Point mouseDownTrackPosition, double mouseDownLeft, double mouseDownWidth, 
             TrackControl mouseDownTrackControl, int mouseMoveTrackNo)
         {
-            // TBD Mouse.Capture(this);
-
-            GuiManager.Instance.EscapePressed += OnCancelAction;
-
             this.mouseMoveAction = MouseMoveAction.Move;
             this.mouseDownInLeftHalf = mouseDownInLeftHalf;
             this.mouseDownTrackPosition = mouseDownTrackPosition;
@@ -136,10 +127,10 @@ namespace VaporDAW
             this.mouseDownWidth = mouseDownWidth;
             this.mouseDownTrackControl = mouseDownTrackControl;
             this.mouseMoveTrackNo = mouseMoveTrackNo;
-            this.didMove = true;
             this.mouseDownCopyMade = true;
 
-            // TBD Mouse.Capture(this);
+            GuiManager.Instance.SelectPartControl(this);
+            GuiManager.Instance.MoveToFront(this);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -149,7 +140,12 @@ namespace VaporDAW
                 return;
             }
 
-            this.didMove = true;
+            if (!this.didMove)
+            {
+                Mouse.Capture(this);
+                GuiManager.Instance.EscapePressed += OnCancelAction;
+                this.didMove = true;
+            }
 
             if (this.mouseMoveAction == MouseMoveAction.Move)
             {
@@ -249,16 +245,15 @@ namespace VaporDAW
         {
             e.Handled = true;
 
-            GuiManager.Instance.EscapePressed -= OnCancelAction;
-            GuiManager.Instance.MoveToNormal(this);
-
-            Mouse.Capture(null);
-
             if (!this.didMove)
             {
                 this.mouseMoveAction = MouseMoveAction.None;
                 return;
             }
+
+            GuiManager.Instance.EscapePressed -= OnCancelAction;
+            GuiManager.Instance.MoveToNormal(this);
+            Mouse.Capture(null);
 
             switch (this.mouseMoveAction)
             {
@@ -283,9 +278,9 @@ namespace VaporDAW
 
         protected void OnCancelAction()
         {
+            this.mouseMoveAction = MouseMoveAction.None;
             GuiManager.Instance.EscapePressed -= OnCancelAction;
             GuiManager.Instance.MoveToNormal(this);
-
             Mouse.Capture(null);
 
             if (!this.didMove)
@@ -303,7 +298,7 @@ namespace VaporDAW
             }
         }
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        protected override void OnPreviewMouseDoubleClick(MouseButtonEventArgs e)
         {
             e.Handled = true;
             OnCancelAction();

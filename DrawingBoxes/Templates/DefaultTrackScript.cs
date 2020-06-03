@@ -11,11 +11,12 @@ public class DefaultTrack : Processor
         var i = 0;
         var parts = this.Song.Parts.Where(part =>
         {
-            return part.TrackId == this.ElementId &&
-                    !(p.End < part.Start || p.Start > part.End);
+            return part.TrackId == this.Track.Id &&
+                    !(p.End < part.Start || p.Start > part.End) &&
+                    part.PartGenerators.Count > 0;
         });
 
-        foreach (var inputAndPart in parts.Select(part => (input: this.Env.Processors[part.Id], part)))
+        foreach (var inputAndPart in parts.Select(part => (input: this.ProcessEnv.Processors[part.PartGenerators.Last().Id], part)))
         {
             this.SetInput($"T{i++}", Tags.MainOutput, inputAndPart.input, inputAndPart.part);
         }
@@ -36,15 +37,15 @@ public class DefaultTrack : Processor
                 if (part.Start >= p.Start)
                 {
                     var srcOffset = 0;
-                    var destOffset = (int)((part.Start - p.Start) * Env.Song.SampleFrequency);
+                    var destOffset = (int)((part.Start - p.Start) * ProcessEnv.Song.SampleFrequency);
                     var length = part.End < p.End ? part.SampleLength :
-                        p.SampleLength - srcOffset;
+                        p.SampleLength - destOffset;
 
                     this.mainOutput.AddRange(input.ProviderOutputChannel, srcOffset, destOffset, length);
                 }
                 else
                 {
-                    var srcOffset = (int)((p.Start - part.Start) * Env.Song.SampleFrequency);
+                    var srcOffset = (int)((p.Start - part.Start) * ProcessEnv.Song.SampleFrequency);
                     var destOffset = 0;
                     var length = part.End < p.End ? part.SampleLength - srcOffset :
                         p.SampleLength;

@@ -71,6 +71,8 @@
     <Compile Include="Controls\PartControl.xaml.cs">
       <DependentUpon>PartControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\SongPanel.cs" />
+    <Compile Include="Controls\Selector.cs" />
     <Compile Include="Controls\TrackPanel.cs" />
     <Compile Include="Controls\TextBoxEx.cs" />
     <Compile Include="Controls\TimeRulerControl.xaml.cs">
@@ -255,7 +257,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="bin\Debug\default_project\Project.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -267,6 +268,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Next.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\Debug\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

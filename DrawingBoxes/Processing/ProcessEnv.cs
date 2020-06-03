@@ -22,11 +22,14 @@ namespace VaporDAW
             this.Mixer = song.CreateProcessor(this, song.ScriptId, "SONG");
             this.EmptyChannel = new Channel(this.Mixer, string.Empty);
 
-            //var trackProcessors = new List<Processor>();
-
             this.Processors = new Dictionary<string, Processor>() { { this.Mixer.ElementId, this.Mixer } };
-            song.Tracks.ForEach(track => this.Processors[track.Id] = song.CreateProcessor(this, track.ScriptId, track.Id));
-            song.Parts.ForEach(part => this.Processors[part.Id] = song.CreateProcessor(this, part.ScriptId, part.Id));
+
+            song.Tracks.SelectMany(track => track.TrackGenerators.Select(generator => new { track, generator })).
+                ToList().ForEach(trackAndGenerator => this.Processors[trackAndGenerator.generator.Id] = song.CreateProcessor(this, trackAndGenerator.generator.ScriptId, trackAndGenerator.generator.Id, track: trackAndGenerator.track));
+
+            song.Parts.SelectMany(part => part.PartGenerators.Select(generator => new { part, generator })).
+                ToList().ForEach(partAndGenerator => this.Processors[partAndGenerator.generator.Id] = song.CreateProcessor(this, partAndGenerator.generator.ScriptId, partAndGenerator.generator.Id, part: partAndGenerator.part));
+
             song.Parts.SelectMany(part => part.Generators.Select(generator => new { part, generator })).
                 ToList().ForEach(partAndGenerator => this.Processors[partAndGenerator.generator.Id] = song.CreateProcessor(this, partAndGenerator.generator.ScriptId, partAndGenerator.generator.Id, part: partAndGenerator.part));
             song.Samples.ForEach(sample => this.Processors[sample.Id] = song.CreateSampleDataProcessor(this, sample.Id));
@@ -42,7 +45,7 @@ namespace VaporDAW
 
                 var processParams = new ProcessParams(this, startTime, length);
                 var dependanceTree = new Dictionary<string, List<string>>();
-                if (BuildDependanceTree(dependanceTree, processParams))
+                if (BuildDependancyTree(dependanceTree, processParams))
                 {
                     Process(dependanceTree, processParams);
                 }
@@ -65,7 +68,7 @@ namespace VaporDAW
         /// <summary>
         /// Value is the generators depending on Key
         /// </summary>        
-        public bool BuildDependanceTree(Dictionary<string, List<string>> dependanceTree, ProcessParams processParams)
+        public bool BuildDependancyTree(Dictionary<string, List<string>> dependanceTree, ProcessParams processParams)
         {
             void Recurse(Processor processor)
             {

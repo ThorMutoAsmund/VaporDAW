@@ -102,70 +102,69 @@
         <TabControl x:Name="tabControl" Grid.ColumnSpan="3" Margin="0,0,0,0" IsEnabled="False">
             <TabItem Header="Compose">
                 <DockPanel LastChildFill="True" Margin="0">
-                    <Border>
-                        <StackPanel Margin="3">
-                            <StackPanel>
-                                <DockPanel Height="25" Background="LightGray" DockPanel.Dock="Bottom">
-                                    <Button x:Name="stopPlaybackButton" Width="21" Padding="5" DockPanel.Dock="Right" Margin="2" Command="local:CustomCommands.StopSong">
-                                        <Path Data="M0.3,0.3 L0.7,0.3 L0.7,0.7 L0.3,0.7"
+                    <StackPanel Margin="3">
+                        <StackPanel>
+                            <DockPanel Height="25" Background="LightGray" DockPanel.Dock="Bottom">
+                                <Button x:Name="stopPlaybackButton" Width="21" Padding="5" DockPanel.Dock="Right" Margin="2" Command="local:CustomCommands.StopSong">
+                                    <Path Data="M0.3,0.3 L0.7,0.3 L0.7,0.7 L0.3,0.7"
+                                    StrokeThickness="2"
+                                    Stretch="Fill"
+                                    Fill="Black"
+                                    Stroke="Black" />
+                                </Button>
+                                <Label Height="25" Content="Samples" DockPanel.Dock="Left" />
+                            </DockPanel>
+                            <local:SampleList Height="auto" Width="200" HorizontalAlignment="Left"/>
+                            <StackPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Import samples..." Name="importSamplesMenuItem"/>
+                                </ContextMenu>
+                            </StackPanel.ContextMenu>
+                        </StackPanel>
+                        <StackPanel>
+                            <Label  Height="25" Margin="0,10,0,0" Content="Scripts" Background="LightGray" />
+                            <local:ScriptList Height="auto" Width="200" HorizontalAlignment="Left"/>
+                            <StackPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="New script..." Name="newScriptMenuItem"/>
+                                </ContextMenu>
+                            </StackPanel.ContextMenu>
+                        </StackPanel>
+                    </StackPanel>
+                    <local:SongPanel x:Name="songPanel" Background="{StaticResource CheckerBoard}">
+                        <DockPanel DockPanel.Dock="Left" Width="100">
+                            <Border Name="timeCounterBorder" BorderThickness="0 0 0 1" DockPanel.Dock="Top"  Height="28" Width="100">
+                                <DockPanel >
+                                    <TextBlock x:Name="timeCounterText" Width="100" Foreground="White" FontSize="18" TextAlignment="Center" Text="0:00:00"></TextBlock>
+                                </DockPanel>
+                            </Border>
+                            <DockPanel Name="headButtons" DockPanel.Dock="Bottom" Height="18" HorizontalAlignment="Right" Width="100">
+                                <DockPanel HorizontalAlignment="Right">
+                                    <Button Width="18" Padding="4" HorizontalAlignment="Right" Command="local:CustomCommands.ZoomIn">
+                                        <Path Data="M0.5,0 L0.5,1 M0,0.5 L1,0.5"
                                         StrokeThickness="2"
                                         Stretch="Fill"
-                                        Fill="Black"
                                         Stroke="Black" />
                                     </Button>
-                                    <Label Height="25" Content="Samples" DockPanel.Dock="Left" />
+                                    <Button Width="18" Padding="4" Command="local:CustomCommands.ZoomOut">
+                                        <Path Data="M0,0.5 L1,0.5"
+                                        StrokeThickness="2"
+                                        Stretch="Fill"
+                                        Stroke="Black" />
+                                    </Button>
                                 </DockPanel>
-                                <local:SampleList Height="auto" Width="200" HorizontalAlignment="Left"/>
-                                <StackPanel.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="Import samples..." Name="importSamplesMenuItem"/>
-                                    </ContextMenu>
-                                </StackPanel.ContextMenu>
-                            </StackPanel>
-                            <StackPanel>
-                                <Label  Height="25" Margin="0,10,0,0" Content="Scripts" Background="LightGray" />
-                                <local:ScriptList Height="auto" Width="200" HorizontalAlignment="Left"/>
-                                <StackPanel.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="New script..." Name="newScriptMenuItem"/>
-                                    </ContextMenu>
-                                </StackPanel.ContextMenu>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                    <DockPanel x:Name="songPanel" Background="{StaticResource CheckerBoard}">
-                        <DockPanel DockPanel.Dock="Left" Width="100">
-                            <DockPanel DockPanel.Dock="Top" Height="28" Width="100" >
-                                <TextBlock x:Name="timeCounterText" Width="100" Foreground="White" FontSize="18" TextAlignment="Center" Text="0:00:00"></TextBlock>
-                            </DockPanel>
-                            <DockPanel DockPanel.Dock="Bottom" Height="18" HorizontalAlignment="Right">
-                                <Button Width="18" Padding="4" HorizontalAlignment="Right" Command="local:CustomCommands.ZoomIn">
-                                    <Path Data="M0.5,0 L0.5,1 M0,0.5 L1,0.5"
-                                        StrokeThickness="2"
-                                        Stretch="Fill"
-                                        Stroke="Black" />
-                                </Button>
-                                <Button Width="18" Padding="4" Command="local:CustomCommands.ZoomOut">
-                                    <Path Data="M0,0.5 L1,0.5"
-                                        StrokeThickness="2"
-                                        Stretch="Fill"
-                                        Stroke="Black" />
-                                </Button>
                             </DockPanel>
                             <StackPanel x:Name="trackHeadPanel" Orientation="Vertical" Width="100">
                             </StackPanel>
                         </DockPanel>
-                        <Grid DockPanel.Dock="Right">
-                            
-                        </Grid>
                         <DockPanel >
                             <local:TimeRulerControl x:Name="timeRuler" Width="auto" DockPanel.Dock="Top" Height="28"></local:TimeRulerControl>
                             <ScrollViewer x:Name="scrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Visible">
                                 <Grid>
-                                    <StackPanel x:Name="trackPanel" Orientation="Vertical"></StackPanel>
-                                    <Canvas x:Name="selectorParentCanvas" Width="auto">
-                                        <Canvas x:Name="selector" Background="Cornsilk" Opacity="0.4" Width="1" Height="{Binding ActualHeight, ElementName=selectorParentCanvas}"></Canvas>
-                                    </Canvas>
+                                    <local:TrackPanel x:Name="trackPanel" Orientation="Vertical" VerticalAlignment="Top"></local:TrackPanel>
+                                    <local:Selector x:Name="selectorParentCanvas" Width="auto">
+                                        <Canvas x:Name="selector" Background="Cornsilk" Opacity="0.4" Width="1" Height="{Binding ActualHeight, ElementName=trackPanel}"></Canvas>
+                                    </local:Selector>
                                 </Grid>
                             </ScrollViewer>
                         </DockPanel>
@@ -174,7 +173,7 @@
                                 <MenuItem Header="Add track" Command="local:CustomCommands.AddTrack"/>
                             </ContextMenu>
                         </DockPanel.ContextMenu>
-                    </DockPanel>
+                    </local:SongPanel>
                 </DockPanel>               
             </TabItem>
         </TabControl>

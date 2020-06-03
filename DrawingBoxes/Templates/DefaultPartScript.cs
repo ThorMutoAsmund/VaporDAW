@@ -13,7 +13,7 @@ public class DefaultPart : Processor
 
     public override void Init(ProcessParams p)
     {
-        var part = this.Song.Parts.FirstOrDefault(pa => pa.Id == this.ElementId);
+        var part = this.Song.Parts.FirstOrDefault(pa => pa.Id == this.Part.Id);
         this.start = part.Start;
         this.length = part.Length;
         this.sampleLength = part.SampleLength;
@@ -23,7 +23,7 @@ public class DefaultPart : Processor
         if (lastGenerator != null)
         {
             var i = 0;
-            var processor = this.Env.Processors[lastGenerator.Id];
+            var processor = this.ProcessEnv.Processors[lastGenerator.Id];
             this.SetInput($"P{i++}", Tags.MainOutput, processor);
         }
 

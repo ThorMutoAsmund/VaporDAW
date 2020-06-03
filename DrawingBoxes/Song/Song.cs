@@ -98,12 +98,14 @@ namespace VaporDAW
 
             for (int t = 0; t < numberOfTracks; ++t)
             {
-                Env.Song.Tracks.Add(new Track()
+                var track = new Track()
                 {
                     Id = Base64.UUID(),
-                    Title = $"Track{t+1}",
-                    ScriptId = trackScriptRef.Id
-                });
+                    IsAudible = true,
+                    Title = $"Track{t + 1}",
+                };
+                track.AddTrackScript(trackScriptRef);
+                Env.Song.Tracks.Add(track);
             }
 
             Env.Song.Save();
@@ -148,12 +150,12 @@ namespace VaporDAW
         public Processor CreateSampleDataProcessor(ProcessEnv env, string sampleRefId)
         {
             var processor = new SampleDataProcessor();
-            processor.Setup(env, this, sampleRefId, null);
+            processor.Setup(env, this, sampleRefId, null, null);
 
             return processor;
         }
 
-        public Processor CreateProcessor(ProcessEnv env, string scriptId, string id, Part part = null)
+        public Processor CreateProcessor(ProcessEnv env, string scriptId, string id, Part part = null, Track track = null)
         {
             var scriptRef = GetScriptRef(scriptId);
 
@@ -176,7 +178,7 @@ namespace VaporDAW
             }
 
             var processor = Activator.CreateInstance(type) as Processor ?? Processor.Empty;
-            processor.Setup(env, this, id, part);
+            processor.Setup(env, this, id, part, track);
 
             return processor;
         }
@@ -219,9 +221,10 @@ namespace VaporDAW
             var track = new Track()
             {
                 Id = Base64.UUID(),
+                IsAudible = true,
                 Title = $"Track{this.Tracks.Count() + 1}",
-                ScriptId = trackScriptRef.Id
             };
+            track.AddTrackScript(trackScriptRef);
             this.Tracks.Add(track);
 
             Song.ChangesMade = true;
@@ -251,14 +254,12 @@ namespace VaporDAW
             var part = new Part()
             {
                 Id = Base64.UUID(),
-                ScriptId = partScriptRef.Id,
                 Start = start,
                 Length = length,
                 Title = title ?? Env.DefaultPartTitle,
-                Generators = new List<Generator>(),
                 TrackId = track.Id
             };
-
+            part.AddPartScript(partScriptRef);
             this.Parts.Add(part);
 
             Song.ChangesMade = true;
@@ -290,14 +291,17 @@ namespace VaporDAW
             var part = new Part()
             {
                 Id = Base64.UUID(),
-                ScriptId = original.ScriptId,
                 Start = start,
                 Length = original.Length,
                 Title = original.Title,
                 Generators = original.Generators.Select(g => g.Clone()).ToList(),
+                PartGenerators = original.PartGenerators.Select(g => g.Clone()).ToList(),
                 TrackId = track.Id
             };
-
+            //foreach (var partGenerator in original.PartGenerators)
+            //{
+            //    part.AddPartScript(Env.Song.GetScriptRef(partGenerator.ScriptId));
+            //}
             this.Parts.Add(part);
 
             Song.ChangesMade = true;

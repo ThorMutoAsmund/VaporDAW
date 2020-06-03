@@ -90,7 +90,6 @@ namespace VaporDAW
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            Console.WriteLine("Track down");
             e.Handled = true;
             this.contextMousePosition = e.ChangedButton == MouseButton.Right ? e.GetPosition(this.grid) : this.contextMousePosition;
             GuiManager.Instance.SelectTrackControl(this.TrackHeadControl, this);
@@ -130,8 +129,16 @@ namespace VaporDAW
                 var sampleName = e.Data.GetData("sample") as string;
 
                 var part = AddPart(point: point, title: sampleName);
-                part.AddSample(sampleName);
-                
+                var generator = part.AddSample(sampleName);
+
+                // Set length
+                if (generator.Settings.ContainsKey(Tags.SampleId))
+                {
+                    var sampleId = generator.Settings[Tags.SampleId] as string;
+                    var length = SampleDataProcessor.GetSampleLength(sampleId) / Env.Song.SampleFrequency;
+                    part.Length = length;
+                    Env.Song.OnPartChanged(part);
+                }
             }
             else if (e.Data.GetDataPresent("script"))
             {

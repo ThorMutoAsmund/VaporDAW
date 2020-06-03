@@ -24,7 +24,7 @@ namespace VaporDAW
             {
                 this.part = value;
 
-                this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Part.ScriptId);
+                //this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Part.ScriptId);
                 this.titleTextBox.Text = this.Part.Title;
                 this.startTextBox.DoubleValue = this.Part.Start;
                 this.lengthTextBox.DoubleValue = this.Part.Length;
@@ -74,7 +74,7 @@ namespace VaporDAW
             this.Part.Title = this.titleTextBox.Text;
             this.Part.Start = this.startTextBox.DoubleValue;
             this.Part.Length = this.lengthTextBox.DoubleValue;
-            this.Part.ScriptId = this.scriptSelectControl.Script.Id;
+            //this.Part.ScriptId = this.scriptSelectControl.Script.Id;
 
             this.DialogResult = true;
         }

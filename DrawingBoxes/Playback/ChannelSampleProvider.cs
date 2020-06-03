@@ -26,17 +26,16 @@ namespace VaporDAW
 
         public int Read(float[] buffer, int offset, int count)
         {
-            PositionUpdated?.Invoke(position/2);
-
             var availableSamples = channel.Data.Length - position;
-            var samplesToCopy = Math.Min(availableSamples, count);
+            var samplesToCopy = Math.Min(availableSamples * 2, count); // 2 = stereo
             for (int s=0; s < samplesToCopy/2; ++s)
             {
-                buffer[offset + s * 2] = (float)channel.Data[position / 2 + s].Left;
-                buffer[offset + s * 2 + 1] = (float)channel.Data[position / 2 + s].Right;
+                buffer[offset + s * 2] = (float)channel.Data[position + s].Left;
+                buffer[offset + s * 2 + 1] = (float)channel.Data[position + s].Right;
             }
             //Array.Copy(channel.Data, position, buffer, offset, samplesToCopy);
-            position += samplesToCopy;
+            position += samplesToCopy / 2;
+            PositionUpdated?.Invoke(position);
             return (int)samplesToCopy;
         }
     }

@@ -11,9 +11,7 @@ namespace VaporDAW
     {
         [JsonProperty] public string Id { get; set; }
         [JsonProperty] public string ScriptId { get; set; }
-        [JsonProperty] public Dictionary<string, object> Settings { get; set; }
-        //[JsonProperty] public List<InputOutput> Inputs { get; set; }
-        //[JsonProperty] public List<InputOutput> Outputs { get; set; }
+        [JsonProperty] public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
 
         public Generator Clone()
         {
@@ -21,7 +19,7 @@ namespace VaporDAW
             {
                 Id = Base64.UUID(),
                 ScriptId = this.ScriptId,
-                //TBD Settings = original.Settings.Cl
+                Settings = new Dictionary<string, object>(this.Settings)
             };
         }
     }

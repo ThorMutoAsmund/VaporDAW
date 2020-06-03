@@ -9,7 +9,7 @@ public class SampleDataProcessor : Processor
 
     public override void Init(ProcessParams p)
     { 
-        var sampleRef = Env.Song.GetSampleRef(this.ElementId);
+        var sampleRef = ProcessEnv.Song.GetSampleRef(this.ElementId);
         this.mainOutput = AddOutputChannel(Tags.MainOutput);
 
         // Read data
@@ -19,5 +19,11 @@ public class SampleDataProcessor : Processor
     public override Mode Process(ProcessParams p)
     {
         return Mode.ReadWrite;
+    }
+
+    public static double GetSampleLength(string sampleId)
+    {
+        var sampleRef = Env.Song.GetSampleRef(sampleId);
+        return WavFileUtils.GetWavFileSampleLength(sampleRef.FileName);
     }
 }

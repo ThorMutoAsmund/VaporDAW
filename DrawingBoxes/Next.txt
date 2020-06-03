@@ -1,3 +1,6 @@
 ﻿
 Refpart generators...
 
+An effect track is just a track with a DefaultEffectTrackScript
+where a normal track has a DefaultTrackScript
+

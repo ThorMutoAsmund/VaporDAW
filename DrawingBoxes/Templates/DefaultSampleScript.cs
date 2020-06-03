@@ -18,7 +18,7 @@ public class DefaultSample : Processor
 
         this.mainOutput = AddOutputChannel(Tags.MainOutput);
 
-        var processor = this.Env.Processors[sampleId];
+        var processor = this.ProcessEnv.Processors[sampleId];
         this.input = this.SetInput($"S0", Tags.MainOutput, processor);
 
         // Tbd UP/DOWN sample

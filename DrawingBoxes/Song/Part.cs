@@ -20,12 +20,14 @@ namespace VaporDAW
         }
         public bool ShouldSerializeLength() => !this.IsReference;
 
-        [JsonProperty] public string ScriptId 
-        {
-            get => this.IsReference ? this.ReferencedPart.ScriptId : this.scriptId;
-            set { this.scriptId = value; }
-        }
-        public bool ShouldSerializeScriptId() => !this.IsReference;
+        //[JsonProperty] public string ScriptId 
+        //{
+        //    get => this.IsReference ? this.ReferencedPart.ScriptId : this.scriptId;
+        //    set { this.scriptId = value; }
+        //}
+        //public bool ShouldSerializeScriptId() => !this.IsReference;
+        [JsonProperty] public List<Generator> PartGenerators { get; set; } = new List<Generator>();
+        public bool ShouldSerializePartGenerators() => !this.IsReference;
 
         [JsonProperty] public string Title
         {
@@ -34,12 +36,7 @@ namespace VaporDAW
         }
         public bool ShouldSerializeTitle() => !this.IsReference;
 
-        [JsonProperty] public List<Generator> Generators
-        { 
-            //get => this.IsReference ? this.ReferencedPart.Generators : this.generators;
-            get => this.generators;
-            set { this.generators = value; }
-        }
+        [JsonProperty] public List<Generator> Generators { get; set; } = new List<Generator>();
         public bool ShouldSerializeGenerators() => !this.IsReference;
 
         [JsonIgnore] public bool IsReference => !string.IsNullOrEmpty(this.RefId);
@@ -60,9 +57,7 @@ namespace VaporDAW
         }
 
         private double length;
-        private string scriptId;
         private string title;
-        private List<Generator> generators;
 
         public void ChangeTrack(string trackId)
         {
@@ -71,7 +66,18 @@ namespace VaporDAW
             Song.ChangesMade = true;
         }
 
-        public void AddSample(string sampleName)
+        public void AddPartScript(ScriptRef scriptRef)
+        {
+            var generator = new Generator()
+            {
+                Id = Base64.UUID(),
+                ScriptId = scriptRef.Id,
+            };
+            this.PartGenerators.Add(generator);
+            Song.ChangesMade = true;
+        }
+
+        public Generator AddSample(string sampleName)
         {
             var sampleScriptRef = Env.Song.FindOrAddScript(Env.DefaultSampleScriptName, Env.SampleTemplateScriptName);
 
@@ -86,6 +92,8 @@ namespace VaporDAW
             };
             this.Generators.Add(generator);
             Song.ChangesMade = true;
+
+            return generator;
         }
 
         public void AddScript(string scriptName)

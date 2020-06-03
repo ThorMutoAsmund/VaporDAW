@@ -11,9 +11,10 @@ namespace VaporDAW
     {
         public string ElementId { get; private set; }
         
-        protected ProcessEnv Env { get; private set; }
+        protected ProcessEnv ProcessEnv { get; private set; }
         protected Song Song { get; private set; }
         protected Part Part { get; private set; }
+        protected Track Track { get; private set; }
 
         public static readonly Processor Empty = new EmptyProcessor();
         
@@ -30,7 +31,7 @@ namespace VaporDAW
 
         public Channel GetOutputChannel(string tag)
         {
-            return this.outputChannels.ContainsKey(tag) ? this.outputChannels[tag] : this.Env.EmptyChannel;
+            return this.outputChannels.ContainsKey(tag) ? this.outputChannels[tag] : this.ProcessEnv.EmptyChannel;
         }
 
         public ProcessorInput SetInput(string inputTag, string outputTag, Processor processor, object originator = null)
@@ -53,11 +54,12 @@ namespace VaporDAW
             return new Channel(this);
         }
 
-        public void Setup(ProcessEnv env, Song song, string elementId, Part part)
+        public void Setup(ProcessEnv env, Song song, string elementId, Part part, Track track)
         {
-            this.Env = env;
+            this.ProcessEnv = env;
             this.Song = song;
             this.Part = part;
+            this.Track = track;
             this.ElementId = elementId;
         }
 

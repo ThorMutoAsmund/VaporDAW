@@ -9,9 +9,9 @@ public class DefaultMixer : Processor
     {
         var i = 0;
         var tracks = this.Song.Tracks.Any(track => track.IsSolo) ?
-            this.Song.Tracks.Where(track => track.IsAudible && track.IsSolo) :
-            this.Song.Tracks.Where(track => track.IsAudible && !track.IsMuted);
-        foreach (var input in tracks.Select(track => this.Env.Processors[track.Id]))
+            this.Song.Tracks.Where(track => track.IsAudible && track.IsSolo && track.TrackGenerators.Count > 0) :
+            this.Song.Tracks.Where(track => track.IsAudible && !track.IsMuted && track.TrackGenerators.Count > 0);
+        foreach (var input in tracks.Select(track => this.ProcessEnv.Processors[track.TrackGenerators.Last().Id]))
         {
             this.SetInput($"M{i++}", Tags.MainOutput, input);
         }
