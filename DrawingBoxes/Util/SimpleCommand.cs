@@ -21,6 +21,8 @@ namespace VaporDAW
             this.Executed?.Invoke(this, parameter);
         }
 
+#pragma warning disable 0067
         public event EventHandler CanExecuteChanged;
+#pragma warning restore 0067
     }
 }

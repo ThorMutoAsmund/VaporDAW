@@ -2,26 +2,28 @@
 
 namespace VaporDAW
 {
-    public class TextBoxEx : TextBox
+    public class DobuleTextBox : TextBox
     {
+        public string Format { get; set; } = "0.0000";
+
         private string previousText;
         private int previousCaretIndex;
 
-        public double DoubleValue
+        public double Value
         {
-            get => this.doubleValue;
+            get => this.value;
             set
             {
-                this.doubleValue = value;
-                this.Text = string.Format("{0:0.###}", value);
+                this.value = value;
+                this.Text = value.ToString(this.Format, System.Globalization.NumberFormatInfo.InvariantInfo);
                 this.previousText = this.Text;
                 this.previousCaretIndex = this.CaretIndex;
             }
         }
 
-        private double doubleValue = 0d;
+        private double value = 0d;
 
-        public TextBoxEx()
+        public DobuleTextBox()
         {
             this.TextChanged += TextBoxEx_TextChanged;
             this.KeyUp += TextBoxEx_KeyUp;
@@ -36,7 +38,7 @@ namespace VaporDAW
         {
             if (string.IsNullOrEmpty(this.Text))
             {
-                this.doubleValue = 0;
+                this.value = 0;
                 this.previousText = this.Text;
                 return;
             }
@@ -50,7 +52,7 @@ namespace VaporDAW
                 return;
             }
             this.previousText = this.Text;
-            this.doubleValue = _v;
+            this.value = _v;
         }
     }
 }

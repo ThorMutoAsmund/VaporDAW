@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 
 namespace VaporDAW
 {
-    public partial class EditTrackDialog : Window
+    public partial class OldEditTrackDialog : Window
     {
         private Track track;
         public Track Track 
@@ -24,16 +24,15 @@ namespace VaporDAW
             {
                 this.track = value;
 
+                //this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Track.ScriptId);
                 this.titleTextBox.Text = this.Track.Title;
                 this.audibleCheckBox.IsChecked = this.Track.IsAudible;
                 this.mutedCheckBox.IsChecked = this.Track.IsMuted;
                 this.soloCheckBox.IsChecked = this.Track.IsSolo;
-
-                this.DataContext = this.track.TrackGenerators.Select(g => new NamedObject<Generator>(g, Env.Song.GetScriptRef(g.ScriptId)?.Name ?? "(illegal script)"));
             }
         }
 
-        public EditTrackDialog()
+        public OldEditTrackDialog()
         {
             InitializeComponent();
 
@@ -44,6 +43,7 @@ namespace VaporDAW
         private void OK()
         {
             this.Track.Title = this.titleTextBox.Text;
+            //this.Track.ScriptId = this.scriptSelectControl.Script.Id;
             this.Track.IsAudible = this.audibleCheckBox.IsChecked ?? false;
             this.Track.IsMuted = this.mutedCheckBox.IsChecked ?? false;
             this.Track.IsSolo = this.soloCheckBox.IsChecked ?? false;
@@ -51,9 +51,9 @@ namespace VaporDAW
             this.DialogResult = true;
         }
 
-        public static EditTrackDialog Create(Window owner, Track track)
+        public static OldEditTrackDialog Create(Window owner, Track track)
         {
-            var dialog = new EditTrackDialog()
+            var dialog = new OldEditTrackDialog()
             {
                 Owner = owner,
                 Track = track
@@ -61,23 +61,5 @@ namespace VaporDAW
 
             return dialog;
         }
-
-        private void TrackGeneratorsListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 2)
-            {
-                ShowGeneratorProperties((this.trackGeneratorsListView.SelectedItem as NamedObject<Generator>).Object);
-            }
-        }
-
-        private void ShowGeneratorProperties(Generator generator)
-        {
-            var dialog = EditGeneratorDialog.Create(Env.MainWindow, generator);
-            if (dialog.ShowDialog() ?? false)
-            {
-                Env.Song.OnGeneratorChanged(generator);
-            }
-        }
-
     }
 }

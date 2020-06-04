@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace VaporDAW
 {
+    public class EditPartDataContext
+    {
+        public IEnumerable<NamedObject<Generator>> PartGenerators { get; set; }
+        public IEnumerable<NamedObject<Generator>> Generators { get; set; }
+    }
     public partial class EditPartDialog : Window
     {
         private Part part;
@@ -24,12 +21,10 @@ namespace VaporDAW
             {
                 this.part = value;
 
-                //this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Part.ScriptId);
                 this.titleTextBox.Text = this.Part.Title;
-                this.startTextBox.DoubleValue = this.Part.SampleStart / Env.Song.SampleRate;
-                this.lengthTextBox.DoubleValue = this.Part.SampleLength / Env.Song.SampleRate;
+                this.startTextBox.Value = this.Part.SampleStart;
+                this.lengthTextBox.Value = this.Part.SampleLength;
 
-                this.scriptSelectControl.IsReadOnly = this.Part.IsReference;
                 this.titleTextBox.IsReadOnly = this.Part.IsReference;
                 this.lengthTextBox.IsReadOnly = this.Part.IsReference;
                 if (this.Part.IsReference)
@@ -38,13 +33,22 @@ namespace VaporDAW
                     this.lengthTextBox.Background = SystemColors.ControlBrush;
                 }
 
-                this.DataContext = this.part.Generators.Select(g => new NamedObject<Generator>(g, Env.Song.GetScriptRef(g.ScriptId)?.Name ?? "(illegal script)"));
+                this.DataContext = new EditPartDataContext()
+                {
+                    PartGenerators = this.part.PartGenerators.Select(g => new NamedObject<Generator>(g, Env.Song.GetScriptRef(g.ScriptId)?.Name ?? "(illegal script)")),
+                    Generators = this.part.Generators.Select(g => new NamedObject<Generator>(g, Env.Song.GetScriptRef(g.ScriptId)?.Name ?? "(illegal script)"))
+                };
             }
         }
 
         public EditPartDialog()
         {
             InitializeComponent();
+
+            this.startTextBox.TextChanged += (sender, e) => IntegerValueChanged(this.startTextBox, this.startTimeTextBox);
+            this.lengthTextBox.TextChanged += (sender, e) => IntegerValueChanged(this.lengthTextBox, this.lengthTimeTextBox);
+            this.startTimeTextBox.TextChanged += (sender, e) => DoubleValueChanged(this.startTextBox, this.startTimeTextBox);
+            this.lengthTimeTextBox.TextChanged += (sender, e) => DoubleValueChanged(this.lengthTextBox, this.lengthTimeTextBox);
 
             this.okButton.Click += (_, __) => OK();
             this.titleTextBox.Focus();
@@ -61,6 +65,14 @@ namespace VaporDAW
             return dialog;
         }
 
+        private void PartGeneratorsListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                ShowGeneratorProperties((this.partGeneratorsListView.SelectedItem as NamedObject<Generator>).Object);
+            }
+        }
+
         private void GeneratorsListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
@@ -72,9 +84,8 @@ namespace VaporDAW
         private void OK()
         {
             this.Part.Title = this.titleTextBox.Text;
-            this.Part.SampleStart = (int)(this.startTextBox.DoubleValue * Env.Song.SampleRate);
-            this.Part.SampleLength = (int)(this.lengthTextBox.DoubleValue * Env.Song.SampleRate);
-            //this.Part.ScriptId = this.scriptSelectControl.Script.Id;
+            this.Part.SampleStart = (int)(this.startTextBox.Value * Env.Song.SampleRate);
+            this.Part.SampleLength = (int)(this.lengthTextBox.Value * Env.Song.SampleRate);
 
             this.DialogResult = true;
         }
@@ -86,6 +97,30 @@ namespace VaporDAW
             {
                 Env.Song.OnGeneratorChanged(generator);
             }
+        }
+
+        private bool integerTextBoxesDisabled;
+        private bool doubleTextBoxesDisabled;
+        private void IntegerValueChanged(IntegerTextBox integerTextBox, DobuleTextBox doubleTextBox)
+        {
+            if (integerTextBoxesDisabled)
+            {
+                return;
+            }
+            this.doubleTextBoxesDisabled = true;
+            doubleTextBox.Value = integerTextBox.Value / Env.Song.SampleRate;
+            Console.WriteLine(integerTextBox.Value / Env.Song.SampleRate);
+            this.doubleTextBoxesDisabled = false;
+        }
+        private void DoubleValueChanged(IntegerTextBox integerTextBox, DobuleTextBox doubleTextBox)
+        {
+            if (doubleTextBoxesDisabled)
+            {
+                return;
+            }
+            this.integerTextBoxesDisabled = true;
+            integerTextBox.Value = (int)(doubleTextBox.Value * Env.Song.SampleRate);
+            this.integerTextBoxesDisabled = false;
         }
     }
 }

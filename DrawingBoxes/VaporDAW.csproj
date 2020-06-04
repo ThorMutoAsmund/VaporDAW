@@ -73,8 +73,9 @@
     </Compile>
     <Compile Include="Controls\SongPanel.cs" />
     <Compile Include="Controls\Selector.cs" />
+    <Compile Include="Controls\IntegerTextBox.cs" />
     <Compile Include="Controls\TrackPanel.cs" />
-    <Compile Include="Controls\TextBoxEx.cs" />
+    <Compile Include="Controls\DobuleTextBox.cs" />
     <Compile Include="Controls\TimeRulerControl.xaml.cs">
       <DependentUpon>TimeRulerControl.xaml</DependentUpon>
     </Compile>
@@ -95,6 +96,9 @@
     </Compile>
     <Compile Include="GUI\EditTrackDialog.xaml.cs">
       <DependentUpon>EditTrackDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Old\OldEditTrackDialog.xaml.cs">
+      <DependentUpon>OldEditTrackDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Playback\AudioPlaybackEngine.cs" />
     <Compile Include="Playback\AutoDisposeFileReader.cs" />
@@ -168,6 +172,10 @@
     <Compile Include="Util\SimpleCommand.cs" />
     <Compile Include="Util\Watchers.cs" />
     <Compile Include="Util\Extensions\WpfExtensions.cs" />
+    <Page Include="Old\OldEditTrackDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Resource Include="Structure.txt" />
     <Page Include="Controls\ScriptSelectControl.xaml">
       <SubType>Designer</SubType>
