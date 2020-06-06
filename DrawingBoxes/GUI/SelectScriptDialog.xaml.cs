@@ -27,8 +27,8 @@ namespace VaporDAW
 
             this.DataContext = Env.Song.Scripts;
 
-            this.okButton.Click += (_, __) => SelectItem();
-            this.MouseDoubleClick += (_, __) => SelectItem();
+            this.okButton.Click += (sender, e) => SelectItem();
+            this.MouseDoubleClick += (sender, e) => SelectItem();
         }
 
         private void SelectScriptDialog_MouseDoubleClick(object sender, MouseButtonEventArgs e)

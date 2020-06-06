@@ -9,7 +9,7 @@ public class SampleDataProcessor : Processor
 
     public override void Init(ProcessParams p)
     { 
-        var sampleRef = ProcessEnv.Song.GetSampleRef(this.ElementId);
+        var sampleRef = ProcessEnv.Song.GetSampleRef(this.GeneratorId);
         this.mainOutput = AddOutputChannel(Tags.MainOutput);
 
         // Read data

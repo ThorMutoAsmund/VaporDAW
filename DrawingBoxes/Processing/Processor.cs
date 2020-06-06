@@ -9,7 +9,7 @@ namespace VaporDAW
 {
     public abstract class Processor
     {
-        public string ElementId { get; private set; }
+        public string GeneratorId { get; private set; }
         
         protected ProcessEnv ProcessEnv { get; private set; }
         protected Song Song { get; private set; }
@@ -60,7 +60,7 @@ namespace VaporDAW
             this.Song = song;
             this.Part = part;
             this.Track = track;
-            this.ElementId = elementId;
+            this.GeneratorId = elementId;
         }
 
         // Helpers!

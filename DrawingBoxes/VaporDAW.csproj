@@ -91,6 +91,9 @@
     <Compile Include="GUI\EditPartDialog.xaml.cs">
       <DependentUpon>EditPartDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GUI\GeneratorList.xaml.cs">
+      <DependentUpon>GeneratorList.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GUI\SelectScriptDialog.xaml.cs">
       <DependentUpon>SelectScriptDialog.xaml</DependentUpon>
     </Compile>
@@ -172,6 +175,10 @@
     <Compile Include="Util\SimpleCommand.cs" />
     <Compile Include="Util\Watchers.cs" />
     <Compile Include="Util\Extensions\WpfExtensions.cs" />
+    <Page Include="GUI\GeneratorList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Old\OldEditTrackDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

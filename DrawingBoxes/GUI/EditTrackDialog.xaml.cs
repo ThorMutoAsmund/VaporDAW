@@ -29,7 +29,7 @@ namespace VaporDAW
                 this.mutedCheckBox.IsChecked = this.Track.IsMuted;
                 this.soloCheckBox.IsChecked = this.Track.IsSolo;
 
-                this.DataContext = this.track.TrackGenerators.Select(g => new NamedObject<Generator>(g, Env.Song.GetScriptRef(g.ScriptId)?.Name ?? "(illegal script)"));
+                UpdateDataContext();
             }
         }
 
@@ -37,7 +37,19 @@ namespace VaporDAW
         {
             InitializeComponent();
 
-            this.okButton.Click += (_, __) => OK();
+
+            this.okButton.Click += (sender, e) => OK();
+            this.deleteTrackGeneratorMenuItem.Click += (sender, e) => 
+                DeleteTrackGenerator((this.trackGeneratorsListView.SelectedItem as NamedObject<Generator>)?.Object);
+            this.editTrackGeneratorMenuItem.Click += (sender, e) =>
+                EditGenerator((this.trackGeneratorsListView.SelectedItem as NamedObject<Generator>)?.Object);
+
+            this.trackGeneratorsListView.ItemDoubleClicked += (sender, e) => EditGenerator((e as NamedObject<Generator>)?.Object);
+            
+            Song.TrackChanged += track => { if (track == this.Track) UpdateDataContext(); };
+
+            Env.Song.AddScriptListToMenuItem(this.addGeneratorMenuItem, AddTrackGenerator);
+
             this.titleTextBox.Focus();
         }
 
@@ -62,16 +74,18 @@ namespace VaporDAW
             return dialog;
         }
 
-        private void TrackGeneratorsListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void UpdateDataContext()
         {
-            if (e.ClickCount == 2)
-            {
-                ShowGeneratorProperties((this.trackGeneratorsListView.SelectedItem as NamedObject<Generator>).Object);
-            }
+            this.DataContext = this.track.TrackGenerators.Select(g => new NamedObject<Generator>(g, Env.Song.GetScriptRef(g.ScriptId)?.Name ?? "(illegal script)", this.track.TrackGenerators.IndexOf(g)));
         }
 
-        private void ShowGeneratorProperties(Generator generator)
+        private void EditGenerator(Generator generator)
         {
+            if (generator == null)
+            {
+                return;
+            }
+
             var dialog = EditGeneratorDialog.Create(Env.MainWindow, generator);
             if (dialog.ShowDialog() ?? false)
             {
@@ -79,5 +93,27 @@ namespace VaporDAW
             }
         }
 
+        private void DeleteTrackGenerator(Generator generator)
+        {
+            if (generator == null)
+            {
+                return;
+            }
+
+            this.track.DeleteTrackGenerator(generator);
+        }
+
+        private void AddTrackGenerator(ScriptRef scriptRef)
+        {
+            if (scriptRef == null)
+            {
+                scriptRef = Dialogs.AddNewScript(this);
+            }
+            if (scriptRef != null)
+            {
+                this.Track.AddTrackGenerator(scriptRef);
+                Env.Song.OnTrackChanged(this.Track);
+            }
+        }
     }
 }

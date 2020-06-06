@@ -26,6 +26,9 @@ namespace VaporDAW
                     this.DataContext = null;
                 }
             };
+
+            this.scriptsListView.PreviewMouseLeftButtonDown += ScriptsListView_PreviewMouseLeftButtonDown;
+            this.scriptsListView.PreviewMouseMove += ScriptsListView_PreviewMouseMove;
         }
 
         private void ScriptsListView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

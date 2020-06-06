@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows.Controls;
 
 namespace VaporDAW
 {
@@ -104,7 +104,7 @@ namespace VaporDAW
                     IsAudible = true,
                     Title = $"Track{t + 1}",
                 };
-                track.AddTrackScript(trackScriptRef);
+                track.AddTrackGenerator(trackScriptRef);
                 Env.Song.Tracks.Add(track);
             }
 
@@ -192,8 +192,8 @@ namespace VaporDAW
 
         public void Save()
         {
-            var storeCursor = Cursor.Current;
-            Cursor.Current = Cursors.WaitCursor;
+            var storeCursor = System.Windows.Forms.Cursor.Current;
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
             try
             {
                 SongSerializer.ToFile(this);
@@ -201,7 +201,7 @@ namespace VaporDAW
             }
             finally
             {
-                Cursor.Current = storeCursor;
+                System.Windows.Forms.Cursor.Current = storeCursor;
             }
         }
 
@@ -224,7 +224,7 @@ namespace VaporDAW
                 IsAudible = true,
                 Title = $"Track{this.Tracks.Count() + 1}",
             };
-            track.AddTrackScript(trackScriptRef);
+            track.AddTrackGenerator(trackScriptRef);
             this.Tracks.Add(track);
 
             Song.ChangesMade = true;
@@ -259,7 +259,7 @@ namespace VaporDAW
                 Title = title ?? Env.DefaultPartTitle,
                 TrackId = track.Id
             };
-            part.AddPartScript(partScriptRef);
+            part.AddPartGenerator(partScriptRef);
             this.Parts.Add(part);
 
             Song.ChangesMade = true;
@@ -522,6 +522,37 @@ namespace VaporDAW
             }
 
             return sampleEnd;
+        }
+
+        public List<ScriptRef> GetScriptList()
+        {
+            return this.Scripts;
+        }
+
+        public void AddScriptListToMenuItem(MenuItem menuItem, Action<ScriptRef> onClick)
+        {
+            var scriptRefList = GetScriptList();
+
+            menuItem.Items.Clear();
+
+            var newMenuItem = new MenuItem()
+            {
+                Header = "Create script..."
+            };
+            menuItem.Items.Add(newMenuItem);
+            newMenuItem.Click += (sender, e) => onClick?.Invoke(null);
+            menuItem.Items.Add(new Separator());
+
+            foreach (var scriptRef in scriptRefList)
+            {
+                newMenuItem = new MenuItem()
+                {
+                    Header = scriptRef.FileName
+                };
+                menuItem.Items.Add(newMenuItem);
+
+                newMenuItem.Click += (sender,e) => onClick?.Invoke(scriptRef);
+            }
         }
     }
 }

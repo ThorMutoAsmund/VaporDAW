@@ -67,6 +67,12 @@ namespace VaporDAW
             return trackHeadControl;
         }
 
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+            GuiManager.Instance.SelectTrackControl(this, this.TrackControl);
+        }
+
         private void SetProperties()
         {
             this.titleLabel.Content = this.Track.Title;

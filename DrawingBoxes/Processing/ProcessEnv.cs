@@ -22,7 +22,7 @@ namespace VaporDAW
             this.Mixer = song.CreateProcessor(this, song.ScriptId, "SONG");
             this.EmptyChannel = new Channel(this.Mixer, string.Empty);
 
-            this.Processors = new Dictionary<string, Processor>() { { this.Mixer.ElementId, this.Mixer } };
+            this.Processors = new Dictionary<string, Processor>() { { this.Mixer.GeneratorId, this.Mixer } };
 
             song.Tracks.SelectMany(track => track.TrackGenerators.Select(generator => new { track, generator })).
                 ToList().ForEach(trackAndGenerator => this.Processors[trackAndGenerator.generator.Id] = song.CreateProcessor(this, trackAndGenerator.generator.ScriptId, trackAndGenerator.generator.Id, track: trackAndGenerator.track));
@@ -72,23 +72,23 @@ namespace VaporDAW
         {
             void Recurse(Processor processor)
             {
-                if (!dependanceTree.ContainsKey(processor.ElementId))
+                if (!dependanceTree.ContainsKey(processor.GeneratorId))
                 {
-                    dependanceTree[processor.ElementId] = new List<string>();
+                    dependanceTree[processor.GeneratorId] = new List<string>();
                     try
                     {
                         processor.Init(processParams);
                     }
                     catch (Exception ex)
                     {
-                        throw new InitProcessorException($"Processor {processor.ElementId} failed init: {ex.Message}", ex);
+                        throw new InitProcessorException($"Processor {processor.GeneratorId} failed init: {ex.Message}", ex);
                     }
 
                     foreach (var input in processor.Inputs)
                     {
-                        if (!dependanceTree[processor.ElementId].Contains(input.Provider.ElementId))
+                        if (!dependanceTree[processor.GeneratorId].Contains(input.Provider.GeneratorId))
                         {
-                            dependanceTree[processor.ElementId].Add(input.Provider.ElementId);
+                            dependanceTree[processor.GeneratorId].Add(input.Provider.GeneratorId);
                             Recurse(input.Provider);
                         }
                     }

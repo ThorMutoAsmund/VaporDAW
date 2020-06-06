@@ -8,14 +8,12 @@ public class DefaultPart : Processor
 
     private int sampleStart;
     private int sampleLength;
-    private int sampleEnd;
 
     public override void Init(ProcessParams p)
     {
         var part = this.Song.Parts.FirstOrDefault(pa => pa.Id == this.Part.Id);
         this.sampleStart = part.SampleStart;
         this.sampleLength = part.SampleLength;
-        this.sampleEnd = this.sampleStart + this.sampleLength;
 
         var lastGenerator = part.Generators.LastOrDefault();
         if (lastGenerator != null)

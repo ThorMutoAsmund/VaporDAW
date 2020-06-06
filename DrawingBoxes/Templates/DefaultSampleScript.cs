@@ -12,7 +12,7 @@ public class DefaultSample : Processor
     //private SampleRef sampleRef;
     public override void Init(ProcessParams p)
     {
-        var generator = this.Part.Generators.Single(g => g.Id == this.ElementId);
+        var generator = this.Part.Generators.Single(g => g.Id == this.GeneratorId);
         var sampleId = generator.Settings[Tags.SampleId] as string;
         //this.sampleRef = Env.Song.GetSampleRef(sampleId);
 

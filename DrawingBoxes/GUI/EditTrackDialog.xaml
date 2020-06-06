@@ -6,76 +6,74 @@
         xmlns:local="clr-namespace:VaporDAW"
         mc:Ignorable="d"
         Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-        Title="Edit Track" Height="185.724" Width="613" WindowStartupLocation="CenterScreen">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="119"/>
-        </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Height="auto" Width="auto" Margin="12,12,12,12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
-                <ColumnDefinition Width="50"/>
-                <ColumnDefinition Width="50"/>
-                <ColumnDefinition Width="50"/>
-                <ColumnDefinition Width="50"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="30"/>
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <Grid.Resources>
-                <Style TargetType="{x:Type Label}">
-                    <Setter Property="Margin" Value="0,-3,0,0"/>
-                </Style>
-                <Style TargetType="{x:Type CheckBox}">
-                    <Setter Property="Margin" Value="0,3,0,0"/>
-                </Style>
-            </Grid.Resources>
-            <Label Grid.Row="0" Grid.Column="0" Content="Title" VerticalAlignment="Top" HorizontalAlignment="Right" />
-            <TextBox x:Name="titleTextBox" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
-            <Label Grid.Row="1" Grid.Column="0" Content="Audible" VerticalAlignment="Top" HorizontalAlignment="Right" />
-            <CheckBox x:Name="audibleCheckBox" Grid.Row="1" Grid.Column="1" />
-            <Label Content="Muted" VerticalAlignment="Top" Grid.Row="1" Grid.Column="2"  HorizontalAlignment="Right"/>
-            <CheckBox x:Name="mutedCheckBox" Grid.Row="1" Grid.Column="3" />
-            <Label Content="Solo" VerticalAlignment="Top" Grid.Row="1" Grid.Column="4"  HorizontalAlignment="Right"/>
-            <CheckBox x:Name="soloCheckBox" Grid.Row="1" Grid.Column="5" />
-
-            <Label Grid.Row="2" Grid.Column="0" Content="Track generators" VerticalAlignment="Top" HorizontalAlignment="Right" />
-            <ListView x:Name="trackGeneratorsListView" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Margin="0,0,0,7" ItemsSource="{Binding}"
-                      PreviewMouseLeftButtonDown="TrackGeneratorsListView_PreviewMouseLeftButtonDown">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                            <TextBlock Text="{Binding Path=(ItemsControl.AlternationIndex), 
-                                RelativeSource={RelativeSource TemplatedParent}, 
-                                StringFormat={}{0}}" />
-                            <TextBlock Text=" - " />
-                            <TextBlock Text="{Binding Name}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-
-        </Grid>
-        <DockPanel Grid.Column="1" Height="auto" Margin="12,12,12,12">
-            <DockPanel.Resources>
-                <Style TargetType="{x:Type Button}">
-                    <Setter Property="Margin" Value="0,0,0,10"/>
-                </Style>
-            </DockPanel.Resources>
-            <StackPanel Orientation="Vertical" DockPanel.Dock="Top" >
-                <Button x:Name="okButton" Content="OK" Width="95" IsDefault="true" />
-                <Button x:Name="cancelButton" Content="Cancel" Width="95" IsCancel="True"  />
-            </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                <Label Content="Script" ></Label>
-                <local:ScriptSelectControl x:Name="scriptSelectControl"></local:ScriptSelectControl>
-            </StackPanel>
-        </DockPanel>
-
-
-    </Grid>
+        Title="Edit Track" Height="285.724" Width="613" WindowStartupLocation="CenterScreen">
+    <TabControl x:Name="tabControl" Margin="12,12,12,12" IsEnabled="True" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+        <TabItem Header="General">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="94*"/>
+                    <ColumnDefinition Width="21*"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="341*"/>
+                    <ColumnDefinition Width="119"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0" Height="auto" Width="auto" Margin="12,12,12.333,12" Grid.ColumnSpan="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.Resources>
+                        <Style TargetType="{x:Type Label}">
+                            <Setter Property="Margin" Value="0,-3,0,0"/>
+                        </Style>
+                        <Style TargetType="{x:Type CheckBox}">
+                            <Setter Property="Margin" Value="0,3,0,0"/>
+                        </Style>
+                    </Grid.Resources>
+                    <Label Grid.Row="0" Grid.Column="0" Content="Title" VerticalAlignment="Top" HorizontalAlignment="Right" />
+                    <TextBox x:Name="titleTextBox" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
+                    <Label Grid.Row="1" Grid.Column="0" Content="Audible" VerticalAlignment="Top" HorizontalAlignment="Right" />
+                    <CheckBox x:Name="audibleCheckBox" Grid.Row="1" Grid.Column="1" />
+                    <Label Content="Muted" VerticalAlignment="Top" Grid.Row="1" Grid.Column="2"  HorizontalAlignment="Right"/>
+                    <CheckBox x:Name="mutedCheckBox" Grid.Row="1" Grid.Column="3" />
+                    <Label Content="Solo" VerticalAlignment="Top" Grid.Row="1" Grid.Column="4"  HorizontalAlignment="Right"/>
+                    <CheckBox x:Name="soloCheckBox" Grid.Row="1" Grid.Column="5" />
+                </Grid>
+                <DockPanel Grid.Column="4" Height="auto" Margin="11.667,12,12,12">
+                    <DockPanel.Resources>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Margin" Value="0,0,0,10"/>
+                        </Style>
+                    </DockPanel.Resources>
+                    <StackPanel Orientation="Vertical" DockPanel.Dock="Top" >
+                        <Button x:Name="okButton" Content="OK" Width="95" IsDefault="true" />
+                        <Button x:Name="cancelButton" Content="Cancel" Width="95" IsCancel="True"  />
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Bottom"/>
+                </DockPanel>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Track Generators">
+            <Grid Height="auto" Width="auto" Margin="12,12,12,12">
+                <local:GeneratorList x:Name="trackGeneratorsListView" Grid.Row="0" Margin="0,0,0,7"  ItemsSource="{Binding}">
+                </local:GeneratorList>
+                <Grid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Name="addGeneratorMenuItem" Header="Add generator" />
+                        <MenuItem Header="Delete generator" x:Name="deleteTrackGeneratorMenuItem"/>
+                        <MenuItem Header="Edit generator" x:Name="editTrackGeneratorMenuItem"/>
+                    </ContextMenu>
+                </Grid.ContextMenu>
+            </Grid>
+        </TabItem>
+    </TabControl>
 </Window>

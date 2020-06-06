@@ -115,20 +115,10 @@
                                 <Label Height="25" Content="Samples" DockPanel.Dock="Left" />
                             </DockPanel>
                             <local:SampleList Height="auto" Width="200" HorizontalAlignment="Left"/>
-                            <StackPanel.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Import samples..." Name="importSamplesMenuItem"/>
-                                </ContextMenu>
-                            </StackPanel.ContextMenu>
                         </StackPanel>
                         <StackPanel>
                             <Label  Height="25" Margin="0,10,0,0" Content="Scripts" Background="LightGray" />
                             <local:ScriptList Height="auto" Width="200" HorizontalAlignment="Left"/>
-                            <StackPanel.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="New script..." Name="newScriptMenuItem"/>
-                                </ContextMenu>
-                            </StackPanel.ContextMenu>
                         </StackPanel>
                     </StackPanel>
                     <local:SongPanel x:Name="songPanel" Background="{StaticResource CheckerBoard}">

@@ -153,12 +153,7 @@ namespace VaporDAW
 
         private void OnNewScript(object sender, ExecutedRoutedEventArgs e)
         {
-            var newScriptName = Env.Song.GetNextAvailableScriptName();
-            var dialog = EditStringDialog.Create(this, "Enter Script Name", "Script name", newScriptName);
-            if (dialog.ShowDialog() ?? false)
-            {
-                Env.Song.AddScript(dialog.Text);
-            }
+            Dialogs.AddNewScript(this);
         }
 
         private void OnCloseProject(object sender, ExecutedRoutedEventArgs e)

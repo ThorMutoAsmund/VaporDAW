@@ -46,7 +46,7 @@ namespace VaporDAW
         {
             InitializeComponent();
 
-            this.okButton.Click += (_, __) => OK();
+            this.okButton.Click += (sender, e) => OK();
             //this.titleTextBox.Focus();
         }
 

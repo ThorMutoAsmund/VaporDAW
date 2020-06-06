@@ -19,7 +19,7 @@ namespace VaporDAW
         [JsonProperty] public bool IsMuted { get; set; }
         [JsonProperty] public bool IsSolo { get; set; }
 
-        public void AddTrackScript(ScriptRef scriptRef)
+        public void AddTrackGenerator(ScriptRef scriptRef)
         {
             var generator = new Generator()
             {
@@ -27,7 +27,16 @@ namespace VaporDAW
                 ScriptId = scriptRef.Id,
             };
             this.TrackGenerators.Add(generator);
-            Song.ChangesMade = true;
+            Env.Song.OnTrackChanged(this);
+        }
+
+        public void DeleteTrackGenerator(Generator generator)
+        {
+            if (this.TrackGenerators.Contains(generator))
+            {
+                this.TrackGenerators.Remove(generator);
+                Env.Song.OnTrackChanged(this);
+            }
         }
     }
 }

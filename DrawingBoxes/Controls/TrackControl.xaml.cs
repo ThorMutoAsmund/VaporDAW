@@ -129,7 +129,7 @@ namespace VaporDAW
                 var sampleName = e.Data.GetData("sample") as string;
 
                 var part = AddPart(point: point, title: sampleName);
-                var generator = part.AddSample(sampleName);
+                var generator = part.AddSampleGenerator(sampleName);
 
                 // Set length
                 if (generator.Settings.ContainsKey(Tags.SampleId))
@@ -144,7 +144,7 @@ namespace VaporDAW
                 var scriptName = e.Data.GetData("script") as string;
 
                 var part = AddPart(point: point, title: scriptName); 
-                part.AddScript(scriptName);
+                part.AddGenerator(scriptName);
             }
         }
 

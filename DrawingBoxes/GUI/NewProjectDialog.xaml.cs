@@ -38,7 +38,7 @@ namespace VaporDAW
         {
             InitializeComponent();
 
-            this.okButton.Click += (_, __) => this.DialogResult = true;
+            this.okButton.Click += (sender, e) => this.DialogResult = true;
         }
 
         public static NewProjectDialog Create(Window owner, string projectPath)

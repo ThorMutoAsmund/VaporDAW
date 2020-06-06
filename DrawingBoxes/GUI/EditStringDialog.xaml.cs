@@ -19,14 +19,13 @@ namespace VaporDAW
     /// </summary>
     public partial class EditStringDialog : Window
     {
-        private string text;
         public string Text
         {
-            get => this.text;
+            get => this.mainTextBox.Text;
             set
             {
-                this.text = value;
                 this.mainTextBox.Text = value;
+                this.mainTextBox.SelectAll();
             }
         }
 
@@ -35,7 +34,7 @@ namespace VaporDAW
         {
             InitializeComponent();
 
-            this.okButton.Click += (_, __) => this.DialogResult = true;
+            this.okButton.Click += (sender, e) => this.DialogResult = true;
             this.mainTextBox.Focus();
         }
 

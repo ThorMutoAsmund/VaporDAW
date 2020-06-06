@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Windows;
+using System.Windows.Input;
 
 namespace VaporDAW
 {
@@ -35,6 +36,23 @@ namespace VaporDAW
 
                 return result == System.Windows.Forms.DialogResult.OK;
             }
+        }
+
+        public static ScriptRef AddNewScript(Window owner)
+        {
+            var newScriptName = Env.Song.GetNextAvailableScriptName();
+            var dialog = EditStringDialog.Create(owner, "Enter Script Name", "Script name", newScriptName);
+            if (dialog.ShowDialog() ?? false)
+            {
+                var text = dialog.Text;
+                if (!text.EndsWith(".cs"))
+                {
+                    text += ".cs";
+                }
+                return Env.Song.AddScript(text);
+            }
+
+            return null;
         }
     }
 }

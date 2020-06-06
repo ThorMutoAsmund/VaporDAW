@@ -63,10 +63,10 @@ namespace VaporDAW
         {
             this.TrackId = trackId;
 
-            Song.ChangesMade = true;
+            Env.Song.OnPartChanged(this);
         }
 
-        public void AddPartScript(ScriptRef scriptRef)
+        public void AddPartGenerator(ScriptRef scriptRef)
         {
             var generator = new Generator()
             {
@@ -74,10 +74,19 @@ namespace VaporDAW
                 ScriptId = scriptRef.Id,
             };
             this.PartGenerators.Add(generator);
-            Song.ChangesMade = true;
+            Env.Song.OnPartChanged(this);
         }
 
-        public Generator AddSample(string sampleName)
+        public void DeletePartGenerator(Generator generator)
+        {
+            if (this.PartGenerators.Contains(generator))
+            {
+                this.PartGenerators.Remove(generator);
+                Env.Song.OnPartChanged(this);
+            }
+        }
+
+        public Generator AddSampleGenerator(string sampleName)
         {
             var sampleScriptRef = Env.Song.FindOrAddScript(Env.DefaultSampleScriptName, Env.SampleTemplateScriptName);
 
@@ -91,12 +100,12 @@ namespace VaporDAW
                 }
             };
             this.Generators.Add(generator);
-            Song.ChangesMade = true;
+            Env.Song.OnPartChanged(this);
 
             return generator;
         }
 
-        public void AddScript(string scriptName)
+        public void AddGenerator(string scriptName)
         {
             var scriptRef = Env.Song.FindScript(scriptName);
 
@@ -106,7 +115,27 @@ namespace VaporDAW
                 ScriptId = scriptRef.Id,
             };
             this.Generators.Add(generator);
-            Song.ChangesMade = true;
+            Env.Song.OnPartChanged(this);
+        }
+
+        public void AddGenerator(ScriptRef scriptRef)
+        {
+            var generator = new Generator()
+            {
+                Id = Base64.UUID(),
+                ScriptId = scriptRef.Id,
+            };
+            this.Generators.Add(generator);
+            Env.Song.OnPartChanged(this);
+        }
+
+        public void DeleteGenerator(Generator generator)
+        {
+            if (this.Generators.Contains(generator))
+            {
+                this.Generators.Remove(generator);
+                Env.Song.OnPartChanged(this);
+            }
         }
 
         public int GetTrackNo()
