@@ -1,11 +1,11 @@
 ﻿using VaporDAW;
 using System.Linq;
 
-public class DefaultMixer : Processor
+public class DefaultMixer : ProcessorV1
 {
     private Channel mainOutput;
 
-    public override void Init(ProcessParams p)
+    public override void Init(ProcessParamsV1 p)
     {
         var i = 0;
         var tracks = this.Song.Tracks.Any(track => track.IsSolo) ?
@@ -19,7 +19,7 @@ public class DefaultMixer : Processor
         this.mainOutput = this.AddOutputChannel(Tags.MainOutput);
     }
 
-    public override Mode Process(ProcessParams p)
+    public override Mode Process(ProcessParamsV1 p)
     {
         var result = Mode.Silence;
         this.mainOutput.Clear(p.SampleLength);

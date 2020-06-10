@@ -4,17 +4,36 @@ using VaporDAW;
 
 // cf: https://github.com/naudio/NAudio
 
-public class DefaultSample : Processor
+public class DefaultSample : ProcessorV1
 {
     private Channel mainOutput;
     private ProcessorInput input;
 
-    //private SampleRef sampleRef;
-    public override void Init(ProcessParams p)
+    public override ProcessorConfigV1 Config()
+    {
+        return Config(config =>
+        {
+            config.Parameters = Parameters(
+                Section("Various"),
+                StringParameter(Tags.SampleId, label: "Sample Id"),
+                StringParameter(Tags.SampleId, label: "Sample Id"),
+                Section("Various"),
+                StringParameter(Tags.SampleId, label: "Sample Id"),
+                StringParameter(Tags.SampleId, label: "Sample Id"),
+                Grid(4),
+                Section("Various"),
+                StringParameter(Tags.SampleId, label: "Sample Id"),
+                StringParameter(Tags.SampleId, label: "Sample Id"),
+                StringParameter(Tags.SampleId, label: "Sample Id"),
+                StringParameter(Tags.SampleId, label: "Sample Id")
+            );
+        });
+    }
+
+    public override void Init(ProcessParamsV1 p)
     {
         var generator = this.Part.Generators.Single(g => g.Id == this.GeneratorId);
         var sampleId = generator.Settings[Tags.SampleId] as string;
-        //this.sampleRef = Env.Song.GetSampleRef(sampleId);
 
         this.mainOutput = AddOutputChannel(Tags.MainOutput);
 
@@ -24,7 +43,7 @@ public class DefaultSample : Processor
         // Tbd UP/DOWN sample
     }
 
-    public override Mode Process(ProcessParams p)
+    public override Mode Process(ProcessParamsV1 p)
     {
         var length = Math.Min(this.input.ProviderOutputChannel.SampleLength, this.Part.SampleLength);
         this.mainOutput.SetRange(this.input.ProviderOutputChannel, 0, 0, length);

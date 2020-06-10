@@ -1,13 +1,12 @@
 ﻿using VaporDAW;
 
-
-public class __CLASS_NAME__ : Processor
+public class __CLASS_NAME__ : ProcessorV1
 {
-    public override void Init(ProcessParams p)
+    public override void Init(ProcessParamsV1 p)
     {
     }
 
-    public override Mode Process(ProcessParams p)
+    public override Mode Process(ProcessParamsV1 p)
     {
         return Mode.Silence;
     }

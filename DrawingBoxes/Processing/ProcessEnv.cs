@@ -10,11 +10,11 @@ namespace VaporDAW
     public class ProcessEnv
     {
         public Song Song { get; private set; }
-        public Dictionary<string, Processor> Processors { get; private set; }
+        public Dictionary<string, ProcessorV1> Processors { get; private set; }
 
         public Channel EmptyChannel { get; private set; }
 
-        private Processor Mixer { get; set; }
+        private ProcessorV1 Mixer { get; set; }
 
         public ProcessEnv CreateFrom(Song song)
         {
@@ -22,7 +22,7 @@ namespace VaporDAW
             this.Mixer = song.CreateProcessor(this, song.ScriptId, "SONG");
             this.EmptyChannel = new Channel(this.Mixer, string.Empty);
 
-            this.Processors = new Dictionary<string, Processor>() { { this.Mixer.GeneratorId, this.Mixer } };
+            this.Processors = new Dictionary<string, ProcessorV1>() { { this.Mixer.GeneratorId, this.Mixer } };
 
             song.Tracks.SelectMany(track => track.TrackGenerators.Select(generator => new { track, generator })).
                 ToList().ForEach(trackAndGenerator => this.Processors[trackAndGenerator.generator.Id] = song.CreateProcessor(this, trackAndGenerator.generator.ScriptId, trackAndGenerator.generator.Id, track: trackAndGenerator.track));
@@ -43,7 +43,7 @@ namespace VaporDAW
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
 
-                var processParams = new ProcessParams(this, startSampleTime, sampleLength);
+                var processParams = new ProcessParamsV1(this, startSampleTime, sampleLength);
                 var dependanceTree = new Dictionary<string, List<string>>();
                 if (BuildDependancyTree(dependanceTree, processParams))
                 {
@@ -68,9 +68,9 @@ namespace VaporDAW
         /// <summary>
         /// Value is the generators depending on Key
         /// </summary>        
-        public bool BuildDependancyTree(Dictionary<string, List<string>> dependanceTree, ProcessParams processParams)
+        public bool BuildDependancyTree(Dictionary<string, List<string>> dependanceTree, ProcessParamsV1 processParams)
         {
-            void Recurse(Processor processor)
+            void Recurse(ProcessorV1 processor)
             {
                 if (!dependanceTree.ContainsKey(processor.GeneratorId))
                 {
@@ -115,7 +115,7 @@ namespace VaporDAW
             return true;
         }
 
-        private void Process(Dictionary<string, List<string>> dependanceTree, ProcessParams processParams)
+        private void Process(Dictionary<string, List<string>> dependanceTree, ProcessParamsV1 processParams)
         {
             while (dependanceTree.Count > 0)
             {

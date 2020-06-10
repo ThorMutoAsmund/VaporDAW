@@ -3,11 +3,11 @@ using VaporDAW;
 
 // cf: https://github.com/naudio/NAudio
 
-public class SampleDataProcessor : Processor
+public class SampleDataProcessor : ProcessorV1
 {
     private Channel mainOutput;
 
-    public override void Init(ProcessParams p)
+    public override void Init(ProcessParamsV1 p)
     { 
         var sampleRef = ProcessEnv.Song.GetSampleRef(this.GeneratorId);
         this.mainOutput = AddOutputChannel(Tags.MainOutput);
@@ -16,7 +16,7 @@ public class SampleDataProcessor : Processor
         WavFileUtils.ReadWavFile(sampleRef.FileName, this.mainOutput);
     }
 
-    public override Mode Process(ProcessParams p)
+    public override Mode Process(ProcessParamsV1 p)
     {
         return Mode.ReadWrite;
     }

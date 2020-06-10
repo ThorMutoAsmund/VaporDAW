@@ -49,7 +49,7 @@ namespace VaporDAW
                 {
                     text += ".cs";
                 }
-                return Env.Song.AddScript(text);
+                return Env.Song.AddScript(text, replaceName: true);
             }
 
             return null;

@@ -2,11 +2,11 @@
 using System.Linq;
 
 
-public class DefaultTrack : Processor
+public class DefaultTrack : ProcessorV1
 {
     private Channel mainOutput;
 
-    public override void Init(ProcessParams p)
+    public override void Init(ProcessParamsV1 p)
     {
         var i = 0;
         var parts = this.Song.Parts.Where(part =>
@@ -24,7 +24,7 @@ public class DefaultTrack : Processor
         this.mainOutput = this.AddOutputChannel(Tags.MainOutput);
     }
 
-    public override Mode Process(ProcessParams p)
+    public override Mode Process(ProcessParamsV1 p)
     {
         var result = Mode.Silence;
         this.mainOutput.Clear(p.SampleLength);

@@ -10,10 +10,10 @@ namespace VaporDAW
     {
         public Sample[] Data { get; private set; }
         public string Tag { get; private set; }
-        public Processor Owner { get; private set; }
+        public ProcessorV1 Owner { get; private set; }
         public int SampleRate { get; private set; }
 
-        public Channel(Processor owner, string tag = null, int size = 0, int sampleRate = 44100)
+        public Channel(ProcessorV1 owner, string tag = null, int size = 0, int sampleRate = 44100)
         {
             this.Owner = owner;
             this.Tag = tag;

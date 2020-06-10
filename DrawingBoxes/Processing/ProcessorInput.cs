@@ -8,7 +8,7 @@ namespace VaporDAW
 {
     public class ProcessorInput
     {
-        public Processor Provider { get; private set; }
+        public ProcessorV1 Provider { get; private set; }
         public string OutputTag { get; private set; }
         private object Originator { get; set; }
 
@@ -26,7 +26,7 @@ namespace VaporDAW
             }
         }
 
-        public ProcessorInput(Processor input, string outputTag, object originator = null)
+        public ProcessorInput(ProcessorV1 input, string outputTag, object originator = null)
         {
             this.Provider = input;
             this.OutputTag = outputTag;

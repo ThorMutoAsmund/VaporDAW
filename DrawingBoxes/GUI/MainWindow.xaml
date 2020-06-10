@@ -31,14 +31,13 @@
                 </DrawingGroup>
             </DrawingBrush.Drawing>
         </DrawingBrush>
-
     </Window.Resources>    
     <Window.CommandBindings>
         <CommandBinding x:Name="newCommand" Command="ApplicationCommands.New" Executed="OnNewProject" />
         <CommandBinding x:Name="OpenCommand" Command="ApplicationCommands.Open" Executed="OnOpenProject" />
         <CommandBinding x:Name="closeCommand" Command="ApplicationCommands.Close" Executed="OnCloseProject" />
         <CommandBinding x:Name="saveCommand" Command="ApplicationCommands.Save" Executed="OnSaveProject" />
-        <CommandBinding x:Name="exitCommand" Command="local:CustomCommands.ExitApp"  Executed="OnExit" />
+        <CommandBinding x:Name="exitCommand" Command="local:CustomCommands.ExitApp" Executed="OnExit" />
         <CommandBinding x:Name="closeTabCommand" Command="local:CustomCommands.CloseTab"  Executed="OnCloseTab" />
         <CommandBinding x:Name="playSongCommand" Command="local:CustomCommands.PlaySong" Executed="OnPlay" />
         <CommandBinding x:Name="stopSongCommand" Command="local:CustomCommands.StopSong" Executed="OnStop" />
@@ -58,7 +57,7 @@
         <KeyBinding Key="F4" Modifiers="Alt" Command="local:CustomCommands.ExitApp"/>
         <KeyBinding Key="F4" Modifiers="Ctrl" Command="local:CustomCommands.CloseTab"/>
         <KeyBinding Key="F5" Command="local:CustomCommands.PlaySong"/>
-        <KeyBinding Key="Space" Command="local:CustomCommands.StopSong"/>
+        <KeyBinding Key="Esc" Command="local:CustomCommands.StopSong"/>
         <KeyBinding Key="F1" Modifiers="Shift" Command="local:CustomCommands.About"/>
         <KeyBinding Key="F1" Command="local:CustomCommands.Settings"/>
     </Window.InputBindings>

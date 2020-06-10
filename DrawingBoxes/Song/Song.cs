@@ -147,7 +147,7 @@ namespace VaporDAW
             }
         }
 
-        public Processor CreateSampleDataProcessor(ProcessEnv env, string sampleRefId)
+        public ProcessorV1 CreateSampleDataProcessor(ProcessEnv env, string sampleRefId)
         {
             var processor = new SampleDataProcessor();
             processor.Setup(env, this, sampleRefId, null, null);
@@ -155,13 +155,13 @@ namespace VaporDAW
             return processor;
         }
 
-        public Processor CreateProcessor(ProcessEnv env, string scriptId, string id, Part part = null, Track track = null)
+        public ProcessorV1 CreateProcessor(ProcessEnv env, string scriptId, string id, Part part = null, Track track = null)
         {
             var scriptRef = GetScriptRef(scriptId);
 
             if (scriptRef == null)
             {
-                return Processor.Empty;
+                return ProcessorV1.Empty;
             }
 
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
@@ -174,10 +174,10 @@ namespace VaporDAW
             var type = assembly.GetTypes().First(t => t.Name == className);
             if (type == null)
             {
-                return Processor.Empty;
+                return ProcessorV1.Empty;
             }
 
-            var processor = Activator.CreateInstance(type) as Processor ?? Processor.Empty;
+            var processor = Activator.CreateInstance(type) as ProcessorV1 ?? ProcessorV1.Empty;
             processor.Setup(env, this, id, part, track);
 
             return processor;

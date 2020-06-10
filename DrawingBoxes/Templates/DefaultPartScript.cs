@@ -2,14 +2,14 @@
 using System.Linq;
 using System;
 
-public class DefaultPart : Processor
+public class DefaultPart : ProcessorV1
 {
     private Channel mainOutput;
 
     private int sampleStart;
     private int sampleLength;
 
-    public override void Init(ProcessParams p)
+    public override void Init(ProcessParamsV1 p)
     {
         var part = this.Song.Parts.FirstOrDefault(pa => pa.Id == this.Part.Id);
         this.sampleStart = part.SampleStart;
@@ -26,7 +26,7 @@ public class DefaultPart : Processor
         this.mainOutput = this.AddOutputChannel(Tags.MainOutput);
     }
 
-    public override Mode Process(ProcessParams p)
+    public override Mode Process(ProcessParamsV1 p)
     {
         if (this.Inputs.Count == 0)
         {

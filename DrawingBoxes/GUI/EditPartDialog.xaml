@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:VaporDAW"
         mc:Ignorable="d"
         Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-        Title="Edit Part" Height="430" Width="650" WindowStartupLocation="CenterScreen">
+        Title="Edit Part" Height="430" Width="660" WindowStartupLocation="CenterScreen" MinWidth="660" MinHeight="200">
     <TabControl x:Name="tabControl" Margin="12,12,12,12" IsEnabled="True" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
         <TabItem Header="General">
             <Grid>
@@ -36,14 +36,14 @@
                         </Style>
                     </Grid.Resources>
                     <Label Grid.Row="0" Grid.Column="0" Content="Title" VerticalAlignment="Top" HorizontalAlignment="Right" />
-                    <TextBox x:Name="titleTextBox" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
-            
+                    <TextBox x:Name="titleTextBox" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5" Height="23" TextWrapping="Wrap" Text="" VerticalAlignment="Top" />
+
                     <Label Grid.Row="1" Grid.Column="0" Content="Start" VerticalAlignment="Top" HorizontalAlignment="Right" />
                     <local:IntegerTextBox x:Name="startTextBox" Grid.Row="1" Grid.Column="1" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
                     <Label Grid.Row="1" Grid.Column="2" Content="samples" VerticalAlignment="Top" HorizontalAlignment="Left" />
                     <local:DobuleTextBox x:Name="startTimeTextBox" Grid.Row="1" Grid.Column="3" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
                     <Label Grid.Row="1" Grid.Column="4" Content="seconds" VerticalAlignment="Top" HorizontalAlignment="Left" />
-            
+
                     <Label Grid.Row="2" Grid.Column="0" Content="Length" VerticalAlignment="Top" HorizontalAlignment="Right" />
                     <local:IntegerTextBox x:Name="lengthTextBox" Grid.Row="2" Grid.Column="1" Height="23" TextWrapping="Wrap" Text="" Width="auto" VerticalAlignment="Top" />
                     <Label Grid.Row="2" Grid.Column="2" Content="samples" VerticalAlignment="Top" HorizontalAlignment="Left" />
