@@ -17,7 +17,6 @@ namespace VaporDAW
 {
     public partial class EditGeneratorDialog : Window
     {
-        private Generator generator;
         public Generator Generator 
         { 
             get => this.generator;
@@ -46,7 +45,12 @@ namespace VaporDAW
             }
         }
 
-        public EditGeneratorDialog()
+        private Generator generator;
+        private Grid currentMasterGrid;
+        private Grid currentGrid = null;
+        private int nextGridColumn = 0;
+
+        private EditGeneratorDialog()
         {
             InitializeComponent();
 
@@ -109,9 +113,15 @@ namespace VaporDAW
             }
         }
 
-        private Grid currentMasterGrid;
-        private Grid currentGrid = null;
-        private int nextGridColumn = 0;
+        private void SetControlValue(string parameterName, object value)
+        {
+            if (String.IsNullOrEmpty(parameterName))
+            {
+                return;
+            }
+
+            this.Generator.Settings[parameterName] = value;
+        }
 
         private void ReadProcessorConfig(ProcessorConfigV1 config)
         {
@@ -123,11 +133,13 @@ namespace VaporDAW
                 {
                     case ConfigParameterType.Tab: AddTab(parameter); break;
                     case ConfigParameterType.Section: AddSection(parameter); break;
-                    case ConfigParameterType.Grid: AddGridIfNeeded(parameter); break;
-                    case ConfigParameterType.String: AddStringParameter(parameter); break;
-                    case ConfigParameterType.Boolean: AddBooleanParameter(parameter); break;
-                    case ConfigParameterType.Integer: AddIntegerParameter(parameter); break;
-                    case ConfigParameterType.Number: AddNumberParameter(parameter); break;
+                    case ConfigParameterType.Grid: AddGrid(parameter); break;
+                    case ConfigParameterType.String:
+                    case ConfigParameterType.Boolean:
+                    case ConfigParameterType.Integer:
+                    case ConfigParameterType.Number:
+                    case ConfigParameterType.Text:
+                        AddControlParameter(parameter); break;
                 }
             }
         }
@@ -147,17 +159,18 @@ namespace VaporDAW
 
             this.currentGrid = null;
         }
-        
-        private void AddGridIfNeeded(ConfigParameterV1 parameter = null)
-        {
-            if (parameter == null)
-            {
-                if (this.currentGrid != null)
-                {
-                    return;
-                }
-            }
 
+        private void AddGridIfNeeded()
+        {
+            if (this.currentGrid != null)
+            {
+                return;
+            }
+            AddGrid();
+        }
+
+        private void AddGrid(ConfigParameterV1 parameter = null)
+        {
             // Create row in master grid
             var rowDefinition = new RowDefinition()
             {
@@ -214,10 +227,10 @@ namespace VaporDAW
                 });
             }
 
-
             Grid.SetRow(this.currentGrid, this.currentMasterGrid.RowDefinitions.Count - 1);
             this.currentMasterGrid.Children.Add(this.currentGrid);
             this.currentGrid.Height = Double.NaN;
+            this.nextGridColumn = this.currentGrid.ColumnDefinitions.Count;
         }
         
         private void AddGridRowIfNeeded(bool force = false)
@@ -273,20 +286,139 @@ namespace VaporDAW
             }
         }
 
-        private void AddStringParameter(ConfigParameterV1 parameter)
+        private void AddControlParameter(ConfigParameterV1 parameter)
         {
+            UIElement element;
+            switch (parameter.Type)
+            {
+                case ConfigParameterType.String:
+                { 
+                    var textBox = new TextBox()
+                    {
+                        Height = 23f,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        Margin = new Thickness(0f, 0f, 0f, 7f)
+                    };
+                    element = textBox;
+                    break;
+                }
+                case ConfigParameterType.Boolean:
+                {
+                    var checkBox = new CheckBox()
+                    {
+                        Height = 23f,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        Margin = new Thickness(0f, 3f, 0f, 7f)
+                    };
+                    element = checkBox;
+                    break;
+                }
+                case ConfigParameterType.Integer:
+                    {
+                        var textBox = new IntegerTextBox()
+                        {
+                            Height = 23f,
+                            VerticalAlignment = VerticalAlignment.Top,
+                            Margin = new Thickness(0f, 0f, 0f, 7f)
+                        };
+                        element = textBox;
+                        break;
+                    }
+                case ConfigParameterType.Number:
+                    {
+                        var textBox = new DoubleTextBox()
+                        {
+                            Height = 23f,
+                            VerticalAlignment = VerticalAlignment.Top,
+                            Margin = new Thickness(0f, 0f, 0f, 7f)
+                        };
+                        element = textBox;
+                        break;
+                    }
+                case ConfigParameterType.Text:
+                    {
+                        var textBox = new TextBlock()
+                        {
+                            Height = 23f,
+                            VerticalAlignment = VerticalAlignment.Top,
+                            Margin = new Thickness(0f, 2f, 0f, 7f)
+                        };
+                        element = textBox;
+                        break;
+                    }
+                default:
+                    return;
+            }
+
             AddGridIfNeeded();
             AddGridRowIfNeeded();
-            AddLabelIfSpace(parameter.Label);
-            var textBox = new TextBox()
+            if (parameter.Type != ConfigParameterType.Text)
             {
-                Height = 23f,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(0f, 0f, 0f, 7f)
-            };
-            Grid.SetRow(textBox, this.currentGrid.RowDefinitions.Count - 1);
-            Grid.SetColumn(textBox, this.nextGridColumn++);
-            this.currentGrid.Children.Add(textBox);
+                AddLabelIfSpace(parameter.Label);
+            }
+
+            Grid.SetRow(element, this.currentGrid.RowDefinitions.Count - 1);
+            Grid.SetColumn(element, this.nextGridColumn++);
+            this.currentGrid.Children.Add(element);
+
+            switch (parameter.Type)
+            {
+                case ConfigParameterType.String:
+                    {
+                        var textBox = (element as TextBox);
+                        if (this.Generator.Settings.ContainsKey(parameter.Name) && this.Generator.Settings[parameter.Name] is string)
+                        {
+                            textBox.Text = this.Generator.Settings[parameter.Name] as string;
+                        }
+                        textBox.IsReadOnly = String.IsNullOrEmpty(parameter.Name);
+                        textBox.IsEnabled = !String.IsNullOrEmpty(parameter.Name);
+                        textBox.TextChanged += (sender, e) => SetControlValue(parameter.Name, textBox.Text);
+                        break;
+                    }
+                case ConfigParameterType.Boolean:
+                    {
+                        var checkBox = (element as CheckBox);
+                        if (this.Generator.Settings.ContainsKey(parameter.Name) && this.Generator.Settings[parameter.Name] is bool)
+                        {
+                            checkBox.IsChecked = (bool)this.Generator.Settings[parameter.Name];
+                        }
+                        checkBox.IsEnabled = !String.IsNullOrEmpty(parameter.Name);
+                        checkBox.Checked += (sender, e) => SetControlValue(parameter.Name, checkBox.IsChecked);
+                        break;
+                    }
+                case ConfigParameterType.Integer:
+                    {
+                        var textBox = (element as IntegerTextBox);
+                        if (this.Generator.Settings.ContainsKey(parameter.Name) && this.Generator.Settings[parameter.Name] is int)
+                        {
+                            textBox.Value = (int)this.Generator.Settings[parameter.Name];
+                        }
+                        textBox.IsReadOnly = String.IsNullOrEmpty(parameter.Name);
+                        textBox.IsEnabled = !String.IsNullOrEmpty(parameter.Name);
+                        textBox.TextChanged += (sender, e) => SetControlValue(parameter.Name, textBox.Value);
+                        break;
+                    }
+                case ConfigParameterType.Number:
+                    {
+                        var textBox = (element as DoubleTextBox);
+                        if (this.Generator.Settings.ContainsKey(parameter.Name) && this.Generator.Settings[parameter.Name] is double)
+                        {
+                            textBox.Value = (double)this.Generator.Settings[parameter.Name];
+                        }
+                        textBox.IsReadOnly = String.IsNullOrEmpty(parameter.Name);
+                        textBox.IsEnabled = !String.IsNullOrEmpty(parameter.Name);
+                        textBox.TextChanged += (sender, e) => SetControlValue(parameter.Name, textBox.Value);
+                        break;
+                    }
+                case ConfigParameterType.Text:
+                    {
+                        var textBlock = (element as TextBlock);
+                        textBlock.Text = parameter.Label;
+                        break;
+                    }
+                default:
+                    return;
+            }
         }
         private void AddBooleanParameter(ConfigParameterV1 parameter)
         {

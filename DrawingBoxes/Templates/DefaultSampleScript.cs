@@ -15,17 +15,21 @@ public class DefaultSample : ProcessorV1
         {
             config.Parameters = Parameters(
                 Section("Various"),
-                StringParameter(Tags.SampleId, label: "Sample Id"),
-                StringParameter(Tags.SampleId, label: "Sample Id"),
-                Section("Various"),
-                StringParameter(Tags.SampleId, label: "Sample Id"),
-                StringParameter(Tags.SampleId, label: "Sample Id"),
+                StringParameter("navn", label: "Navn"),
+                StringParameter("efternavn", label: "Efternavn"),
                 Grid(4),
-                Section("Various"),
-                StringParameter(Tags.SampleId, label: "Sample Id"),
-                StringParameter(Tags.SampleId, label: "Sample Id"),
-                StringParameter(Tags.SampleId, label: "Sample Id"),
-                StringParameter(Tags.SampleId, label: "Sample Id")
+                Section("Integers"),
+                IntegerParameter("min", label: "Minimum"),
+                IntegerParameter("max", label: "Maximum"),
+                Section("Numbers"),
+                NumberParameter("min2", label: "Minimum"),
+                NumberParameter("max2", label: "Maximum"),
+                Section("Bools"),
+                Grid(8),
+                BooleanParameter("P1", label: "P1"),
+                BooleanParameter("P2", label: "P2"),
+                BooleanParameter("P3", label: "P3"),
+                BooleanParameter("P4", label: "P4")
             );
         });
     }

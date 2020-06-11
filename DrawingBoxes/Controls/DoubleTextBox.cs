@@ -2,7 +2,7 @@
 
 namespace VaporDAW
 {
-    public class DobuleTextBox : TextBox
+    public class DoubleTextBox : TextBox
     {
         public string Format { get; set; } = "0.0000";
 
@@ -23,7 +23,7 @@ namespace VaporDAW
 
         private double value = 0d;
 
-        public DobuleTextBox()
+        public DoubleTextBox()
         {
             this.TextChanged += TextBoxEx_TextChanged;
             this.KeyUp += TextBoxEx_KeyUp;

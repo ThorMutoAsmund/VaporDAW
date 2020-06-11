@@ -82,19 +82,27 @@ namespace VaporDAW
         {
             Label = label
         };
-        protected ConfigParameterV1 IntegerParameter(string name) => new ConfigParameterV1(ConfigParameterType.Integer, name)
+        protected ConfigParameterV1 IntegerParameter(string name, string label = "") => new ConfigParameterV1(ConfigParameterType.Integer, name)
         {
+            Label = label
         };
-        protected ConfigParameterV1 BooleanParameter(string name) => new ConfigParameterV1(ConfigParameterType.Boolean, name)
+        protected ConfigParameterV1 BooleanParameter(string name, string label = "") => new ConfigParameterV1(ConfigParameterType.Boolean, name)
         {
+            Label = label
         };
-        protected ConfigParameterV1 NumberParameter(string name) => new ConfigParameterV1(ConfigParameterType.Number, name)
+        protected ConfigParameterV1 NumberParameter(string name, string label = "") => new ConfigParameterV1(ConfigParameterType.Number, name)
         {
+            Label = label,
             Scale = NumberScale.Linear
         };
-        protected ConfigParameterV1 LogParameter(string name) => new ConfigParameterV1(ConfigParameterType.Number, name)
+        protected ConfigParameterV1 LogParameter(string name, string label = "") => new ConfigParameterV1(ConfigParameterType.Number, name)
         {
+            Label = label,
             Scale = NumberScale.Logarithmic
+        };
+        protected ConfigParameterV1 TextParameter(string name, string label = "") => new ConfigParameterV1(ConfigParameterType.Text, name)
+        {
+            Label = label,
         };
         protected ConfigParameterV1 Tab(string label) => new ConfigParameterV1(ConfigParameterType.Tab)
         {

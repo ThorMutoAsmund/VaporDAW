@@ -14,7 +14,8 @@ namespace VaporDAW
         String,
         Number,
         Integer,
-        Boolean
+        Boolean,
+        Text
     }
 
     public enum NumberScale

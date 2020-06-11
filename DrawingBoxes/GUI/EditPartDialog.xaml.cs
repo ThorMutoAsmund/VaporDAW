@@ -126,7 +126,7 @@ namespace VaporDAW
             }
         }
 
-        private void IntegerValueChanged(IntegerTextBox integerTextBox, DobuleTextBox doubleTextBox)
+        private void IntegerValueChanged(IntegerTextBox integerTextBox, DoubleTextBox doubleTextBox)
         {
             if (integerTextBoxesDisabled)
             {
@@ -137,7 +137,7 @@ namespace VaporDAW
             this.doubleTextBoxesDisabled = false;
         }
 
-        private void DoubleValueChanged(IntegerTextBox integerTextBox, DobuleTextBox doubleTextBox)
+        private void DoubleValueChanged(IntegerTextBox integerTextBox, DoubleTextBox doubleTextBox)
         {
             if (doubleTextBoxesDisabled)
             {
