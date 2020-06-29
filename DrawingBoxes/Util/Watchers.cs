@@ -45,7 +45,7 @@ namespace VaporDAW
             {
                 Path = Env.Song.SamplesPath,
                 NotifyFilter = NotifyFilters.FileName,
-                Filter = "*.wav",
+                Filter = "*.*",
             };
             this.samplesWatcher.Changed += (source, e) => context.Post(val => RescanSamples(), source);
             this.samplesWatcher.Created += (source, e) => context.Post(val => RescanSamples(), source);
@@ -84,7 +84,7 @@ namespace VaporDAW
         {
             try
             {
-                this.SamplesList = Directory.EnumerateFiles(Env.Song.SamplesPath, "*.wav").Select(x => System.IO.Path.GetFileName(x)).ToList();
+                this.SamplesList = Directory.EnumerateFiles(Env.Song.SamplesPath, "*.*").Select(x => System.IO.Path.GetFileName(x)).ToList();
                 this.SamplesListChanged?.Invoke(this.SamplesList);
             }
             catch (Exception)

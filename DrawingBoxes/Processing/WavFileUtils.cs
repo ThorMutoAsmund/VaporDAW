@@ -1,6 +1,7 @@
 ﻿using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace VaporDAW
             var inPath = System.IO.Path.Combine(Env.Song.SamplesPath, fileName);
             byte[] samples = null;
 
-            using (WaveFileReader reader = new WaveFileReader(inPath))
+            using (var reader = WaveStreamFromPath(inPath))
             {
                 if (reader.WaveFormat.Channels != 1 && reader.WaveFormat.Channels != 2)
                 {
@@ -108,7 +109,7 @@ namespace VaporDAW
         {
             var inPath = System.IO.Path.Combine(Env.Song.SamplesPath, fileName);
 
-            using (WaveFileReader reader = new WaveFileReader(inPath))
+            using (var reader = WaveStreamFromPath(inPath))
             {
                 if (reader.WaveFormat.Channels != 1 && reader.WaveFormat.Channels != 2)
                 {
@@ -123,6 +124,21 @@ namespace VaporDAW
                 int bytesPerFrame = reader.WaveFormat.Channels * reader.WaveFormat.BitsPerSample / 8;
                 return (int)(reader.Length / bytesPerFrame);
             }
+        }
+
+        private static WaveStream WaveStreamFromPath(string inPath)
+        {
+            string fileName = Path.GetFileName(inPath);
+            if (fileName.EndsWith(".wav", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return new WaveFileReader(inPath);
+            }
+            else if (fileName.EndsWith(".mp3", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return new Mp3FileReader(inPath);
+            }
+
+            throw new Exception($"Unsupported fileformat in file {inPath}");
         }
     }
 
