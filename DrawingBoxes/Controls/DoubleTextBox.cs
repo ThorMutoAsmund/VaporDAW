@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace VaporDAW
 {
@@ -20,6 +22,9 @@ namespace VaporDAW
                 this.previousCaretIndex = this.CaretIndex;
             }
         }
+
+        public double? MaxValue { get; set; }
+        public double? MinValue { get; set; }
 
         private double value = 0d;
 
@@ -53,6 +58,25 @@ namespace VaporDAW
             }
             this.previousText = this.Text;
             this.value = _v;
+        }
+
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+            FocusManager.SetIsFocusScope(this, true);
+        }
+
+        protected override void OnLostFocus(RoutedEventArgs e)
+        {
+            if (this.MinValue.HasValue && this.Value < this.MinValue)
+            {
+                this.Value = this.MinValue.Value;
+            }
+            else if (this.MaxValue.HasValue && this.Value > this.MaxValue)
+            {
+                this.Value = this.MaxValue.Value;
+            }
+
+            FocusManager.SetIsFocusScope(this, false);
         }
     }
 }

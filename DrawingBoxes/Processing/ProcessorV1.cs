@@ -24,8 +24,7 @@ namespace VaporDAW
         public static readonly ProcessorV1 Empty = new EmptyProcessor();
         public Dictionary<string, Channel>.ValueCollection OutputChannels => this.outputChannels.Values;
         public Dictionary<string, ProcessorInput>.ValueCollection Inputs => this.inputs.Values;
-
-
+        
         public virtual ProcessorConfigV1 Config() { return null; }
         public virtual void Init(ProcessParamsV1 p) { }
         public virtual Mode Process(ProcessParamsV1 p) { return Mode.Silence; }
@@ -82,18 +81,22 @@ namespace VaporDAW
         {
             Label = label
         };
-        protected ConfigParameterV1 IntegerParameter(string name, string label = "") => new ConfigParameterV1(ConfigParameterType.Integer, name)
-        {
-            Label = label
-        };
         protected ConfigParameterV1 BooleanParameter(string name, string label = "") => new ConfigParameterV1(ConfigParameterType.Boolean, name)
         {
             Label = label
         };
-        protected ConfigParameterV1 NumberParameter(string name, string label = "") => new ConfigParameterV1(ConfigParameterType.Number, name)
+        protected ConfigParameterV1 IntegerParameter(string name, string label = "", int? minValue = null, int? maxValue = null) => new ConfigParameterV1(ConfigParameterType.Integer, name)
         {
             Label = label,
-            Scale = NumberScale.Linear
+            MinValue = minValue,
+            MaxValue = maxValue
+        };
+        protected ConfigParameterV1 NumberParameter(string name, string label = "", double? minValue = null, double? maxValue = null) => new ConfigParameterV1(ConfigParameterType.Number, name)
+        {
+            Label = label,
+            Scale = NumberScale.Linear,
+            MinValue = minValue,
+            MaxValue = maxValue
         };
         protected ConfigParameterV1 LogParameter(string name, string label = "") => new ConfigParameterV1(ConfigParameterType.Number, name)
         {

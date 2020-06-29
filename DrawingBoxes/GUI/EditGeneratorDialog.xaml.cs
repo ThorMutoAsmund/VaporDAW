@@ -25,23 +25,9 @@ namespace VaporDAW
                 this.generator = value;
 
                 this.scriptSelectControl.Script = Env.Song.GetScriptRef(this.Generator.ScriptId);
-
-                TestStat();
-
-                //this.titleTextBox.Text = this.Part.Title;
-                //this.startTextBox.DoubleValue = this.Part.Start;
-                //this.lengthTextBox.DoubleValue = this.Part.Length;
-
-                //this.scriptSelectControl.IsReadOnly = this.Part.IsReference;
-                //this.titleTextBox.IsReadOnly = this.Part.IsReference;
-                //this.lengthTextBox.IsReadOnly = this.Part.IsReference;
-                //if (this.Part.IsReference)
-                //{
-                //    this.titleTextBox.Background = SystemColors.ControlBrush;
-                //    this.lengthTextBox.Background = SystemColors.ControlBrush;
-                //}
-
-                //this.DataContext = this.part.Generators.Select(g => new NamedObject<Generator>(g, Env.Song.GetScriptRef(g.ScriptId)?.Name ?? "(illegal script)"));
+                this.dataContext = new Dictionary<string, object>(this.Generator.Settings);
+                
+                UpdateDataContext();
             }
         }
 
@@ -49,6 +35,7 @@ namespace VaporDAW
         private Grid currentMasterGrid;
         private Grid currentGrid = null;
         private int nextGridColumn = 0;
+        private Dictionary<string, object> dataContext;
 
         private EditGeneratorDialog()
         {
@@ -71,15 +58,13 @@ namespace VaporDAW
 
         private void OK()
         {
-            //this.Generator.Title = this.titleTextBox.Text;
-            //this.Generator.Start = this.startTextBox.DoubleValue;
-            //this.Generator.Length = this.lengthTextBox.DoubleValue;
             this.Generator.ScriptId = this.scriptSelectControl.Script.Id;
+            this.Generator.Settings = this.dataContext;
 
             this.DialogResult = true;
         }
 
-        private void TestStat()
+        private void UpdateDataContext()
         {
             var scriptRef = Env.Song.GetScriptRef(this.Generator.ScriptId);
 
@@ -120,7 +105,7 @@ namespace VaporDAW
                 return;
             }
 
-            this.Generator.Settings[parameterName] = value;
+            this.dataContext[parameterName] = value;
         }
 
         private void ReadProcessorConfig(ProcessorConfigV1 config)
@@ -288,40 +273,97 @@ namespace VaporDAW
 
         private void AddControlParameter(ConfigParameterV1 parameter)
         {
-            UIElement element;
+            void AddElement(UIElement element)
+            {
+                AddGridIfNeeded();
+                AddGridRowIfNeeded();
+                if (parameter.Type != ConfigParameterType.Text)
+                {
+                    AddLabelIfSpace(parameter.Label);
+                }
+
+                Grid.SetRow(element, this.currentGrid.RowDefinitions.Count - 1);
+                Grid.SetColumn(element, this.nextGridColumn++);
+                this.currentGrid.Children.Add(element);
+            }
+
             switch (parameter.Type)
             {
                 case ConfigParameterType.String:
-                { 
-                    var textBox = new TextBox()
-                    {
-                        Height = 23f,
-                        VerticalAlignment = VerticalAlignment.Top,
-                        Margin = new Thickness(0f, 0f, 0f, 7f)
-                    };
-                    element = textBox;
-                    break;
-                }
+                    { 
+                        var textBox = new TextBox()
+                        {
+                            Height = 23f,
+                            VerticalAlignment = VerticalAlignment.Top,
+                            Margin = new Thickness(0f, 0f, 0f, 7f)
+                        };
+                        AddElement(textBox);
+
+                        if (String.IsNullOrEmpty(parameter.Name))
+                        {
+                            textBox.IsReadOnly = true;
+                            textBox.IsEnabled = false;
+                        }
+                        else
+                        {
+                            if (this.dataContext.ContainsKey(parameter.Name) && this.dataContext[parameter.Name] is string)
+                            {
+                                textBox.Text = this.dataContext[parameter.Name] as string;
+                            }
+                            textBox.TextChanged += (sender, e) => SetControlValue(parameter.Name, textBox.Text);
+                        }
+                        break;
+                    }
                 case ConfigParameterType.Boolean:
-                {
-                    var checkBox = new CheckBox()
                     {
-                        Height = 23f,
-                        VerticalAlignment = VerticalAlignment.Top,
-                        Margin = new Thickness(0f, 3f, 0f, 7f)
-                    };
-                    element = checkBox;
-                    break;
-                }
+                        var checkBox = new CheckBox()
+                        {
+                            Height = 23f,
+                            VerticalAlignment = VerticalAlignment.Top,
+                            Margin = new Thickness(0f, 3f, 0f, 7f)
+                        };
+                        AddElement(checkBox);
+
+                        if (String.IsNullOrEmpty(parameter.Name))
+                        {
+                            checkBox.IsEnabled = false;
+                        }
+                        else
+                        {
+                            if (this.dataContext.ContainsKey(parameter.Name) && this.dataContext[parameter.Name] is bool)
+                            {
+                                checkBox.IsChecked = (bool)this.dataContext[parameter.Name];
+                            }
+                            checkBox.Checked += (sender, e) => SetControlValue(parameter.Name, checkBox.IsChecked);
+                        }
+
+                        break;
+                    }
                 case ConfigParameterType.Integer:
                     {
                         var textBox = new IntegerTextBox()
                         {
                             Height = 23f,
                             VerticalAlignment = VerticalAlignment.Top,
-                            Margin = new Thickness(0f, 0f, 0f, 7f)
+                            Margin = new Thickness(0f, 0f, 0f, 7f),
+                            MinValue = parameter.IntMinValue,
+                            MaxValue = parameter.IntMaxValue,
                         };
-                        element = textBox;
+                        AddElement(textBox);
+
+                        if (String.IsNullOrEmpty(parameter.Name))
+                        {
+                            textBox.IsReadOnly = true;
+                            textBox.IsEnabled = false;
+                        }
+                        else
+                        {
+                            if (this.dataContext.ContainsKey(parameter.Name) && this.dataContext[parameter.Name] is int)
+                            {
+                                textBox.Value = (int)this.dataContext[parameter.Name];
+                            }
+                            textBox.TextChanged += (sender, e) => SetControlValue(parameter.Name, textBox.Value);
+                        }
                         break;
                     }
                 case ConfigParameterType.Number:
@@ -330,107 +372,42 @@ namespace VaporDAW
                         {
                             Height = 23f,
                             VerticalAlignment = VerticalAlignment.Top,
-                            Margin = new Thickness(0f, 0f, 0f, 7f)
+                            Margin = new Thickness(0f, 0f, 0f, 7f),
+                            MinValue = parameter.MinValue,
+                            MaxValue = parameter.MaxValue,
                         };
-                        element = textBox;
+                        AddElement(textBox);
+
+                        if (String.IsNullOrEmpty(parameter.Name))
+                        {
+                            textBox.IsReadOnly = true;
+                            textBox.IsEnabled = false;
+                        }
+                        else
+                        {
+                            if (this.dataContext.ContainsKey(parameter.Name) && this.dataContext[parameter.Name] is double)
+                            {
+                                textBox.Value = (double)this.dataContext[parameter.Name];
+                            }
+                            textBox.TextChanged += (sender, e) => SetControlValue(parameter.Name, textBox.Value);
+                        }
                         break;
                     }
                 case ConfigParameterType.Text:
                     {
-                        var textBox = new TextBlock()
+                        var textBlock = new TextBlock()
                         {
                             Height = 23f,
                             VerticalAlignment = VerticalAlignment.Top,
                             Margin = new Thickness(0f, 2f, 0f, 7f)
                         };
-                        element = textBox;
-                        break;
-                    }
-                default:
-                    return;
-            }
-
-            AddGridIfNeeded();
-            AddGridRowIfNeeded();
-            if (parameter.Type != ConfigParameterType.Text)
-            {
-                AddLabelIfSpace(parameter.Label);
-            }
-
-            Grid.SetRow(element, this.currentGrid.RowDefinitions.Count - 1);
-            Grid.SetColumn(element, this.nextGridColumn++);
-            this.currentGrid.Children.Add(element);
-
-            switch (parameter.Type)
-            {
-                case ConfigParameterType.String:
-                    {
-                        var textBox = (element as TextBox);
-                        if (this.Generator.Settings.ContainsKey(parameter.Name) && this.Generator.Settings[parameter.Name] is string)
-                        {
-                            textBox.Text = this.Generator.Settings[parameter.Name] as string;
-                        }
-                        textBox.IsReadOnly = String.IsNullOrEmpty(parameter.Name);
-                        textBox.IsEnabled = !String.IsNullOrEmpty(parameter.Name);
-                        textBox.TextChanged += (sender, e) => SetControlValue(parameter.Name, textBox.Text);
-                        break;
-                    }
-                case ConfigParameterType.Boolean:
-                    {
-                        var checkBox = (element as CheckBox);
-                        if (this.Generator.Settings.ContainsKey(parameter.Name) && this.Generator.Settings[parameter.Name] is bool)
-                        {
-                            checkBox.IsChecked = (bool)this.Generator.Settings[parameter.Name];
-                        }
-                        checkBox.IsEnabled = !String.IsNullOrEmpty(parameter.Name);
-                        checkBox.Checked += (sender, e) => SetControlValue(parameter.Name, checkBox.IsChecked);
-                        break;
-                    }
-                case ConfigParameterType.Integer:
-                    {
-                        var textBox = (element as IntegerTextBox);
-                        if (this.Generator.Settings.ContainsKey(parameter.Name) && this.Generator.Settings[parameter.Name] is int)
-                        {
-                            textBox.Value = (int)this.Generator.Settings[parameter.Name];
-                        }
-                        textBox.IsReadOnly = String.IsNullOrEmpty(parameter.Name);
-                        textBox.IsEnabled = !String.IsNullOrEmpty(parameter.Name);
-                        textBox.TextChanged += (sender, e) => SetControlValue(parameter.Name, textBox.Value);
-                        break;
-                    }
-                case ConfigParameterType.Number:
-                    {
-                        var textBox = (element as DoubleTextBox);
-                        if (this.Generator.Settings.ContainsKey(parameter.Name) && this.Generator.Settings[parameter.Name] is double)
-                        {
-                            textBox.Value = (double)this.Generator.Settings[parameter.Name];
-                        }
-                        textBox.IsReadOnly = String.IsNullOrEmpty(parameter.Name);
-                        textBox.IsEnabled = !String.IsNullOrEmpty(parameter.Name);
-                        textBox.TextChanged += (sender, e) => SetControlValue(parameter.Name, textBox.Value);
-                        break;
-                    }
-                case ConfigParameterType.Text:
-                    {
-                        var textBlock = (element as TextBlock);
+                        AddElement(textBlock);
                         textBlock.Text = parameter.Label;
                         break;
                     }
                 default:
                     return;
             }
-        }
-        private void AddBooleanParameter(ConfigParameterV1 parameter)
-        {
-            AddGridIfNeeded();
-        }
-        private void AddIntegerParameter(ConfigParameterV1 parameter)
-        {
-            AddGridIfNeeded();
-        }
-        private void AddNumberParameter(ConfigParameterV1 parameter)
-        {
-            AddGridIfNeeded();
         }
     }
 }
