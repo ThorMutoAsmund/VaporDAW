@@ -128,14 +128,22 @@ namespace VaporDAW
             {
                 var sampleName = e.Data.GetData("sample") as string;
 
+                var sampleId = Env.Song.FindSample(sampleName).Id;
+                var sampleLength = SampleDataProcessor.GetSampleLength(sampleId);
+
+                if (sampleLength == 0)
+                {
+                    MessageBox.Show("Empty or unsupported file");
+                    return;
+                }
+
                 var part = AddPart(point: point, title: sampleName);
                 var generator = part.AddSampleGenerator(sampleName);
 
                 // Set length
                 if (generator.Settings.ContainsKey(Tags.SampleId))
                 {
-                    var sampleId = generator.Settings[Tags.SampleId] as string;
-                    part.SampleLength = SampleDataProcessor.GetSampleLength(sampleId);
+                    part.SampleLength = sampleLength;
                     Env.Song.OnPartChanged(part);
                 }
             }

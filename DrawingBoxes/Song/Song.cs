@@ -402,6 +402,16 @@ namespace VaporDAW
 
         public bool AddSample(string fileName)
         {
+            return AddFile(fileName, destinationFilePath => File.Copy(fileName, destinationFilePath));
+        }
+
+        public bool AddMp3File(string fileName)
+        {
+            return AddFile(fileName, destinationFilePath => MP3FileConverter.Convert(fileName, Path.ChangeExtension(destinationFilePath,".wav")));
+        }
+
+        private bool AddFile(string fileName, Action<string> add)
+        {
             var sampleName = Path.GetFileName(fileName);
             var destinationFilePath = Path.Combine(Env.Song.SamplesPath, sampleName);
             if (File.Exists(destinationFilePath))
@@ -410,7 +420,7 @@ namespace VaporDAW
             }
             try
             {
-                File.Copy(fileName, destinationFilePath);
+                add(destinationFilePath);
             }
             catch (Exception)
             {

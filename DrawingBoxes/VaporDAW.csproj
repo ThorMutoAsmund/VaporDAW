@@ -169,6 +169,7 @@
     <Compile Include="Song\Song.cs" />
     <Compile Include="Song\SongSerializer.cs" />
     <Compile Include="Util\GuiManager.cs" />
+    <Compile Include="Util\MP3FileConverter.cs" />
     <Compile Include="Util\ResourceMonitor.cs" />
     <Compile Include="Util\NamedObject.cs" />
     <Compile Include="Util\NamePath.cs" />

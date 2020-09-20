@@ -10,6 +10,7 @@ namespace VaporDAW
         public static RoutedCommand CloseTab = new RoutedCommand();
         public static RoutedCommand NewScript = new RoutedCommand();
         public static RoutedCommand ImportSamples = new RoutedCommand();
+        public static RoutedCommand ImportMP3Files = new RoutedCommand();
         public static RoutedCommand About = new RoutedCommand();
         public static RoutedCommand CheckForUpdates = new RoutedCommand();
         public static RoutedCommand Settings = new RoutedCommand();

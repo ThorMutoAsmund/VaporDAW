@@ -41,6 +41,7 @@ namespace VaporDAW
             this.closeCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
             this.newScriptCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
             this.importSamplesCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
+            this.importMP3FilesCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
             this.playSongCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
             this.stopSongCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
             this.addTrackCommand.CanExecute += (sender, e) => e.CanExecute = Env.Song != null;
@@ -250,7 +251,7 @@ namespace VaporDAW
         private void OnImportSamples(object sender, ExecutedRoutedEventArgs e)
         {
             string[] selectedFiles;
-            if (Dialogs.BrowseFiles("Select samples ot import", Env.ApplicationPath, out selectedFiles))
+            if (Dialogs.BrowseFiles("Select files to import", Env.ApplicationPath, out selectedFiles))
             {
                 var cnt = 0;
                 foreach (var sourceFilePath in selectedFiles)
@@ -267,6 +268,30 @@ namespace VaporDAW
                 else
                 {
                     MessageBox.Show($"Successfully imported {cnt} file(s).");
+                }
+            }
+        }
+        private void OnImportMP3Files(object sender, ExecutedRoutedEventArgs e)
+        {
+            string[] selectedFiles;
+            if (Dialogs.BrowseFiles("Select files to convert and import", Env.ApplicationPath, out selectedFiles, filter: "MP3 files (*.mp3)|*.mp3|All files (*.*)|*.*"))
+            {
+                var cnt = 0;
+                foreach (var sourceFilePath in selectedFiles)
+                {
+                    if (Env.Song.AddMp3File(sourceFilePath))
+                    {
+                        cnt++;
+                    }
+                }
+
+                if (selectedFiles.Length != cnt)
+                {
+                    MessageBox.Show($"Successfully converted and imported {cnt} file(s). {selectedFiles.Length - cnt} files could not be converted.");
+                }
+                else
+                {
+                    MessageBox.Show($"Successfully converted and imported {cnt} file(s).");
                 }
             }
         }

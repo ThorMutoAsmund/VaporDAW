@@ -43,6 +43,7 @@
         <CommandBinding x:Name="stopSongCommand" Command="local:CustomCommands.StopSong" Executed="OnStop" />
         <CommandBinding x:Name="newScriptCommand" Command="local:CustomCommands.NewScript" Executed="OnNewScript" />
         <CommandBinding x:Name="importSamplesCommand" Command="local:CustomCommands.ImportSamples" Executed="OnImportSamples" />
+        <CommandBinding x:Name="importMP3FilesCommand" Command="local:CustomCommands.ImportMP3Files" Executed="OnImportMP3Files" />
         <CommandBinding x:Name="aboutCommand" Command="local:CustomCommands.About" Executed="OnAbout" />
         <CommandBinding x:Name="checkForUpdatesCommand" Command="local:CustomCommands.CheckForUpdates" Executed="OnCheckForUpdates" />
         <CommandBinding x:Name="settingsCommand" Command="local:CustomCommands.Settings" Executed="OnSettings" />
@@ -60,6 +61,7 @@
         <KeyBinding Key="Esc" Command="local:CustomCommands.StopSong"/>
         <KeyBinding Key="F1" Modifiers="Shift" Command="local:CustomCommands.About"/>
         <KeyBinding Key="F1" Command="local:CustomCommands.Settings"/>
+        <KeyBinding Key="I" Modifiers="Ctrl" Command="local:CustomCommands.ImportSamples" />
     </Window.InputBindings>
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
@@ -86,6 +88,7 @@
             <MenuItem Header="_Tools" >
                 <MenuItem Header="_New script..." Command="local:CustomCommands.NewScript" />
                 <MenuItem Header="_Import samples..." Command="local:CustomCommands.ImportSamples" />
+                <MenuItem Header="_Import MP3 files..." Command="local:CustomCommands.ImportMP3Files" />
                 <Separator />
                 <MenuItem Header="_Play" InputGestureText="F5" Command="local:CustomCommands.PlaySong" />
                 <MenuItem Header="_Stop" InputGestureText="Space" Command="local:CustomCommands.StopSong" />

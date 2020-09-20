@@ -23,13 +23,14 @@ namespace VaporDAW
             }
         }
 
-        public static bool BrowseFiles(string description, string initialPath, out string[] selectedFiles)
+        public static bool BrowseFiles(string description, string initialPath, out string[] selectedFiles, string filter = "Wave files (*.wav)|*.wav|All files (*.*)|*.*")
         {
             using (var dialog = new System.Windows.Forms.OpenFileDialog())
             {
                 dialog.Multiselect = true;
                 dialog.Title = description;
                 dialog.InitialDirectory = initialPath;
+                dialog.Filter = filter;
                 System.Windows.Forms.DialogResult result = dialog.ShowDialog();
 
                 selectedFiles = dialog.FileNames;

@@ -133,12 +133,36 @@ namespace VaporDAW
             {
                 return new WaveFileReader(inPath);
             }
-            else if (fileName.EndsWith(".mp3", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return new Mp3FileReader(inPath);
-            }
+            //else if (fileName.EndsWith(".mp3", StringComparison.InvariantCultureIgnoreCase))
+            //{
+            //    return new Mp3FileReader(inPath);
+            //}
 
-            throw new Exception($"Unsupported fileformat in file {inPath}");
+            return new NullWaveStream();
+
+            //throw new Exception($"Unsupported fileformat in file {inPath}");
+        }
+    }
+
+    public class NullWaveStream : WaveStream
+    {
+        public NullWaveStream()
+        {
+        }
+
+        public override WaveFormat WaveFormat => new WaveFormat((int)Env.Song.SampleRate, 2);
+
+        public override long Length => 0;
+
+        public override long Position 
+        {
+            get => 0;
+            set { }
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            return 0;
         }
     }
 
