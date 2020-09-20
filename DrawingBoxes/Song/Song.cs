@@ -419,6 +419,7 @@ namespace VaporDAW
                 return false;
             }
             try
+
             {
                 add(destinationFilePath);
             }
@@ -430,7 +431,7 @@ namespace VaporDAW
 
             var sampleRef = new SampleRef()
             {
-                Id = Base64.UUID(),
+                Id = Base64.UUID(), 
                 FileName = sampleName
             };
 
